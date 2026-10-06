@@ -393,7 +393,8 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck }: {
   return (
     <div className="seite pinseite">
       {zurueck && <div style={{ alignSelf: 'stretch', margin: '0 -12px' }}><KopfZurueck titel="" zurueck={zurueck} /></div>}
-      {logo && <div className="logo-klein"><Praegung klein /></div>}
+      {/* Der freie Platz liegt oben: mit Logo fuellt es ihn, ohne bleibt er leer. Titel und Punkte stehen dicht ueber den Tasten. */}
+      {logo ? <div className="logo-platz"><Praegung klein /></div> : <div className="fuell" />}
       <h1>{titel}</h1>
       {unter && <p className="unter">{unter}</p>}
       <div className={`punkte ${stand === 'gut' ? 'gut' : ''} ${stand === 'falsch' ? 'falsch' : ''}`} role="img" aria-label={t.pin.stellen(pin.length)}>
@@ -402,7 +403,6 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck }: {
       <div className="fehlertext" role="alert" style={{ textAlign: 'center' }}>
         {warten > 0 ? t.pin.gebremst(warten) : stand === 'prueft' ? <span style={{ color: 'var(--leise)' }}>{t.pin.pruefe}</span> : fehler}
       </div>
-      <div className="fuell" />
       <div className="tasten">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(z =>
           <button key={z} type="button" className="taste sinkt" disabled={gesperrt} onClick={() => tipp(z)}>{z}</button>)}

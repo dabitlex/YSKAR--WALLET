@@ -196,12 +196,17 @@ h1,h2,p{margin:0}
 .taste.leer{background:transparent;border-color:transparent;box-shadow:none;color:var(--leise)}
 .taste.finger{color:var(--blau-hell)}
 .taste:disabled{opacity:.4}
-@media (max-height:700px){.taste{height:60px}.pinseite .logo-klein{display:none}}
+/* Das Logo fuellt den Platz ueber dem Titel und wird kleiner, wenn der Bildschirm niedriger ist. Bleibt zu wenig, faellt es weg. */
+.pinseite .logo-platz{flex:1 1 0;min-height:0;align-self:stretch;display:flex;align-items:center;justify-content:center;container-type:size}
+.pinseite .logo-platz .praegung{height:min(168px,100%);width:auto;aspect-ratio:264/188;margin:0}
+@container (max-height:64px){.pinseite .logo-platz .praegung{display:none}}
+@media (max-height:780px){.taste{height:64px}}
+@media (max-height:700px){.taste{height:60px}}
+@media (max-height:610px){.taste{height:52px;font-size:23px}.tasten{gap:10px}.pinseite{gap:12px}}
 
 /* ---------- Logo, Lader ---------- */
 .praegung{position:relative;width:264px;height:188px;flex-shrink:0}
 .praegung img{display:block;width:100%;height:100%}
-.praegung.halb{width:168px;height:120px;margin:-12px 0 -16px}
 .stempel{position:absolute;left:9.09%;top:12.77%;width:81.82%;height:74.92%;background:#5A5E66;opacity:0;filter:drop-shadow(0 18px 14px rgba(0,0,0,.45));
   -webkit-mask:var(--umriss) center / 100% 100% no-repeat;mask:var(--umriss) center / 100% 100% no-repeat}
 .praegung.spielt img{animation:abdruck .9s both}
