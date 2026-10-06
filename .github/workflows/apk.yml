@@ -35,7 +35,9 @@ concurrency:
 
 jobs:
   apk:
-    runs-on: ubuntu-latest
+    # Fest auf 24.04: Mit diesem Abbild ist der Bau geprueft. "ubuntu-latest"
+    # wechselt ohne Ankuendigung im Repo auf ein neueres.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       YSKAR_KEYSTORE_BASE64: ${{ secrets.YSKAR_KEYSTORE_BASE64 }}
@@ -52,7 +54,7 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      # Das Android-SDK ist auf ubuntu-latest vorinstalliert (ANDROID_HOME).
+      # Das Android-SDK ist auf dem Abbild vorinstalliert (ANDROID_HOME).
       # Nur Plattform und Build-Tools nachziehen, die variables.gradle verlangt.
       - name: Android-SDK-Pakete
         run: |

@@ -22,7 +22,7 @@ const config: CapacitorConfig = {
     // Dunkle App: helle Symbole in Statusleiste und Gestenbalken. Android
     // zeichnet bis unter beide; Capacitor traegt deren Hoehe als
     // --safe-area-inset-* ein, stil.css nutzt das.
-    SystemBars: { style: 'DARK' },
+    SystemBars: { style: 'DARK', initialViewportFitValueHint: 'cover' },
     // Anfragen laufen gezielt ueber CapacitorHttp (src/netz/api.ts); das
     // allgemeine Umleiten von fetch bleibt aus.
     CapacitorHttp: { enabled: false },
