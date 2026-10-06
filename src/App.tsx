@@ -5,6 +5,7 @@ import { kopfLaden } from './netz/api.ts';
 import { zahlungAusCode } from './wallet/qr.ts';
 import { appSchliessen, beiLink, linkAbholen } from './geraet/geraet.ts';
 import { MeldungProvider, Nav, Praegung, useZurueck, zurueckTasteVerbinden } from './ui/teile.tsx';
+import { TastaturRahmen } from './ui/tastatur.tsx';
 import { Einstieg } from './seiten/Einstieg.tsx';
 import { Sperre } from './seiten/Sperre.tsx';
 import { Start } from './seiten/Start.tsx';
@@ -136,7 +137,7 @@ function Inhalt() {
 
 export function App() {
   return (
-    <div className="app">
+    <TastaturRahmen>
       <WalletProvider>
         <DatenProvider>
           <MeldungProvider>
@@ -145,6 +146,6 @@ export function App() {
           </MeldungProvider>
         </DatenProvider>
       </WalletProvider>
-    </div>
+    </TastaturRahmen>
   );
 }

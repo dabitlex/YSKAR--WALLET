@@ -9,6 +9,8 @@ import { MIN_FEE, DUST_LIMIT, DECIMALS } from '../kern/params.ts';
 import { marktLaden, senden, NetzFehler, type Markt } from '../netz/api.ts';
 import { betragGenau, betragText, dezimalZeichen, eingabeEinheiten, einheitenEingabe } from '../wallet/betrag.ts';
 import { NOTIZ_BYTES, notizBytes, notizKuerzen } from '../wallet/notiz.ts';
+import { vierer } from '../wallet/adresse.ts';
+import { tippeAdresse, tippeBetrag, tippeText } from '../wallet/tasten.ts';
 import { zahlungAusText } from '../wallet/qr.ts';
 import { useKontakte } from '../wallet/kontakte.ts';
 import { bioAktiv, bioPin } from '../wallet/biometrie.ts';
@@ -17,6 +19,7 @@ import { einfuegen, erfolgGefuehl, fehlerGefuehl } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { S, KopfZurueck, Betrag, Vierer, Kasten, Schieber, PinFeld, Bild, useMeldung, useZurueck, type PinAntwort } from '../ui/teile.tsx';
 import { Scanner } from '../ui/scanner.tsx';
+import { Tippfeld, useTastatur, betragKlasse } from '../ui/tastatur.tsx';
 import type { Zahlung } from '../wallet/zahlungen.ts';
 
 type Schritt = 'eingabe' | 'pruefen' | 'pin' | 'fertig';
@@ -39,6 +42,7 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
   const wallet = useWallet();
   const daten = useDaten();
   const melde = useMeldung();
+  const tast = useTastatur();
   const { kontakte, name } = useKontakte();
   const zeichen = dezimalZeichen(t.code);
 
@@ -233,10 +237,13 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
       <KopfZurueck titel={t.senden.titel} zurueck={zurueck} />
 
       <div className="feldgruppe">
-        <label htmlFor="an">{t.senden.empfaenger}</label>
-        <div className="feld-huelle vertieft">
-          <input id="an" type="text" className="ziffern" value={ziel} placeholder={t.senden.platz} autoCapitalize="none" autoCorrect="off"
-                 autoComplete="off" spellCheck={false} onChange={e => { const v = e.target.value; if (!(/\s/.test(v.trim()) && uebernehmen(v))) setZiel(v); }} />
+        <span className="feldname">{t.senden.empfaenger}</span>
+        <div className={`feld-huelle vertieft ${tast.aktiv === 'an' ? 'aktiv' : ''}`}>
+          <Tippfeld id="an" art="adresse" klasse="ziffern" label={t.senden.empfaenger} wert={ziel} platz={t.senden.platz}
+                    zeige={vierer(ziel).map((g, i) => <span key={i}>{g}</span>)}
+                    onTaste={z => setZiel(a => tippeAdresse(a, z))}
+                    leiste={ziel !== '' && <button type="button" className="tknopf" onClick={() => setZiel('')}>{t.tast.leeren}</button>}
+                    weiter={betrag === '' ? () => tast.oeffne('betrag') : undefined} />
           <button type="button" className="klein im-feld sinkt" aria-label={t.allg.einfuegen}
                   onClick={async () => { const x = await einfuegen(); if (!uebernehmen(x)) melde(t.senden.keinCode); }}><S n="einfuegen" g={19} /></button>
           <button type="button" className="klein im-feld sinkt" aria-label={t.allg.scannen} onClick={() => setScannt(true)}><S n="scan" g={19} /></button>
@@ -250,20 +257,17 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
             </div>)
           : eigene ? <div className="gutzeile rot"><S n="warnung" g={15} />{t.senden.eigene}</div>
           : zielGueltig ? <div className="gutzeile"><S n="haken" g={15} w={2.6} />{zielName ? t.senden.kontakt(zielName) : t.senden.gueltig}</div>
+          // Solange noch getippt wird, ist eine halbe Adresse kein Fehler.
+          : tast.aktiv === 'an' && adresse.length < 42 ? <div className="gutzeile leise">{t.senden.zeichen(adresse.length)}</div>
           : <div className="gutzeile rot"><S n="warnung" g={15} />{t.senden.ungueltig}</div>}
       </div>
 
       <div className="feldgruppe">
-        <label htmlFor="betrag">{t.senden.betrag}</label>
-        <div className="betragfeld">
+        <span className="feldname">{t.senden.betrag}</span>
+        <div className={`betragfeld ${tast.aktiv === 'betrag' ? 'aktiv' : ''}`}>
           <div className="oben">
-            <input id="betrag" type="text" inputMode="decimal" value={betrag} placeholder="0" autoComplete="off"
-                   onChange={e => {
-                     const v = e.target.value.replace(/[^\d.,]/g, '').replace(/[.,]/g, zeichen);
-                     const teile = v.split(zeichen);
-                     setAlles(false);
-                     setBetrag(teile.length > 1 ? `${teile[0].slice(0, 12)}${zeichen}${teile.slice(1).join('').slice(0, DECIMALS)}` : v.slice(0, 12));
-                   }} />
+            <Tippfeld id="betrag" art="ziffern" label={t.senden.betrag} wert={betrag} platz="0" klasse={betragKlasse(betrag)}
+                      onTaste={z => { setAlles(false); setBetrag(b => tippeBetrag(b, z, zeichen, DECIMALS)); }} />
             <span>YSR</span>
           </div>
           <div className="trenn" style={{ margin: 0 }} />
@@ -277,10 +281,12 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
 
       <div className="feldgruppe">
         <div className="feldkopf">
-          <label htmlFor="notiz">{t.senden.notiz} <span style={{ fontWeight: 500, color: 'var(--leise)' }}>{t.allg.optional}</span></label>
+          <span className="feldname">{t.senden.notiz} <span style={{ fontWeight: 500, color: 'var(--leise)' }}>{t.allg.optional}</span></span>
           <small>{notizBytes(notiz)} / {NOTIZ_BYTES}</small>
         </div>
-        <input id="notiz" type="text" className="feld vertieft" value={notiz} onChange={e => setNotiz(notizKuerzen(e.target.value.replace(/[\u0000-\u001f\u007f]/g, ' ')))} />
+        <Tippfeld id="notiz" art="text" klasse="feld vertieft" gross="anfang" label={t.senden.notiz} wert={notiz}
+                  onTaste={z => setNotiz(n => notizKuerzen(tippeText(n, z)))}
+                  einfuegen={x => setNotiz(n => notizKuerzen((n + x).replace(/[\u0000-\u001f\u007f]/g, ' ').trimStart()))} />
         {notiz && <div className="hinweis"><S n="info" g={16} />{t.senden.notizHinweis}</div>}
       </div>
 

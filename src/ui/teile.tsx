@@ -44,6 +44,7 @@ const PFADE = {
   finger: <><path d="M6.5 6.2A8 8 0 0 1 20 12v1.5" /><path d="M4 12a8 8 0 0 1 .6-3" /><path d="M8 12a4 4 0 0 1 8 0v2.5c0 1.6.4 3.1 1.1 4.3" /><path d="M12 12v2.5c0 2.3.8 4.4 2 6" /><path d="M8 15.5c.3 1.9 1 3.6 2.1 5" /><path d="M4.4 15.5c.2 1.2.6 2.4 1.1 3.5" /></>,
   weg: <><path d="M8.5 5H20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H8.5L2.5 12l6-7z" /><path d="m12 9.5 5 5" /><path d="m17 9.5-5 5" /></>,
   kreuz: <><path d="M6 6l12 12" /><path d="M18 6 6 18" /></>,
+  gross: <path d="M12 4 4 12.5h4.5V19h7v-6.5H20L12 4z" />,
 };
 export type SymbolName = keyof typeof PFADE;
 

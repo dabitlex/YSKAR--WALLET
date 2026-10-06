@@ -92,17 +92,13 @@ h1,h2,p{margin:0}
 
 /* ---------- Felder ---------- */
 .feldgruppe{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
-.feldgruppe > label,.feldkopf label{font-size:14px;font-weight:700;color:var(--lesen)}
+.feldname{font-size:14px;font-weight:700;color:var(--lesen)}
 .feldkopf{display:flex;justify-content:space-between;align-items:baseline}
 .feldkopf small{font-family:var(--ziffern);font-size:12px;color:var(--leise)}
-.feld{height:52px;border-radius:16px;padding:0 16px;font-size:15px;width:100%;outline-offset:0;-webkit-user-select:text;user-select:text}
+.feld{min-height:52px;border-radius:16px;padding:14px 16px;font-size:15px;line-height:22px;width:100%}
 .feld-huelle{display:flex;align-items:center;gap:4px;border-radius:18px;padding:6px 6px 6px 16px}
-.feld-huelle input{flex:1;min-width:0;height:44px;border:0;background:transparent;font-size:14px;outline:none;-webkit-user-select:text;user-select:text}
 .suche{position:relative;flex-shrink:0}
 .suche svg{position:absolute;left:14px;top:14px;color:var(--leise);pointer-events:none}
-.suche input{height:48px;border-radius:16px;padding:0 14px 0 44px;font-size:15px;width:100%;-webkit-user-select:text;user-select:text}
-input::placeholder,textarea::placeholder{color:#8D939B}
-textarea.feld{height:auto;min-height:132px;padding:14px 16px;line-height:1.6;resize:none;font-family:var(--ziffern);font-size:15px}
 
 /* ---------- Guthaben ---------- */
 .guthaben{background:var(--tief);box-shadow:inset 0 2px 6px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.07);border-radius:28px;padding:20px 22px 18px;
@@ -233,13 +229,16 @@ textarea.feld{height:auto;min-height:132px;padding:14px 16px;line-height:1.6;res
 .wort small{font-family:var(--ziffern);font-size:12px;color:var(--leise)}
 .wort b{font-size:16px;font-weight:700;white-space:nowrap}
 .wort b.zu{color:var(--leise)}
+.wort b.falsch{color:var(--rot)}
+.wortraster.eins{grid-template-columns:minmax(0,1fr);gap:10px}
+.wortraster.eins .wort{height:52px;border-radius:16px;padding:0 16px}
+.tonknopf.grau{background:var(--karte);border:1px solid var(--rand);color:var(--lesen)}
+.tonknopf:disabled{opacity:.45}
 .tonknopf{height:48px;border-radius:14px;background:var(--blau-flaeche);border:0;color:var(--blau-hell);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:9px;width:100%}
 
 /* ---------- Senden ---------- */
 .betragfeld{border-radius:22px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;background:var(--senke);border:1px solid #1F2125;box-shadow:inset 0 2px 4px rgba(0,0,0,.35)}
-.betragfeld:focus-within{border-color:#5C8BFF;box-shadow:0 0 0 3px rgba(92,139,255,.25),inset 0 2px 4px rgba(0,0,0,.35)}
 .betragfeld .oben{display:flex;align-items:baseline;gap:10px}
-.betragfeld input{flex:1;min-width:0;height:48px;border:0;background:transparent;font-size:40px;font-weight:800;letter-spacing:-.03em;padding:0;outline:none;-webkit-user-select:text;user-select:text}
 .betragfeld .oben span{font-size:18px;font-weight:700;color:var(--leise)}
 .betragfeld .unten{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:var(--leise)}
 .betragfeld .unten b{font-family:var(--ziffern);font-weight:400;color:var(--lesen)}
@@ -339,6 +338,73 @@ textarea.feld{height:auto;min-height:132px;padding:14px 16px;line-height:1.6;res
   z-index:60;box-shadow:0 10px 24px rgba(0,0,0,.45);animation:meldung 2.2s both;pointer-events:none;white-space:nowrap;max-width:calc(100% - 40px);overflow:hidden;text-overflow:ellipsis}
 @keyframes meldung{0%{opacity:0;transform:translate(-50%,10px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,0)}}
 .band{background:var(--bern-flaeche);color:var(--bern-text);font-size:13px;font-weight:600;border-radius:14px;padding:10px 14px;flex-shrink:0}
+
+/* ---------- eigene Tastatur ---------- */
+/* Tippfelder: Sie zeigen ihren Wert und oeffnen die Tastatur der App, nie die des Telefons. */
+.tippfeld{cursor:text;scroll-margin:20px 0 28px;outline-offset:0}
+.tippfeld .platz{color:#8D939B}
+.strich{display:inline-block;width:2px;height:1.15em;border-radius:1px;background:#5C8BFF;margin-left:1px;vertical-align:-.2em;flex-shrink:0;animation:blinkt 1.1s steps(1) infinite}
+@keyframes blinkt{50%{opacity:0}}
+.feld.tippfeld{white-space:pre-wrap;overflow-wrap:anywhere}
+.feld.tippfeld.aktiv,.feld-huelle.aktiv,.betragfeld.aktiv,.suche .tippfeld.aktiv{border-color:#5C8BFF;box-shadow:0 0 0 3px rgba(92,139,255,.25),inset 0 2px 4px rgba(0,0,0,.35)}
+.feld-huelle .tippfeld{flex:1;min-width:0;min-height:44px;padding:6px 0;font-size:14px;line-height:1.7;display:flex;flex-wrap:wrap;align-items:center;gap:0 9px}
+.feld-huelle .tippfeld span + .strich{margin-left:-8px}
+.suche .tippfeld{min-height:48px;border-radius:16px;padding:12px 14px 12px 44px;font-size:15px;line-height:22px;white-space:pre-wrap;overflow-wrap:anywhere}
+.betragfeld .tippfeld{flex:1;min-width:0;height:48px;font-size:40px;line-height:48px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums}
+.betragfeld .tippfeld.lang1{font-size:30px}
+.betragfeld .tippfeld.lang2{font-size:22px;letter-spacing:-.02em}
+.betragfeld .tippfeld.lang3{font-size:17px;letter-spacing:0}
+.wort.tippfeld{border:1px solid transparent;overflow:hidden}
+.wort.tippfeld.aktiv{border-color:#5C8BFF;background:#2A3044}
+.wort.tippfeld b + .strich{margin-left:-9px}
+.gutzeile.leise{color:var(--leise)}
+
+/* Solange getippt wird, endet der Inhalt ueber der Tastatur. */
+.app.tippt .seite{bottom:var(--tastatur);padding-bottom:16px}
+.app.tippt .blatt-grund{bottom:var(--tastatur)}
+.app.tippt .blatt{padding-bottom:20px}
+.app.tippt .nav,.app.tippt .schleier{display:none}
+.app.tippt .meldung{bottom:calc(var(--tastatur) + 14px)}
+
+.tastatur{position:absolute;left:0;right:0;bottom:0;z-index:35;background:#26282C;border-top:1px solid #3F4248;padding:0 5px calc(var(--unten) + 8px);
+  display:flex;flex-direction:column;touch-action:none;box-shadow:0 -10px 24px rgba(0,0,0,.28);animation:hoch .22s cubic-bezier(.2,.8,.2,1) both}
+.tastatur.steht{animation:none}
+.tleiste{display:flex;align-items:center;gap:8px;min-height:50px;padding:0 3px 0 5px}
+.tlinks{flex:1;min-width:0;display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;touch-action:pan-x}
+.tlinks::-webkit-scrollbar{display:none}
+.tknopf{height:36px;padding:0 13px;border-radius:11px;border:1px solid #4A4E55;background:#383B41;color:var(--lesen);font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap}
+.tknopf:active{background:#2D2F34}
+.tknopf.vorschlag{font-family:var(--ziffern);font-weight:500;font-size:15px;color:var(--text)}
+.tknopf.vorschlag.genau{background:var(--blau-flaeche);border-color:#4A5F8F;color:#fff}
+.tfertig{height:44px;padding:0 12px;border:0;background:transparent;color:var(--blau-hell);font-size:15px;font-weight:800;flex-shrink:0}
+.tfertig:active{opacity:.6}
+.thinweis{font-size:14px;font-weight:600;color:var(--leise);padding-left:6px;white-space:nowrap}
+.thinweis.rot{color:var(--rot)}
+.tblock{display:flex;flex-direction:column;gap:7px}
+.treihe{display:flex;gap:5px}
+.tluecke{flex:0 1 0;min-width:0}
+.ttaste{flex:1 1 0;min-width:0;height:46px;padding:0;border-radius:9px;border:1px solid #4A4E55;background:#3D4046;color:var(--text);font-size:21px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.06);touch-action:none}
+.ttaste{position:relative}
+.ttaste:active,.ttaste.unten{background:#5A5F68;transform:translateY(1px);box-shadow:none}
+.ttaste.dunkel{background:#2F3237;border-color:#42454C;color:var(--lesen)}
+.ttaste.dunkel:active,.ttaste.dunkel.unten{background:#4A4E55}
+/* Das getippte Zeichen gross ueber der Taste: Der Finger verdeckt sie. */
+.ttaste[data-z].unten::after{content:attr(data-z);position:absolute;left:50%;bottom:calc(100% + 5px);transform:translateX(-50%);min-width:46px;height:54px;padding:0 8px;border-radius:12px;
+  background:#5A5F68;border:1px solid #7A808B;color:#fff;font-family:var(--schrift);font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 18px rgba(0,0,0,.5);pointer-events:none;z-index:2}
+.tastatur.t-adresse .ttaste[data-z].unten::after,.tastatur.t-wort .ttaste[data-z].unten::after{font-family:var(--ziffern);font-weight:500}
+.treihe > .ttaste[data-z]:first-child.unten::after{left:-2px;transform:none}
+.treihe > .ttaste[data-z]:last-child.unten::after{left:auto;right:-2px;transform:none}
+.ttaste.dunkel.an{background:#F2F4F6;border-color:transparent;color:#1E2023}
+.ttaste.klein-schrift{font-size:15px;font-weight:800;letter-spacing:.02em}
+.ttaste.leertaste{background:#3D4046}
+.tastatur.t-ziffern{padding-left:14px;padding-right:14px}
+.ziffernblock{gap:8px}
+.ziffernblock .treihe{gap:8px}
+.ziffernblock .ttaste{height:52px;border-radius:14px;font-size:24px;font-weight:700}
+.tastatur.t-adresse .ttaste,.tastatur.t-wort .ttaste{font-family:var(--ziffern);font-weight:500;font-size:20px}
+@media (max-height:640px){.ttaste{height:42px}.ziffernblock .ttaste{height:46px}}
 
 /* ---------- Scanner ---------- */
 .scanner{position:absolute;inset:0;background:#000;z-index:40;display:flex;flex-direction:column}

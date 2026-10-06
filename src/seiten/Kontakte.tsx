@@ -7,13 +7,15 @@ import { kontaktSetzen, useKontakte, NAME_MAX } from '../wallet/kontakte.ts';
 import { anforderungEntfernen, useAnforderungen } from '../wallet/anforderungen.ts';
 import { ausEintrag, type Zahlung } from '../wallet/zahlungen.ts';
 import { betragText, betragGenau } from '../wallet/betrag.ts';
-import { kurzAdresse } from '../wallet/adresse.ts';
+import { kurzAdresse, vierer } from '../wallet/adresse.ts';
+import { tippeAdresse, tippeText } from '../wallet/tasten.ts';
 import { adresseAusCode } from '../wallet/qr.ts';
 import { einfuegen } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { useZahlungen } from '../ui/daten.ts';
 import { S, Kopf, KopfZurueck, Bild, Kasten, Blatt, useMeldung, useZeit } from '../ui/teile.tsx';
 import { Scanner } from '../ui/scanner.tsx';
+import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
 /* ------------------------------------------------------------------ Liste */
 
@@ -42,10 +44,10 @@ export function Kontakte() {
         <button type="button" className="klein sinkt" aria-label={t.kontakte.neu} onClick={() => nav.gehe({ n: 'kontaktBearbeiten' })}><S n="plus" /></button>} />
       {alle.length > 0 && (
         <div className="suche">
-          <label htmlFor="ksuche" className="nur-leser">{t.kontakte.sucheLabel}</label>
           <S n="lupe" />
-          <input id="ksuche" type="search" className="vertieft" placeholder={t.kontakte.suche} value={suche} onChange={e => setSuche(e.target.value)}
-                 autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+          <Tippfeld id="ksuche" art="text" klasse="vertieft" label={t.kontakte.sucheLabel} platz={t.kontakte.suche} wert={suche}
+                    onTaste={z => setSuche(x => tippeText(x, z))}
+                    leiste={suche !== '' && <button type="button" className="tknopf" onClick={() => setSuche('')}>{t.tast.leeren}</button>} />
         </div>
       )}
       {alle.length > 0 && <div className="rubrik">{t.kontakte.anzahl(alle.length)}</div>}
@@ -78,6 +80,7 @@ export function KontaktBearbeiten({ adresse: vor }: { adresse?: string }) {
   const nav = useNav();
   const wallet = useWallet();
   const melde = useMeldung();
+  const tast = useTastatur();
   const { kontakte, name: nameVon } = useKontakte();
   const bestehend = vor ? nameVon(vor) : null;
   const [name, setName] = useState(bestehend ?? '');
@@ -103,14 +106,18 @@ export function KontaktBearbeiten({ adresse: vor }: { adresse?: string }) {
     <div className="seite">
       <KopfZurueck titel={bestehend ? t.kontakte.bearbeiten : t.kontakte.neu} zurueck={nav.zurueck} />
       <div className="feldgruppe">
-        <label htmlFor="kname">{t.kontakte.name}</label>
-        <input id="kname" type="text" className="feld vertieft" value={name} maxLength={NAME_MAX} autoComplete="off" onChange={e => setName(e.target.value)} />
+        <span className="feldname">{t.kontakte.name}</span>
+        <Tippfeld id="kname" art="text" klasse="feld vertieft" gross="woerter" label={t.kontakte.name} wert={name} auto={!bestehend}
+                  onTaste={z => setName(n => tippeText(n, z, NAME_MAX))}
+                  weiter={ziel === '' ? () => tast.oeffne('kadresse') : undefined} />
       </div>
       <div className="feldgruppe">
-        <label htmlFor="kadresse">{t.kontakte.adresse}</label>
-        <div className="feld-huelle vertieft">
-          <input id="kadresse" type="text" className="ziffern" value={ziel} placeholder={t.senden.platz} autoCapitalize="none" autoCorrect="off"
-                 autoComplete="off" spellCheck={false} onChange={e => { const v = e.target.value; if (!(/[:?\s]/.test(v) && uebernehmen(v))) setZiel(v); }} />
+        <span className="feldname">{t.kontakte.adresse}</span>
+        <div className={`feld-huelle vertieft ${tast.aktiv === 'kadresse' ? 'aktiv' : ''}`}>
+          <Tippfeld id="kadresse" art="adresse" klasse="ziffern" label={t.kontakte.adresse} wert={ziel} platz={t.senden.platz}
+                    zeige={vierer(ziel).map((g, i) => <span key={i}>{g}</span>)}
+                    onTaste={z => setZiel(x => tippeAdresse(x, z))}
+                    leiste={ziel !== '' && <button type="button" className="tknopf" onClick={() => setZiel('')}>{t.tast.leeren}</button>} />
           <button type="button" className="klein im-feld sinkt" aria-label={t.allg.einfuegen}
                   onClick={async () => { if (!uebernehmen(await einfuegen())) melde(t.senden.keinCode); }}><S n="einfuegen" g={19} /></button>
           <button type="button" className="klein im-feld sinkt" aria-label={t.allg.scannen} onClick={() => setScannt(true)}><S n="scan" g={19} /></button>
@@ -119,6 +126,7 @@ export function KontaktBearbeiten({ adresse: vor }: { adresse?: string }) {
           : eigene ? <div className="gutzeile rot"><S n="warnung" g={15} />{t.kontakte.eigene}</div>
           : andere ? <div className="gutzeile rot"><S n="warnung" g={15} />{t.kontakte.vergeben(andere)}</div>
           : gueltig ? <div className="gutzeile"><S n="haken" g={15} w={2.6} />{t.senden.gueltig}</div>
+          : tast.aktiv === 'kadresse' && a.length < 42 ? <div className="gutzeile leise">{t.senden.zeichen(a.length)}</div>
           : <div className="gutzeile rot"><S n="warnung" g={15} />{t.senden.ungueltig}</div>}
       </div>
       <Kasten art="ruhig" symbol="info">{t.kontakte.hinweisNeu}</Kasten>

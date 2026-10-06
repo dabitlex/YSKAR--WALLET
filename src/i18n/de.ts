@@ -54,7 +54,9 @@ export const de = {
   },
   wieder: {
     titel: 'Wallet wiederherstellen',
-    text: 'Gib deine 12 Wörter ein, mit Leerzeichen getrennt, in der richtigen Reihenfolge.',
+    text: 'Tippe deine 12 Wörter in der richtigen Reihenfolge ein. Nach den ersten Buchstaben schlägt die App das Wort vor.',
+    unbekannt: (n: number) => `Wort ${n} steht nicht in der Wortliste. Prüfe die Schreibweise.`,
+    leeren: 'Alle leeren', einfuegen: 'Einfügen',
     feld: 'Deine 12 Wörter',
     zaehler: (n: number) => `${n} von 12 Wörtern`,
     ungueltig: 'Diese Wörter ergeben keine gültige Wallet. Prüfe Schreibweise und Reihenfolge.',
@@ -108,6 +110,7 @@ export const de = {
     gueltig: 'Gültige YSKAR-Adresse', ungueltig: 'Das ist keine YSKAR-Adresse.', eigene: 'Das ist deine eigene Adresse.',
     kontakt: (n: string) => `${n}, aus deinen Kontakten`,
     keinCode: 'In der Zwischenablage steht keine YSKAR-Adresse.',
+    zeichen: (n: number) => `${n} von 42 Zeichen`,
     betrag: 'Betrag', verfuegbar: 'Verfügbar:', alles: 'Alles',
     notiz: 'Notiz', notizHinweis: 'Öffentlich: Jeder kann die Notiz in der Kette lesen.',
     netzgebuehr: 'Netzgebühr', gebuehrText: 'Geht an den Miner, der den Block findet.',
@@ -189,6 +192,11 @@ export const de = {
     entfernenPin: 'um die Wallet zu entfernen',
     woerterPin: 'um die 12 Wörter zu sehen',
     bioPin: 'um den Fingerabdruck einzuschalten',
+  },
+  tast: {
+    name: 'Tastatur', loeschen: 'Letztes Zeichen löschen', leer: 'Leerzeichen', gross: 'Großbuchstabe',
+    zeichen: 'Ziffern und Zeichen', buchstaben: 'Buchstaben', trennzeichen: 'Komma', leeren: 'Leeren',
+    keinWort: 'kein Wort der Liste',
   },
   scan: {
     titel: 'QR-Code scannen', hinweis: 'Halte den Code in den Rahmen.',

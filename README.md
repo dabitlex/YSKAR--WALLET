@@ -65,6 +65,7 @@ Danach unter **Actions → APK bauen → Run workflow** einen Lauf starten. Die 
 - **Anfordern** erzeugt einen Code `yskar:<adresse>?amount=…&memo=…` als QR und als Text zum Teilen. Wallets schicken sich untereinander nichts.
 - **Kein Nachladen:** Die Oberfläche steckt fest in der APK.
 - **Sichtschutz:** Solange die 12 Wörter zu sehen oder einzugeben sind, sperrt Android Bildschirmfotos.
+- **Eigene Tastatur:** Kein Eingabefeld öffnet die Tastatur des Telefons. Betrag, Adresse, die 12 Wörter, Notiz, Name und Suche werden über die Tastatur der App getippt (`src/ui/tastatur.tsx`). Eine fremde Tastatur-App bekommt davon nichts mit. Grenzen: Geschrieben wird am Ende des Feldes, gelöscht von hinten. Emojis, Wischen und andere Schriften als die lateinische gibt es nicht.
 
 Nicht enthalten: Mitteilungen bei Zahlungseingang, weitere Sprachen außer Deutsch und Englisch.
 

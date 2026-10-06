@@ -6,7 +6,9 @@ import { isValidMnemonic, keypairFromMnemonic, normalizeMnemonic } from '../kern
 import { bioStand, bioEinschalten, bioAusschalten } from '../wallet/biometrie.ts';
 import { einfuegen, sichtschutz } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
+import { LOESCHEN, tippeWort, wortVorschlaege, istWort, woerterAusText } from '../wallet/tasten.ts';
 import { S, KopfZurueck, Schritte, Kasten, PinFeld, Praegung, Vierer, useZurueck, type PinAntwort } from '../ui/teile.tsx';
+import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
 type Schritt = 'willkommen' | 'pin' | 'pinNochmal' | 'woerter' | 'pruefen' | 'eingabe' | 'bio';
 
@@ -32,22 +34,23 @@ export function Einstieg() {
   const [schritt, setSchritt] = useState<Schritt>('willkommen');
   const [weg, setWeg] = useState<'neu' | 'wieder'>('neu');
   const [pin, setPin] = useState('');
-  const [eingabe, setEingabe] = useState('');
+  const [eingabe, setEingabe] = useState<string[]>(() => Array<string>(12).fill(''));
   const [offen, setOffen] = useState(false);
   const [arbeitet, setArbeitet] = useState(false);
   const [fehler, setFehler] = useState('');
 
   const woerter = wallet.frisch?.split(' ') ?? [];
-  const sauber = useMemo(() => normalizeMnemonic(eingabe), [eingabe]);
-  const anzahl = sauber ? sauber.split(' ').length : 0;
+  const sauber = useMemo(() => normalizeMnemonic(eingabe.join(' ')), [eingabe]);
+  const anzahl = eingabe.filter(Boolean).length;
   const gueltig = anzahl === 12 && isValidMnemonic(sauber);
+  const tast = useTastatur();
   const adresse = useMemo(() => (gueltig ? keypairFromMnemonic(sauber).address : null), [gueltig, sauber]);
 
   // Solange Woerter zu sehen oder einzugeben sind: keine Bildschirmfotos.
   const geheim = schritt === 'woerter' || schritt === 'pruefen' || schritt === 'eingabe';
   useEffect(() => { if (!geheim) return; sichtschutz(true); return () => sichtschutz(false); }, [geheim]);
 
-  const anfang = () => { wallet.verwerfen(); setPin(''); setEingabe(''); setOffen(false); setFehler(''); setSchritt('willkommen'); };
+  const anfang = () => { wallet.verwerfen(); setPin(''); setEingabe(Array<string>(12).fill('')); setOffen(false); setFehler(''); setSchritt('willkommen'); };
   useZurueck(() => {
     if (schritt === 'pinNochmal') setSchritt('pin');
     else if (schritt === 'pruefen') setSchritt('woerter');
@@ -152,13 +155,16 @@ export function Einstieg() {
           <p className="fliess">{t.wieder.text}</p>
         </div>
         <div className="feldgruppe">
-          <div className="feldkopf"><label htmlFor="woerter">{t.wieder.feld}</label><small>{t.wieder.zaehler(Math.min(anzahl, 12))}</small></div>
-          <textarea id="woerter" className="feld vertieft" value={eingabe} onChange={e => setEingabe(e.target.value)}
-                    autoCapitalize="none" autoCorrect="off" autoComplete="off" spellCheck={false} rows={4} />
-          <button type="button" className="tonknopf sinkt" onClick={async () => { const x = await einfuegen(); if (x.trim()) setEingabe(x); }}>
-            <S n="einfuegen" g={19} /><span>{t.allg.einfuegen}</span>
-          </button>
-          <div className="fehlertext">{anzahl >= 12 && !gueltig ? t.wieder.ungueltig : ''}</div>
+          <div className="feldkopf"><span className="feldname">{t.wieder.feld}</span><small>{t.wieder.zaehler(anzahl)}</small></div>
+          <Wortfelder kennung="w" werte={eingabe} nummern={eingabe.map((_, i) => i + 1)} auto
+                      setze={(i, w) => setEingabe(e => e.map((x, j) => (j === i ? w : x)))} />
+          <div className="paar-knoepfe">
+            <button type="button" className="tonknopf sinkt" onClick={async () => { const x = await einfuegen(); if (x.trim()) setEingabe(woerterAusText(x, 12)); }}>
+              <S n="einfuegen" g={19} /><span>{t.wieder.einfuegen}</span>
+            </button>
+            <button type="button" className="tonknopf grau sinkt" disabled={anzahl === 0} onClick={() => setEingabe(Array<string>(12).fill(''))}>{t.wieder.leeren}</button>
+          </div>
+          <div className="fehlertext" role="alert">{wortFehler(eingabe, tast.aktiv, 'w', t) ?? (anzahl === 12 && !gueltig ? t.wieder.ungueltig : '')}</div>
         </div>
         {adresse && (
           <div className="karte innen" style={{ padding: '14px 18px', gap: 6 }}>
@@ -213,6 +219,57 @@ export function Wortkarte({ woerter, offen, umschalten }: { woerter: string[]; o
   );
 }
 
+/** Das erste Wort, das nicht in der Liste steht -- aber nicht das, an dem gerade getippt wird. */
+function wortFehler(werte: string[], aktiv: string | null, kennung: string, t: ReturnType<typeof useT>): string | null {
+  const i = werte.findIndex((w, j) => w !== '' && !istWort(w) && aktiv !== `${kennung}${j}`);
+  return i < 0 ? null : t.wieder.unbekannt(i + 1);
+}
+
+/**
+ * Felder fuer Woerter der Wiederherstellung. Getippt wird ueber die Tastatur
+ * der App: nur a-z, mit Vorschlaegen aus der Wortliste. Ist ein Wort
+ * eindeutig fertig, geht es von selbst ins naechste leere Feld.
+ */
+function Wortfelder({ kennung, werte, nummern, setze, auto, einspaltig }: {
+  kennung: string; werte: string[]; nummern: number[]; setze: (i: number, wort: string) => void; auto?: boolean; einspaltig?: boolean;
+}) {
+  const t = useT();
+  const tast = useTastatur();
+  const weiter = (i: number, stand: string[]) => {
+    for (let k = 1; k < stand.length; k++) {
+      const j = (i + k) % stand.length;
+      if (!stand[j]) { tast.oeffne(`${kennung}${j}`); return; }
+    }
+    tast.oeffne(null);
+  };
+  const nimm = (i: number, wort: string) => { setze(i, wort); weiter(i, werte.map((x, j) => (j === i ? wort : x))); };
+  return (
+    <div className={`wortraster ${einspaltig ? 'eins' : ''}`}>
+      {werte.map((w, i) => {
+        const id = `${kennung}${i}`;
+        const dran = tast.aktiv === id;
+        const vorschlaege = dran ? wortVorschlaege(w, 4) : [];
+        return (
+          <Tippfeld key={id} id={id} art="wort" klasse="wort" label={t.woerter.wort(nummern[i])} wert={w} auto={auto && i === 0 && werte.every(x => x === '')}
+                    vor={<small>{String(nummern[i]).padStart(2, '0')}</small>}
+                    zeige={<b className={!dran && !istWort(w) ? 'falsch' : undefined}>{w}</b>}
+                    onTaste={z => {
+                      if (z === LOESCHEN && w === '') { if (i > 0) tast.oeffne(`${kennung}${i - 1}`); return; }
+                      const neu = tippeWort(w, z);
+                      // Kein anderes Wort faengt so an: fertig, weiter zum naechsten.
+                      const fertig = z !== LOESCHEN && wortVorschlaege(neu, 2).join() === neu;
+                      if (fertig) nimm(i, neu); else setze(i, neu);
+                    }}
+                    weiter={() => weiter(i, werte)}
+                    leiste={vorschlaege.length > 0
+                      ? vorschlaege.map(v => <button key={v} type="button" className={`tknopf vorschlag ${v === w ? 'genau' : ''}`} onClick={() => nimm(i, v)}>{v}</button>)
+                      : <span className={`thinweis ${w ? 'rot' : ''}`}>{w ? t.tast.keinWort : t.woerter.wort(nummern[i])}</span>} />
+        );
+      })}
+    </div>
+  );
+}
+
 function Pruefung({ woerter, zurueck, fertig, arbeitet, fehler }: { woerter: string[]; zurueck: () => void; fertig: () => void; arbeitet: boolean; fehler: string }) {
   const t = useT();
   // Drei zufaellige Stellen, aufsteigend. Einmal gewaehlt, bleiben sie.
@@ -223,9 +280,9 @@ function Pruefung({ woerter, zurueck, fertig, arbeitet, fehler }: { woerter: str
   }, [woerter.length]);
   const [werte, setWerte] = useState(['', '', '']);
   const [falsch, setFalsch] = useState(false);
-  const voll = werte.every(w => w.trim());
+  const voll = werte.every(w => w);
   const pruefen = () => {
-    if (stellen.every((s, i) => werte[i].trim().toLowerCase() === woerter[s])) fertig();
+    if (stellen.every((s, i) => werte[i] === woerter[s])) fertig();
     else setFalsch(true);
   };
   return (
@@ -235,14 +292,8 @@ function Pruefung({ woerter, zurueck, fertig, arbeitet, fehler }: { woerter: str
         <h1 className="titel2">{t.woerter.pruefTitel}</h1>
         <p className="fliess">{t.woerter.pruefText}</p>
       </div>
-      {stellen.map((s, i) => (
-        <div key={s} className="feldgruppe">
-          <label htmlFor={`wort${i}`}>{t.woerter.wort(s + 1)}</label>
-          <input id={`wort${i}`} className="feld vertieft ziffern" type="text" value={werte[i]} autoCapitalize="none" autoCorrect="off"
-                 autoComplete="off" spellCheck={false} enterKeyHint={i < 2 ? 'next' : 'done'}
-                 onChange={e => { setFalsch(false); setWerte(w => w.map((x, j) => (j === i ? e.target.value : x))); }} />
-        </div>
-      ))}
+      <Wortfelder kennung="wort" werte={werte} nummern={stellen.map(s => s + 1)} einspaltig auto
+                  setze={(i, w) => { setFalsch(false); setWerte(alt => alt.map((x, j) => (j === i ? w : x))); }} />
       <div className="fehlertext" role="alert">{falsch ? t.woerter.pruefFalsch : fehler}</div>
       <div className="fuell" />
       <button type="button" className="knopf sinkt" disabled={!voll || arbeitet} onClick={pruefen}>{t.woerter.einrichten}</button>

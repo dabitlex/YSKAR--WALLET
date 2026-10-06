@@ -55,7 +55,9 @@ export const en: Woerterbuch = {
   },
   wieder: {
     titel: 'Restore wallet',
-    text: 'Enter your 12 words, separated by spaces, in the right order.',
+    text: 'Type your 12 words in the right order. After the first letters the app suggests the word.',
+    unbekannt: n => `Word ${n} is not in the word list. Check the spelling.`,
+    leeren: 'Clear all', einfuegen: 'Paste',
     feld: 'Your 12 words',
     zaehler: n => `${n} of 12 words`,
     ungueltig: 'These words do not form a valid wallet. Check spelling and order.',
@@ -109,6 +111,7 @@ export const en: Woerterbuch = {
     gueltig: 'Valid YSKAR address', ungueltig: 'This is not a YSKAR address.', eigene: 'This is your own address.',
     kontakt: n => `${n}, from your contacts`,
     keinCode: 'There is no YSKAR address in the clipboard.',
+    zeichen: n => `${n} of 42 characters`,
     betrag: 'Amount', verfuegbar: 'Available:', alles: 'All',
     notiz: 'Note', notizHinweis: 'Public: anyone can read the note in the chain.',
     netzgebuehr: 'Network fee', gebuehrText: 'Goes to the miner who finds the block.',
@@ -190,6 +193,11 @@ export const en: Woerterbuch = {
     entfernenPin: 'to remove the wallet',
     woerterPin: 'to see the 12 words',
     bioPin: 'to turn on fingerprint',
+  },
+  tast: {
+    name: 'Keyboard', loeschen: 'Delete last character', leer: 'Space', gross: 'Capital letter',
+    zeichen: 'Digits and symbols', buchstaben: 'Letters', trennzeichen: 'Decimal point', leeren: 'Clear',
+    keinWort: 'not in the word list',
   },
   scan: {
     titel: 'Scan QR code', hinweis: 'Hold the code inside the frame.',

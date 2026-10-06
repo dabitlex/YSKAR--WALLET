@@ -8,7 +8,9 @@ import { useKontakte } from '../wallet/kontakte.ts';
 import { anforderungMerken } from '../wallet/anforderungen.ts';
 import { DECIMALS } from '../kern/params.ts';
 import { kopieren, teilen } from '../geraet/geraet.ts';
+import { tippeBetrag, tippeText } from '../wallet/tasten.ts';
 import { S, KopfZurueck, Vierer, QrBild, Blatt, useMeldung } from '../ui/teile.tsx';
+import { Tippfeld, useTastatur, betragKlasse } from '../ui/tastatur.tsx';
 
 /**
  * Empfangen: die eigene Adresse als QR-Code -- wahlweise mit Betrag und
@@ -20,6 +22,7 @@ export function Empfangen({ fuer }: { fuer?: string }) {
   const nav = useNav();
   const wallet = useWallet();
   const melde = useMeldung();
+  const tast = useTastatur();
   const { name } = useKontakte();
   const zeichen = dezimalZeichen(t.code);
   const adresse = wallet.adresse ?? '';
@@ -81,26 +84,22 @@ export function Empfangen({ fuer }: { fuer?: string }) {
         <Blatt titel={t.empfangen.blattTitel} onZu={() => setBlatt(false)}>
           <p>{t.empfangen.blattText}</p>
           <div className="feldgruppe">
-            <label htmlFor="anf-betrag">{t.senden.betrag}</label>
-            <div className="betragfeld">
+            <span className="feldname">{t.senden.betrag}</span>
+            <div className={`betragfeld ${tast.aktiv === 'anf-betrag' ? 'aktiv' : ''}`}>
               <div className="oben">
-                <input id="anf-betrag" type="text" inputMode="decimal" placeholder="0" autoComplete="off" value={eingabe}
-                       onChange={e => {
-                         const v = e.target.value.replace(/[^\d.,]/g, '').replace(/[.,]/g, zeichen);
-                         const teile = v.split(zeichen);
-                         setEingabe(teile.length > 1 ? `${teile[0].slice(0, 12)}${zeichen}${teile.slice(1).join('').slice(0, DECIMALS)}` : v.slice(0, 12));
-                       }} />
+                <Tippfeld id="anf-betrag" art="ziffern" label={t.senden.betrag} wert={eingabe} platz="0" klasse={betragKlasse(eingabe)} auto
+                          onTaste={z => setEingabe(b => tippeBetrag(b, z, zeichen, DECIMALS))} />
                 <span>YSR</span>
               </div>
             </div>
           </div>
           <div className="feldgruppe">
             <div className="feldkopf">
-              <label htmlFor="anf-notiz">{t.senden.notiz} <span style={{ fontWeight: 500, color: 'var(--leise)' }}>{t.allg.optional}</span></label>
+              <span className="feldname">{t.senden.notiz} <span style={{ fontWeight: 500, color: 'var(--leise)' }}>{t.allg.optional}</span></span>
               <small>{notizBytes(notizEingabe)} / {NOTIZ_BYTES}</small>
             </div>
-            <input id="anf-notiz" type="text" className="feld vertieft" value={notizEingabe}
-                   onChange={e => setNotizEingabe(notizKuerzen(e.target.value.replace(/[\u0000-\u001f\u007f]/g, ' ')))} />
+            <Tippfeld id="anf-notiz" art="text" klasse="feld vertieft" gross="anfang" label={t.senden.notiz} wert={notizEingabe}
+                      onTaste={z => setNotizEingabe(n => notizKuerzen(tippeText(n, z)))} />
           </div>
           <button type="button" className="knopf sinkt" disabled={einheiten <= 0n}
                   onClick={() => { setAnforderung({ betrag: einheiten, notiz: notizKuerzen(notizEingabe.trim()) }); setVermerkt(false); setBlatt(false); }}>

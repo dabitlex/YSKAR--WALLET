@@ -7,7 +7,9 @@ import { useKontakte } from '../wallet/kontakte.ts';
 import { isValidAddress } from '../kern/address.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { useZahlungen } from '../ui/daten.ts';
+import { tippeText } from '../wallet/tasten.ts';
 import { S, Kopf, Zahlungszeile, useZeit } from '../ui/teile.tsx';
+import { Tippfeld } from '../ui/tastatur.tsx';
 
 type Richtung = 'alle' | 'ein' | 'aus';
 
@@ -83,10 +85,10 @@ export function Verlauf() {
     <div className="seite mit-nav eng">
       <Kopf titel={t.verlauf.titel} />
       <div className="suche">
-        <label htmlFor="suche" className="nur-leser">{t.verlauf.sucheLabel}</label>
         <S n="lupe" />
-        <input id="suche" type="search" className="vertieft" placeholder={t.verlauf.suche} value={suche} onChange={e => setSuche(e.target.value)}
-               autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="search" />
+        <Tippfeld id="suche" art="text" klasse="vertieft" label={t.verlauf.sucheLabel} platz={t.verlauf.suche} wert={suche}
+                  onTaste={z => setSuche(x => tippeText(x, z))} einfuegen={x => setSuche(x.replace(/\s+/g, ' ').trim().slice(0, 64))}
+                  leiste={suche !== '' && <button type="button" className="tknopf" onClick={() => setSuche('')}>{t.tast.leeren}</button>} />
       </div>
       <div className="chips">{chip('alle', t.verlauf.alle)}{chip('ein', t.verlauf.eingang)}{chip('aus', t.verlauf.ausgang)}</div>
 
