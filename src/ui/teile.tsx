@@ -1,8 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import QRCode from 'qrcode';
 import { useT } from '../i18n/index.ts';
-import { betragText, dezimalZeichen } from '../wallet/betrag.ts';
+import { betragText, betragZahl, dezimalZeichen } from '../wallet/betrag.ts';
 import { vierer, kurzAdresse } from '../wallet/adresse.ts';
 import { kuerzel, useKontakte } from '../wallet/kontakte.ts';
 import type { Zahlung } from '../wallet/zahlungen.ts';
@@ -106,15 +106,65 @@ export function MeldungProvider({ children }: { children: ReactNode }) {
 
 /* ------------------------------------------------------------ kleine Teile */
 
-export function Betrag({ wert, vz, klasse }: { wert: bigint; vz?: '+' | '−' | ''; klasse?: string }) {
+/**
+ * Ein Betrag in grosser Schrift, mit "YSR" daneben -- immer in EINER Zeile.
+ * Passt er nicht in die Breite, wird die Schrift so weit kleiner, bis er passt.
+ *
+ * `ziel`: Zaehlt `wert` erst zu einem Endwert hoch, richten sich Schrift und
+ * Platz von Anfang an nach diesem Endwert. Sonst spraenge beim Zaehlen die
+ * Schriftgroesse, und alles darunter rutschte, sobald die Zahl laenger wird.
+ */
+export function Betrag({ wert, vz, klasse, ziel }: { wert: bigint; vz?: '+' | '−' | ''; klasse?: string; ziel?: bigint }) {
   const t = useT();
-  const text = betragText(wert, t.code);
   const z = dezimalZeichen(t.code);
-  const i = text.lastIndexOf(z);
-  const lang = text.length > 10;
+  const mass = ziel === undefined ? null : betragText(ziel, t.code);
+  // Unterwegs zum Endwert: so viele Nachkommastellen wie der Endwert, sonst wackelt die Breite beim Zaehlen.
+  const text = useMemo(() => {
+    if (mass === null || wert === ziel) return betragText(wert, t.code);
+    const i = mass.lastIndexOf(z);
+    const stellen = i < 0 ? 0 : mass.length - i - 1;
+    return new Intl.NumberFormat(t.code, { minimumFractionDigits: stellen, maximumFractionDigits: stellen }).format(betragZahl(wert));
+  }, [wert, ziel, mass, z, t.code]);
+  const huelle = useRef<HTMLDivElement>(null);
+  const gross = useRef<HTMLDivElement>(null);
+  const teile = (x: string) => { const i = x.lastIndexOf(z); return i < 0 ? x : <>{x.slice(0, i)}<i>{x.slice(i)}</i></>; };
+
+  // Gemessen wird der Text, der den Platz bestimmt: der Endwert, sonst der Wert selbst.
+  const bestimmt = mass ?? text;
+  useLayoutEffect(() => {
+    const h = huelle.current, g = gross.current;
+    if (!h || !g) return;
+    const passe = () => {
+      g.style.fontSize = '';
+      let schrift = parseFloat(getComputedStyle(g).fontSize);
+      // In Schritten: Die Breite waechst nicht genau mit der Schriftgroesse (Zeichen werden auf ganze Punkte gerundet).
+      for (let i = 0; i < 16 && h.scrollWidth > h.clientWidth + 0.5 && g.offsetWidth > 0 && schrift > 16; i++) {
+        const fest = h.scrollWidth - g.offsetWidth;            // "YSR" und der Abstand davor
+        const gerechnet = Math.floor((schrift * (h.clientWidth - fest)) / g.offsetWidth * 2) / 2;
+        schrift = Math.max(16, Math.min(schrift - 0.5, gerechnet));
+        g.style.fontSize = `${schrift}px`;
+      }
+    };
+    passe();
+    // Neu messen, wenn sich die Breite aendert oder die Schrift erst spaeter geladen ist.
+    let breite = h.parentElement?.clientWidth ?? 0;
+    const waechter = new ResizeObserver(() => {
+      const neu = h.parentElement?.clientWidth ?? 0;
+      if (neu !== breite) { breite = neu; passe(); }
+    });
+    if (h.parentElement) waechter.observe(h.parentElement);
+    let lebt = true;
+    document.fonts?.ready.then(() => { if (lebt) passe(); }).catch(() => {});
+    return () => { lebt = false; waechter.disconnect(); };
+  }, [bestimmt, vz, klasse]);
+
   return (
-    <div className={`betrag ${klasse ?? ''} ${lang ? 'lang' : ''}`}>
-      <div className="gross">{vz}{i < 0 ? text : <>{text.slice(0, i)}<i>{text.slice(i)}</i></>}</div>
+    <div ref={huelle} className={`betrag ${klasse ?? ''}`}>
+      <div ref={gross} className={`gross ${mass === null ? '' : 'zaehlt'}`}>
+        {mass === null
+          ? <>{vz}{teile(text)}</>
+          : <><span className="mass" aria-hidden="true">{vz}{teile(mass)}</span><span className="sicht">{vz}{teile(text)}</span></>}
+      </div>
       <div className="einheit">YSR</div>
     </div>
   );
@@ -336,7 +386,10 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck }: {
     if (neu.length === 6) pruefen(neu);
   };
 
-  const gesperrt = stand !== 'frei' || warten > 0;
+  // Blass sind die Tasten nur, solange die Bremse laeuft. Waehrend die PIN geprueft wird,
+  // nehmen sie nichts an (siehe tipp), bleiben aber, wie sie sind -- sonst flackert das Feld bei jedem Entsperren.
+  const gesperrt = warten > 0;
+  const frei = stand === 'frei' && warten <= 0;
   return (
     <div className="seite pinseite">
       {zurueck && <div style={{ alignSelf: 'stretch', margin: '0 -12px' }}><KopfZurueck titel="" zurueck={zurueck} /></div>}
@@ -354,11 +407,11 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck }: {
         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(z =>
           <button key={z} type="button" className="taste sinkt" disabled={gesperrt} onClick={() => tipp(z)}>{z}</button>)}
         {bio
-          ? <button type="button" className="taste leer finger sinkt" aria-label={t.pin.finger} disabled={gesperrt} onClick={bio}><S n="finger" g={30} w={1.8} /></button>
+          ? <button type="button" className="taste leer finger sinkt" aria-label={t.pin.finger} disabled={gesperrt} onClick={() => { if (frei) bio(); }}><S n="finger" g={30} w={1.8} /></button>
           : <span />}
         <button type="button" className="taste sinkt" disabled={gesperrt} onClick={() => tipp('0')}>0</button>
         <button type="button" className="taste leer sinkt" aria-label={t.pin.loeschen} disabled={gesperrt || !pin}
-                onClick={() => { tippGefuehl(); setPin(p => p.slice(0, -1)); }}><S n="weg" g={28} w={1.8} /></button>
+                onClick={() => { if (!frei) return; tippGefuehl(); setPin(p => p.slice(0, -1)); }}><S n="weg" g={28} w={1.8} /></button>
       </div>
       {fuss ?? <div style={{ height: 44 }} />}
     </div>

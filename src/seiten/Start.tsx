@@ -58,7 +58,7 @@ export function Start() {
             ? <div className="betrag"><div className="gross" aria-hidden="true">••••<i>••</i></div><div className="einheit">YSR</div></div>
             : stand === null
               ? <div style={{ color: 'var(--leise)', fontSize: 15 }}>{offline ? '–' : t.start.laedt}</div>
-              : <Betrag wert={stand} />}
+              : <Betrag wert={stand} ziel={BigInt(konto?.balance ?? stand)} />}
           <button type="button" className="klein leer sinkt" style={{ marginRight: -8 }} aria-pressed={verborgen}
                   aria-label={verborgen ? t.start.zeigen : t.start.verbergen} onClick={() => einstellen({ verborgen: !verborgen })}>
             <S n={verborgen ? 'augeZu' : 'auge'} g={22} />

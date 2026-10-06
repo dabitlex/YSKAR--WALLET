@@ -105,12 +105,16 @@ h1,h2,p{margin:0}
   display:flex;flex-direction:column;gap:10px;flex-shrink:0}
 .etikett{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--leise)}
 .betragzeile{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px}
-.betrag{display:flex;align-items:baseline;gap:8px;min-width:0;flex-wrap:wrap}
-.betrag .gross{font-size:44px;line-height:1;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.betrag{display:flex;align-items:baseline;gap:8px;min-width:0;max-width:100%}
+.betrag .gross{font-size:44px;line-height:1;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+/* Beim Hochzaehlen haelt der unsichtbare Endwert den Platz frei. */
+.betrag .gross.zaehlt{display:grid}
+.betrag .gross.zaehlt > span{grid-area:1/1}
+.betrag .gross .mass{visibility:hidden}
+.betrag .einheit{flex-shrink:0}
 .betrag .gross i{font-style:normal;color:var(--blass)}
 .betrag .einheit{font-size:16px;font-weight:700;color:var(--leise)}
 .betrag.mittel .gross{font-size:36px}
-.betrag.lang .gross{font-size:32px}
 .trenn{height:1px;background:#3A3D42;margin-top:4px}
 .adresszeile{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:4px}
 .adresszeile small{display:block;font-size:12px;color:var(--leise);margin-bottom:3px}
@@ -168,6 +172,8 @@ h1,h2,p{margin:0}
 .schleier{position:absolute;left:0;right:0;bottom:0;height:calc(var(--unten) + 132px);background:linear-gradient(to bottom,rgba(48,51,56,0),#303338 62%);pointer-events:none}
 .nav{position:absolute;left:20px;right:20px;bottom:calc(var(--unten) + 20px);height:64px;padding:0 8px;border-radius:32px;background:#3F4249;border:1px solid #555960;
   box-shadow:0 14px 30px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.09);display:flex;align-items:center;justify-content:space-between}
+/* Die Leiste kommt mit der Seite herein, nicht vor ihr. */
+.nav,.schleier{animation:herein .24s ease both}
 .nav button{height:48px;min-width:44px;border-radius:24px;border:0;background:transparent;color:var(--leise);display:flex;align-items:center;justify-content:center;gap:8px;
   font-size:14px;font-weight:700;padding:0 11px;white-space:nowrap}
 .nav button[aria-current="page"]{background:var(--blau-flaeche);color:var(--blau-hell);padding:0 15px}
