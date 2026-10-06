@@ -1,0 +1,35 @@
+name: Debug-Schlüssel halten
+
+# GitHub loescht Cache-Eintraege, die 7 Tage lang niemand gelesen hat. Der
+# Debug-Schluessel der Wallet liegt in diesem Cache (siehe apk.yml). Dieser
+# Lauf liest ihn alle 3 Tage, damit er bleibt -- auch wenn eine Weile nichts
+# gebaut wird. Er baut nichts und veraendert nichts.
+
+on:
+  schedule:
+    - cron: '17 3 */3 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  halten:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # Pfad und Name muessen mit apk.yml uebereinstimmen.
+      - name: Debug-Schlüssel lesen
+        id: debugkey
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.yskar-wallet/debug.keystore
+          key: yskar-wallet-debug-schluessel-v1
+
+      - name: Ergebnis
+        run: |
+          if [ "${{ steps.debugkey.outputs.cache-hit }}" = "true" ] && [ -s "$HOME/.yskar-wallet/debug.keystore" ]; then
+            echo "::notice title=Debug-Schlüssel::liegt im Cache"
+          else
+            echo "::warning title=Debug-Schlüssel::Im Cache liegt kein Debug-Schlüssel. Der nächste Debug-Bau legt einen neuen an."
+          fi

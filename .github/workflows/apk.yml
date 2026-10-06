@@ -12,9 +12,18 @@ name: APK bauen
 #   YSKAR_KEY_ALIAS          Alias des Schluessels
 #   YSKAR_KEY_PASSWORD       Passwort des Schluessels
 #
-# Ohne diese Secrets entsteht ein Debug-Bau. Der laesst sich installieren,
-# ist aber NICHT zum Verteilen gedacht: Sein Schluessel wechselt mit jedem
-# Lauf, eine neue Fassung liesse sich nicht ueber die alte installieren.
+# Ohne diese Secrets entsteht ein Debug-Bau zum eigenen Testen. Sein
+# Schluessel wird einmal auf dem Runner erzeugt und liegt danach im Cache von
+# GitHub Actions: Jede neue Debug-Fassung ist mit demselben Schluessel
+# signiert und laesst sich ueber die vorige installieren.
+#
+#   - Der Debug-Schluessel steht nicht im Repo und verlaesst GitHub nicht.
+#   - GitHub loescht Cache-Eintraege, die 7 Tage lang niemand gelesen hat.
+#     Deshalb liest ihn schluessel.yml alle 3 Tage. Geht er trotzdem verloren,
+#     entsteht ein neuer, und die naechste Fassung braucht einmal wieder
+#     "deinstallieren". Der Lauf meldet das mit einer Warnung.
+#   - Zum Verteilen an Tester ist er NICHT gedacht: Dafuer den Test-Schluessel
+#     als Secret hinterlegen (siehe README).
 #
 # Der Keystore darf nie ins Repo. Geht er verloren, kann kein Update mehr
 # ueber eine bestehende Installation gelegt werden.
@@ -103,6 +112,32 @@ jobs:
           echo "$YSKAR_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/yskar-wallet.jks"
           echo "YSKAR_KEYSTORE_FILE=$RUNNER_TEMP/yskar-wallet.jks" >> "$GITHUB_ENV"
 
+      # Nur fuer den Debug-Bau: derselbe Debug-Schluessel wie beim letzten Lauf.
+      # Pfad und Name des Cache-Eintrags muessen mit schluessel.yml uebereinstimmen.
+      - name: Debug-Schlüssel aus dem Cache
+        if: env.YSKAR_KEYSTORE_BASE64 == ''
+        id: debugkey
+        uses: actions/cache@v4
+        with:
+          path: ~/.yskar-wallet/debug.keystore
+          key: yskar-wallet-debug-schluessel-v1
+
+      - name: Debug-Schlüssel anlegen
+        if: env.YSKAR_KEYSTORE_BASE64 == '' && steps.debugkey.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p "$HOME/.yskar-wallet"
+          rm -f "$HOME/.yskar-wallet/debug.keystore"
+          keytool -genkeypair -keystore "$HOME/.yskar-wallet/debug.keystore" -storetype PKCS12 \
+            -storepass android -keypass android -alias androiddebugkey \
+            -keyalg RSA -keysize 2048 -validity 10950 -dname "CN=YSKAR Wallet Debug" > /dev/null 2>&1
+          echo "::warning title=Neuer Debug-Schlüssel::Im Cache lag kein Debug-Schlüssel, es wurde ein neuer angelegt. Diese Fassung lässt sich nicht über eine ältere installieren: einmal deinstallieren."
+
+      - name: Debug-Schlüssel verwenden
+        if: env.YSKAR_KEYSTORE_BASE64 == ''
+        run: |
+          test -s "$HOME/.yskar-wallet/debug.keystore"
+          echo "YSKAR_DEBUG_KEYSTORE=$HOME/.yskar-wallet/debug.keystore" >> "$GITHUB_ENV"
+
       - name: APK bauen
         working-directory: android
         env:
@@ -126,7 +161,6 @@ jobs:
             SRC=$(ls android/app/build/outputs/apk/debug/*.apk | head -1)
             OUT="yskar-wallet-test-${{ steps.version.outputs.name }}-debug.apk"
             cp "$SRC" "$OUT"
-            echo "::warning::Kein Keystore hinterlegt: Debug-Bau. Nicht an Tester geben, sein Schluessel wechselt mit jedem Lauf."
             echo "signiert=false" >> "$GITHUB_OUTPUT"
           else
             SRC=$(ls android/app/build/outputs/apk/release/*.apk | head -1)
@@ -135,13 +169,16 @@ jobs:
             echo "signiert=true" >> "$GITHUB_OUTPUT"
           fi
           "$APKSIGNER" verify --print-certs "$OUT" | grep -E "certificate (DN|SHA-256)" | head -2 | tee zertifikat.txt
+          # Der Fingerabdruck des Zertifikats ist oeffentlich (er steckt in jeder APK). Bleibt er
+          # von Lauf zu Lauf gleich, laesst sich die neue Fassung ueber die alte installieren.
+          echo "::notice title=Signatur::$(sed -n 2p zertifikat.txt | sed 's/^.*SHA-256 digest: //')"
           sha256sum "$OUT" | tee "$OUT.sha256"
           echo "datei=$OUT" >> "$GITHUB_OUTPUT"
           {
             echo "## YSKAR Wallet Test ${{ steps.version.outputs.name }}"
             echo ""
             if [ -z "${YSKAR_KEYSTORE_FILE:-}" ]; then
-              echo "**Debug-Bau, nicht verteilen.** Es ist kein Test-Keystore hinterlegt."
+              echo "**Debug-Bau zum eigenen Testen.** Signiert mit dem Debug-Schlüssel aus dem Cache; lässt sich über die vorige Debug-Fassung installieren, solange der Fingerabdruck unten derselbe ist. Für Tester den Test-Schlüssel hinterlegen."
             else
               echo "Signiert mit dem hinterlegten Test-Schlüssel. Diese Datei kann an Tester gehen."
             fi

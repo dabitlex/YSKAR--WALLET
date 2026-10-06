@@ -14,7 +14,13 @@ GitHub baut bei jedem Push auf `main` eine APK.
 
 Ein Tag `v0.1.0` erzeugt zusätzlich ein Release, an dem die APK direkt hängt.
 
-Solange kein Test-Schlüssel hinterlegt ist, entsteht ein **Debug-Bau**. Der lässt sich installieren, ist aber nicht zum Verteilen gedacht: Sein Schlüssel wechselt mit jedem Lauf, eine neue Fassung ließe sich nicht über die alte installieren.
+Solange kein Test-Schlüssel hinterlegt ist, entsteht ein **Debug-Bau** zum eigenen Testen. Sein Schlüssel wird einmal auf dem Runner erzeugt und liegt danach im Cache von GitHub Actions. Jede neue Debug-Fassung ist damit gleich signiert und lässt sich über die vorige installieren, die Wallet auf dem Gerät bleibt erhalten.
+
+- Der Debug-Schlüssel steht nicht im Repo.
+- GitHub löscht Cache-Einträge, die 7 Tage lang niemand gelesen hat. Der Lauf „Debug-Schlüssel halten“ liest ihn deshalb alle 3 Tage.
+- Geht er trotzdem verloren, legt der nächste Bau einen neuen an und meldet das mit einer Warnung. Dann muss die App einmal deinstalliert werden.
+- Ob zwei Fassungen zusammenpassen, zeigt der Fingerabdruck der Signatur in der Zusammenfassung des Laufs: Er muss derselbe sein.
+- Zum Verteilen an Tester ist der Debug-Bau nicht gedacht. Dafür den Test-Schlüssel hinterlegen (nächster Abschnitt). Der erste signierte Bau lässt sich nicht über einen Debug-Bau installieren.
 
 ## Test-Schlüssel zum Signieren anlegen
 

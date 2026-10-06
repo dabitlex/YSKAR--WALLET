@@ -11,6 +11,10 @@ def versionCodeWert = (project.hasProperty('versionCode') ? project.property('ve
 def versionNameWert = project.hasProperty('versionName') ? project.property('versionName') : '0.0.0-dev'
 def keystoreDatei = System.getenv('YSKAR_KEYSTORE_FILE')
 def hatSignatur = keystoreDatei != null && file(keystoreDatei).exists()
+// Debug-Bau auf GitHub: ein fester Debug-Schluessel, den der Workflow in seinem Cache haelt.
+// So laesst sich jede neue Debug-Fassung ueber die vorige installieren. Auch er liegt nie im Repo.
+def debugKeystore = System.getenv('YSKAR_DEBUG_KEYSTORE')
+def hatDebugSchluessel = debugKeystore != null && file(debugKeystore).exists()
 
 android {
     namespace = "net.yskar.wallet.test"
@@ -29,6 +33,14 @@ android {
         }
     }
     signingConfigs {
+        if (hatDebugSchluessel) {
+            debug {
+                storeFile file(debugKeystore)
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }
+        }
         if (hatSignatur) {
             release {
                 storeFile file(keystoreDatei)
