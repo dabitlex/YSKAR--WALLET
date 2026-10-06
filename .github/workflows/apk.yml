@@ -19,9 +19,9 @@ name: APK bauen
 #
 #   - Der Debug-Schluessel steht nicht im Repo und verlaesst GitHub nicht.
 #   - GitHub loescht Cache-Eintraege, die 7 Tage lang niemand gelesen hat.
-#     Deshalb liest ihn schluessel.yml alle 3 Tage. Geht er trotzdem verloren,
-#     entsteht ein neuer, und die naechste Fassung braucht einmal wieder
-#     "deinstallieren". Der Lauf meldet das mit einer Warnung.
+#     Liegt zwischen zwei Debug-Bauten mehr Zeit, entsteht ein neuer
+#     Schluessel, und die naechste Fassung braucht einmal "deinstallieren".
+#     Der Lauf meldet das mit einer Warnung.
 #   - Zum Verteilen an Tester ist er NICHT gedacht: Dafuer den Test-Schluessel
 #     als Secret hinterlegen (siehe README).
 #
@@ -112,8 +112,8 @@ jobs:
           echo "$YSKAR_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/yskar-wallet.jks"
           echo "YSKAR_KEYSTORE_FILE=$RUNNER_TEMP/yskar-wallet.jks" >> "$GITHUB_ENV"
 
-      # Nur fuer den Debug-Bau: derselbe Debug-Schluessel wie beim letzten Lauf.
-      # Pfad und Name des Cache-Eintrags muessen mit schluessel.yml uebereinstimmen.
+      # Nur fuer den Debug-Bau (kein Test-Schluessel hinterlegt): derselbe
+      # Debug-Schluessel wie beim letzten Lauf, solange er noch im Cache liegt.
       - name: Debug-Schlüssel aus dem Cache
         if: env.YSKAR_KEYSTORE_BASE64 == ''
         id: debugkey
