@@ -156,13 +156,16 @@ export function Einstieg() {
         </div>
         <div className="feldgruppe">
           <div className="feldkopf"><span className="feldname">{t.wieder.feld}</span><small>{t.wieder.zaehler(anzahl)}</small></div>
-          <Wortfelder kennung="w" werte={eingabe} nummern={eingabe.map((_, i) => i + 1)} auto
-                      setze={(i, w) => setEingabe(e => e.map((x, j) => (j === i ? w : x)))} />
-          <div className="paar-knoepfe">
-            <button type="button" className="tonknopf sinkt" onClick={async () => { const x = await einfuegen(); if (x.trim()) setEingabe(woerterAusText(x, 12)); }}>
-              <S n="einfuegen" g={19} /><span>{t.wieder.einfuegen}</span>
-            </button>
-            <button type="button" className="tonknopf grau sinkt" disabled={anzahl === 0} onClick={() => setEingabe(Array<string>(12).fill(''))}>{t.wieder.leeren}</button>
+          {/* Dieselbe Karte mit zwoelf Feldern wie beim Erstellen -- hier zum Hineintippen. */}
+          <div className="karte" style={{ padding: 16, gap: 14, borderRadius: 24 }}>
+            <Wortfelder kennung="w" werte={eingabe} nummern={eingabe.map((_, i) => i + 1)} auto
+                        setze={(i, w) => setEingabe(e => e.map((x, j) => (j === i ? w : x)))} />
+            <div className="paar-knoepfe">
+              <button type="button" className="tonknopf sinkt" onClick={async () => { const x = await einfuegen(); if (x.trim()) setEingabe(woerterAusText(x, 12)); }}>
+                <S n="einfuegen" g={19} /><span>{t.wieder.einfuegen}</span>
+              </button>
+              <button type="button" className="tonknopf grau sinkt" disabled={anzahl === 0} onClick={() => setEingabe(Array<string>(12).fill(''))}>{t.wieder.leeren}</button>
+            </div>
           </div>
           <div className="fehlertext" role="alert">{wortFehler(eingabe, tast.aktiv, 'w', t) ?? (anzahl === 12 && !gueltig ? t.wieder.ungueltig : '')}</div>
         </div>

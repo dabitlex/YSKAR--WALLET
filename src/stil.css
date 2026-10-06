@@ -232,7 +232,7 @@ h1,h2,p{margin:0}
 .wort b.falsch{color:var(--rot)}
 .wortraster.eins{grid-template-columns:minmax(0,1fr);gap:10px}
 .wortraster.eins .wort{height:52px;border-radius:16px;padding:0 16px}
-.tonknopf.grau{background:var(--karte);border:1px solid var(--rand);color:var(--lesen)}
+.tonknopf.grau{background:#474A51;border:1px solid #585C64;color:var(--lesen)}
 .tonknopf:disabled{opacity:.45}
 .tonknopf{height:48px;border-radius:14px;background:var(--blau-flaeche);border:0;color:var(--blau-hell);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:9px;width:100%}
 
