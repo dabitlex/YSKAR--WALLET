@@ -1,0 +1,13 @@
+{
+  "quelle": "dabitlex/YSKAR",
+  "commit": "9e1ce2d22377a414e63f2489019df736ee598fa5",
+  "pfad": "src/lib/core",
+  "dateien": {
+    "address.ts": "ab5279f1049cad80d4e30c97feed5d072ee0a8b14ceb79dc597d57946e4334fb",
+    "codec.ts": "980bdd0db7a16bcbe7b610731f55b984477fe4db0ce842f4bd95eb6729e0675a",
+    "hash.ts": "279e78389254a63661e1d6f871baa9a700031843cea63c7f2e357d0039d0693c",
+    "params.ts": "1e595c6e8883c838df518b433daa51fe3877cce4d18a9cd4b5503dfcc7843860",
+    "tx.ts": "3ce656735ca555f6b83d9d16135ec1e01bbdae81cdbede36678550490cb87a62",
+    "wallet.ts": "c55b52eb356ea87c573429231c48d5c29e3359a9ae7079ce26167b1ed1b24eee"
+  }
+}
