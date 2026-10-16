@@ -86,6 +86,14 @@ export const de = {
     offline: 'Keine Verbindung. Der Stand kann veraltet sein.',
     laedt: 'Guthaben wird geladen …',
     heute: 'heute', gesamt: 'GESAMTGUTHABEN',
+    swap: 'Swap', kurs: 'Kurs', demo: 'Demo',
+    baldTitel: 'Kommt bald', baldText: 'Diese Funktion ist noch nicht freigeschaltet. Du erfährst es als Erstes im Kanal, sobald sie da ist.',
+  },
+  kurs: {
+    titel: 'YSKAR · YSR', kurs: 'KURS', demoHinweis: 'Demo-Daten – noch kein Listing',
+    bestand: 'Dein Bestand', hoch: (z: string) => `Hoch (${z})`, tief: (z: string) => `Tief (${z})`, blockzeit: 'Ø Blockzeit', minuten: (n: number) => `${n} min`,
+    kaufen: 'Kaufen', verkaufen: 'Verkaufen',
+    zeitraum: { '1t': '1T', '1w': '1W', '1m': '1M', '1j': '1J', alle: 'Alle' } as Record<string, string>,
   },
   zahlung: {
     an: (wer: string) => `An ${wer}`, von: (wer: string) => `Von ${wer}`,
@@ -192,6 +200,7 @@ export const de = {
     sofort: 'sofort', min1: 'nach 1 Minute', min5: 'nach 5 Minuten',
     sperreTitel: 'Automatisch sperren', sperreText: 'Wie lange die Wallet offen bleibt, wenn du die App verlässt.',
     allgemein: 'ALLGEMEIN', sprache: 'Sprache', system: 'Wie das Gerät',
+    waehrung: 'Währung', waehrungText: 'In dieser Währung wird der Wert deines Guthabens angezeigt. Der Kurs kommt vom Markt, sobald YSR gelistet ist.', euro: 'Euro', dollar: 'US-Dollar',
     ueber: 'ÜBER', version: 'Version', netz: 'Netz', hauptkette: 'Hauptkette',
     diagnose: 'Diagnose kopieren', diagnoseKopiert: 'Diagnose kopiert',
     wallet: 'WALLET', entfernen: 'Wallet von diesem Gerät entfernen',

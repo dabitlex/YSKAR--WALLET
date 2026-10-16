@@ -87,6 +87,14 @@ export const en: Woerterbuch = {
     offline: 'No connection. The balance may be out of date.',
     laedt: 'Loading balance …',
     heute: 'today', gesamt: 'TOTAL BALANCE',
+    swap: 'Swap', kurs: 'Price', demo: 'Demo',
+    baldTitel: 'Coming soon', baldText: 'This feature is not available yet. You will hear about it first in the channel once it is.',
+  },
+  kurs: {
+    titel: 'YSKAR · YSR', kurs: 'PRICE', demoHinweis: 'Demo data – not listed yet',
+    bestand: 'Your holding', hoch: z => `High (${z})`, tief: z => `Low (${z})`, blockzeit: 'Avg. block time', minuten: n => `${n} min`,
+    kaufen: 'Buy', verkaufen: 'Sell',
+    zeitraum: { '1t': '1D', '1w': '1W', '1m': '1M', '1j': '1Y', alle: 'All' },
   },
   zahlung: {
     an: wer => `To ${wer}`, von: wer => `From ${wer}`,
@@ -193,6 +201,7 @@ export const en: Woerterbuch = {
     sofort: 'immediately', min1: 'after 1 minute', min5: 'after 5 minutes',
     sperreTitel: 'Auto-lock', sperreText: 'How long the wallet stays open after you leave the app.',
     allgemein: 'GENERAL', sprache: 'Language', system: 'Same as device',
+    waehrung: 'Currency', waehrungText: 'The value of your balance is shown in this currency. The rate comes from the market once YSR is listed.', euro: 'Euro', dollar: 'US dollar',
     ueber: 'ABOUT', version: 'Version', netz: 'Network', hauptkette: 'Main chain',
     diagnose: 'Copy diagnostics', diagnoseKopiert: 'Diagnostics copied',
     wallet: 'WALLET', entfernen: 'Remove wallet from this device',

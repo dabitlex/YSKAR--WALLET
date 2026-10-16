@@ -133,6 +133,32 @@ h1,h2,p{margin:0}
 .adress-pille:active{background:var(--flaeche)}
 .trenn{height:1px;background:var(--linie);margin-top:4px}
 
+/* Wert in Euro oder Dollar unter dem Guthaben. */
+.fiatwert{font-size:18px;font-weight:800;color:var(--lesen);letter-spacing:-.01em}
+/* Runde Aktionen: Senden, Empfangen, Swap, Scannen. */
+.rund-reihe{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:0 4px;flex-shrink:0}
+.rund{display:flex;flex-direction:column;align-items:center;gap:8px;padding:2px 0;border:0;background:transparent;font-size:13px;font-weight:600;color:var(--lesen)}
+.rund .kreis{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--karte);color:var(--text);transition:background-color .09s ease-out}
+.rund.blau .kreis{background:var(--blau);color:#fff;box-shadow:var(--schein)}
+.rund:active .kreis{background:var(--flaeche)}
+.rund.blau:active .kreis{background:var(--blau-druck);box-shadow:none}
+/* Die YSKAR-Zeile: Kurs, Mini-Kurve, Bestand. */
+.tokenzeile{flex-direction:row;align-items:center;gap:12px;padding:14px 16px;border:0;text-align:left;width:100%;color:var(--text)}
+.tokenzeile:active{background:var(--flaeche)}
+.tokenzeile .mitte{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.tokenzeile .mitte b{font-size:15px;font-weight:700}
+.tokenzeile .mitte small{font-size:13px;color:var(--leise);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.tokenzeile .mitte small .gruen{color:var(--gruen);font-weight:700}
+.tokenzeile .mitte small .rot{color:var(--rot);font-weight:700}
+.tokenzeile .rechts{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
+.tokenzeile .rechts .ziffern{font-size:14px;font-weight:500}
+.tokenzeile .rechts small{font-size:13px;color:var(--leise)}
+.logo-kachel{background:var(--flaeche)}
+.logo-kachel img{width:28px;height:auto}
+.demo-marke{font-size:10px;font-weight:800;letter-spacing:.08em;padding:2px 6px;border-radius:999px;background:var(--bern-flaeche);color:var(--bern)}
+.kurve{display:block;width:100%;flex-shrink:0;overflow:visible}
+.tokenzeile .kurve{width:44px;flex:0 0 44px}
+.kurve path{transition:d .3s}
 /* Aktionen: zwei breite Pillen und die Scan-Taste. */
 .aktionen{display:flex;gap:10px;flex-shrink:0}
 .aktionen .knopf{flex:1;min-width:0;padding:0 14px}
@@ -147,6 +173,8 @@ h1,h2,p{margin:0}
 .zeile .mitte{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .zeile .mitte b{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .zeile .mitte small{font-size:13px;color:var(--leise);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.zeile .rechts{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
+.zeile .rechts small{font-size:12px;color:var(--leise)}
 .zeile .wert{font-family:var(--ziffern);font-size:15px;font-weight:500;white-space:nowrap}
 .zeile .wert.plus{color:var(--gruen)}
 .zeile > svg.pfeil{color:var(--blass);flex-shrink:0}
@@ -338,6 +366,7 @@ h1,h2,p{margin:0}
 .pille.bern{background:var(--bern-flaeche);color:var(--bern)}
 .pille.gruen{background:var(--gruen-flaeche);color:var(--gruen)}
 .pille.blau{background:var(--blau-flaeche);color:var(--blau-hell)}
+.pille.rot{background:var(--rot-flaeche);color:var(--rot)}
 .pille i{width:6px;height:6px;border-radius:50%;background:currentColor}
 .anwen{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--leise)}
 .anwen .ziffern{color:var(--text);font-size:18px;font-weight:500}

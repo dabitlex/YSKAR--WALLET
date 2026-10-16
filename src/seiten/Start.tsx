@@ -7,6 +7,10 @@ import { betragText } from '../wallet/betrag.ts';
 import { kopieren } from '../geraet/geraet.ts';
 import { useZahlungen } from '../ui/daten.ts';
 import { S, Kopf, Betrag, Zahlungszeile, useMeldung } from '../ui/teile.tsx';
+import logoBild from '../bilder/praegung.png';
+import { useKurs, fiatText, wert } from '../wallet/kurs.ts';
+import { Kurve, KommtBald } from './Kurs.tsx';
+import { quelle } from '../wallet/kurs.ts';
 
 /** Das Guthaben zaehlt beim ersten Erscheinen hoch, danach springt es nicht mehr. */
 let gezaehlt = false;
@@ -44,7 +48,11 @@ export function Start() {
   const wallet = useWallet();
   const { konto, offline } = useDaten();
   const { wartend, verlauf } = useZahlungen();
-  const { verborgen } = useEinstellungen();
+  const { verborgen, waehrung } = useEinstellungen();
+  const kurs = useKurs();
+  const [bald, setBald] = useState(false);
+  const [kurve, setKurve] = useState<number[]>([]);
+  useEffect(() => { let lebt = true; quelle.verlauf('1w', waehrung).then(w => { if (lebt) setKurve(w); }).catch(() => {}); return () => { lebt = false; }; }, [waehrung]);
   const melde = useMeldung();
   const stand = useHochzaehlen(konto ? BigInt(konto.balance) : null);
   const liste = [...wartend, ...verlauf].slice(0, 6);
@@ -57,12 +65,16 @@ export function Start() {
     return summe;
   }, [verlauf]);
 
+  const guthabenWert = konto && !verborgen ? wert(BigInt(konto.balance), kurs, waehrung) : null;
+  const fmt = (n: number) => fiatText(n, waehrung, t.code);
+  const rund = (label: string, symbol: Parameters<typeof S>[0]['n'], onTipp: () => void, blau = false) => (
+    <button type="button" className={`rund sinkt ${blau ? 'blau' : ''}`} onClick={onTipp}><span className="kreis"><S n={symbol} g={24} w={2.2} /></span><span>{label}</span></button>
+  );
+
   return (
     <div className="seite mit-nav">
-      <Kopf titel={t.start.titel} rechts={<>
-        <button type="button" className="klein sinkt" aria-label={t.allg.scannen} onClick={() => nav.gehe({ n: 'senden', scan: true })}><S n="scan" /></button>
-        <button type="button" className="klein sinkt" aria-label={t.start.sperren} onClick={wallet.sperren}><S n="schloss" /></button>
-      </>} />
+      <Kopf titel={t.start.titel} rechts={
+        <button type="button" className="klein sinkt" aria-label={t.start.sperren} onClick={wallet.sperren}><S n="schloss" /></button>} />
 
       {offline && <div className="band" role="status">{t.start.offline}</div>}
 
@@ -80,9 +92,12 @@ export function Start() {
             ? <div style={{ color: 'var(--leise)', fontSize: 15, minHeight: 56, display: 'flex', alignItems: 'center' }}>{offline ? '–' : t.start.laedt}</div>
             : <Betrag wert={stand} ziel={BigInt(konto?.balance ?? stand)} />}
         <div className="unterzeile-start">
+          {guthabenWert !== null && <span className="fiatwert">≈ {fmt(guthabenWert)}</span>}
           {!verborgen && heute !== 0n && (
             <span className={`pille ${heute > 0n ? 'gruen' : 'blau'}`}><i />{heute > 0n ? '+' : '−'}{betragText(heute < 0n ? -heute : heute, t.code)} YSR {t.start.heute}</span>
           )}
+        </div>
+        <div className="unterzeile-start">
           <button type="button" className="adress-pille sinkt" aria-label={t.start.adresseKopieren}
                   onClick={async () => { if (wallet.adresse && await kopieren(wallet.adresse)) melde(t.start.adresseKopiert); }}>
             <span>{kurzAdresse(wallet.adresse, '')}</span><S n="kopie" g={14} />
@@ -90,11 +105,27 @@ export function Start() {
         </div>
       </div>
 
-      <div className="aktionen auf" style={{ animationDelay: '.06s' }}>
-        <button type="button" className="knopf sinkt" onClick={() => nav.gehe({ n: 'senden' })}><S n="hoch" g={20} w={2.2} /><span>{t.start.senden}</span></button>
-        <button type="button" className="knopf zweit sinkt" onClick={() => nav.gehe({ n: 'empfangen' })}><S n="runter" g={20} w={2.2} /><span>{t.start.empfangen}</span></button>
-        <button type="button" className="klein sinkt" aria-label={t.start.scannen} onClick={() => nav.gehe({ n: 'senden', scan: true })}><S n="scan" g={22} /></button>
+      <div className="rund-reihe auf" style={{ animationDelay: '.06s' }}>
+        {rund(t.start.senden, 'hoch', () => nav.gehe({ n: 'senden' }), true)}
+        {rund(t.start.empfangen, 'runter', () => nav.gehe({ n: 'empfangen' }))}
+        {rund(t.start.swap, 'tausch', () => setBald(true))}
+        {rund(t.start.scannen, 'scan', () => nav.gehe({ n: 'senden', scan: true }))}
       </div>
+
+      {kurs && (
+        <button type="button" className="karte tokenzeile auf" style={{ animationDelay: '.1s' }} onClick={() => nav.gehe({ n: 'kurs' })}>
+          <span className="kachel logo-kachel"><img src={logoBild} alt="" draggable={false} /></span>
+          <span className="mitte">
+            <b>YSKAR</b>
+            <small><span className="ziffern">{fmt(kurs.preis[waehrung])}</span><span className={kurs.aenderung24h >= 0 ? 'gruen' : 'rot'}>{kurs.aenderung24h >= 0 ? '+' : '−'}{Math.abs(kurs.aenderung24h).toLocaleString(t.code, { maximumFractionDigits: 1 })} %</span>{kurs.demo && <span className="demo-marke">{t.start.demo}</span>}</small>
+          </span>
+          <Kurve werte={kurve} hoehe={20} klein />
+          <span className="rechts">
+            <span className="ziffern">{verborgen ? '••••' : betragText(konto ? BigInt(konto.balance) : 0n, t.code)} YSR</span>
+            <small>{guthabenWert === null ? '' : fmt(guthabenWert)}</small>
+          </span>
+        </button>
+      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} className="auf">
         <div className="ueber">
@@ -105,6 +136,7 @@ export function Start() {
           ? <div className="karte"><div className="leerstand">{konto ? t.start.leer : offline ? t.start.offline : t.start.laedt}</div></div>
           : <div className="karte">{liste.map(z => <Zahlungszeile key={z.txid} z={z} onTipp={() => nav.gehe({ n: 'detail', zahlung: z })} />)}</div>}
       </div>
+      {bald && <KommtBald titel={t.start.swap} onZu={() => setBald(false)} />}
     </div>
   );
 }

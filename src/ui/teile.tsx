@@ -5,6 +5,8 @@ import { useT } from '../i18n/index.ts';
 import { betragText, betragZahl, dezimalZeichen } from '../wallet/betrag.ts';
 import { vierer, kurzAdresse } from '../wallet/adresse.ts';
 import { kuerzel, useKontakte } from '../wallet/kontakte.ts';
+import { useEinstellungen } from '../wallet/einstellungen.ts';
+import { useKurs, fiatText, wert } from '../wallet/kurs.ts';
 import type { Zahlung } from '../wallet/zahlungen.ts';
 import * as tresor from '../wallet/tresor.ts';
 import { tippGefuehl, fehlerGefuehl, beiZurueck } from '../geraet/geraet.ts';
@@ -45,6 +47,9 @@ const PFADE = {
   weg: <><path d="M8.5 5H20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H8.5L2.5 12l6-7z" /><path d="m12 9.5 5 5" /><path d="m17 9.5-5 5" /></>,
   kreuz: <><path d="M6 6l12 12" /><path d="M18 6 6 18" /></>,
   gross: <path d="M12 4 4 12.5h4.5V19h7v-6.5H20L12 4z" />,
+  tausch: <><path d="M4 7h13" /><path d="m13 3 4 4-4 4" /><path d="M20 17H7" /><path d="m11 13-4 4 4 4" /></>,
+  minus: <path d="M5 12h14" />,
+  kurve: <path d="M3 17l5-6 4 3 4-6 5 4" />,
 };
 export type SymbolName = keyof typeof PFADE;
 
@@ -287,6 +292,9 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
   const t = useT();
   const { name } = useKontakte();
   const zeit = useZeit();
+  const { waehrung } = useEinstellungen();
+  const kurs = useKurs();
+  const fiat = wert(z.betrag, kurs, waehrung);
   const ein = z.art !== 'aus';
   const belohnung = z.art === 'belohnung' || z.art === 'pool';
   const kontakt = z.gegen ? name(z.gegen) : null;
@@ -307,7 +315,10 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
         <b>{titel}</b>
         <small>{wartet ? <><span>{wann}</span><span className="pille bern"><i />{t.zahlung.wartetKurz}</span></> : zusatz}</small>
       </div>
-      <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}{betragText(z.betrag, t.code)}</span>
+      <span className="rechts">
+        <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}{betragText(z.betrag, t.code)}</span>
+        {fiat !== null && <small>{ein ? '+' : '−'}{fiatText(fiat, waehrung, t.code)}</small>}
+      </span>
     </button>
   );
 }
