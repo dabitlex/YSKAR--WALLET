@@ -58,36 +58,37 @@ export function Einstellungen() {
   }
 
   const pfeil = <S n="weiter" g={18} w={2.2} />;
+  const kachel = (n: Parameters<typeof S>[0]['n'], rot = false) => <span className={`kachel klein-kachel ${rot ? 'rot' : ''}`}><S n={n} g={18} /></span>;
   return (
     <div className="seite mit-nav eng">
       <Kopf titel={t.einst.titel} />
 
       <div className="rubrik">{t.einst.sicherheit}</div>
       <div className="karte innen" style={{ padding: '0 16px' }}>
-        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'pinAendern' })}><span>{t.einst.pinAendern}</span><span className="rechts">{pfeil}</span></button>
+        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'pinAendern' })}>{kachel('schloss')}<span>{t.einst.pinAendern}</span><span className="rechts">{pfeil}</span></button>
         <div className="einstellzeile">
-          <span id="l-finger">{t.einst.finger}</span>
+          {kachel('finger')}<span id="l-finger">{t.einst.finger}</span>
           <button type="button" role="switch" className="schalter" aria-checked={bio} aria-labelledby="l-finger" onClick={fingerUmschalten}><span /></button>
         </div>
-        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'woerterZeigen' })}><span>{t.einst.woerter}</span><span className="rechts">{pfeil}</span></button>
-        <button type="button" className="einstellzeile" onClick={() => setBlatt('sperre')}><span>{t.einst.sperre}</span><span className="rechts"><span>{sperrText(e.sperreNach)}</span>{pfeil}</span></button>
+        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'woerterZeigen' })}>{kachel('auge')}<span>{t.einst.woerter}</span><span className="rechts">{pfeil}</span></button>
+        <button type="button" className="einstellzeile" onClick={() => setBlatt('sperre')}>{kachel('uhr')}<span>{t.einst.sperre}</span><span className="rechts"><span>{sperrText(e.sperreNach)}</span>{pfeil}</span></button>
       </div>
 
       <div className="rubrik">{t.einst.allgemein}</div>
       <div className="karte innen" style={{ padding: '0 16px' }}>
-        <button type="button" className="einstellzeile" onClick={() => setBlatt('sprache')}><span>{t.einst.sprache}</span><span className="rechts"><span>{sprachText(e.sprache)}</span>{pfeil}</span></button>
+        <button type="button" className="einstellzeile" onClick={() => setBlatt('sprache')}>{kachel('welt')}<span>{t.einst.sprache}</span><span className="rechts"><span>{sprachText(e.sprache)}</span>{pfeil}</span></button>
       </div>
 
       <div className="rubrik">{t.einst.ueber}</div>
       <div className="karte innen" style={{ padding: '0 16px' }}>
-        <div className="einstellzeile"><span>{t.einst.version}</span><span className="rechts ziffern" style={{ fontSize: 14 }}>{__VERSION__}</span></div>
-        <div className="einstellzeile"><span>{t.einst.netz}</span><span className="rechts">{t.einst.hauptkette}</span></div>
-        <button type="button" className="einstellzeile" onClick={diagnose}><span>{t.einst.diagnose}</span><span className="rechts"><S n="kopie" g={18} /></span></button>
+        <div className="einstellzeile">{kachel('info')}<span>{t.einst.version}</span><span className="rechts ziffern" style={{ fontSize: 14 }}>{__VERSION__}</span></div>
+        <div className="einstellzeile">{kachel('block')}<span>{t.einst.netz}</span><span className="rechts">{t.einst.hauptkette}</span></div>
+        <button type="button" className="einstellzeile" onClick={diagnose}>{kachel('kopie')}<span>{t.einst.diagnose}</span><span className="rechts"><S n="kopie" g={18} /></span></button>
       </div>
 
       <div className="rubrik">{t.einst.wallet}</div>
       <div className="karte innen" style={{ padding: '0 16px' }}>
-        <button type="button" className="einstellzeile rot" onClick={() => setBlatt('entfernen')}><span>{t.einst.entfernen}</span></button>
+        <button type="button" className="einstellzeile rot" onClick={() => setBlatt('entfernen')}>{kachel('weg', true)}<span>{t.einst.entfernen}</span></button>
       </div>
 
       {blatt === 'sperre' && (

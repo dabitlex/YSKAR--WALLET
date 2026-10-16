@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useT } from '../i18n/index.ts';
 import { useDaten, useNav, useWallet } from '../zustand.tsx';
 import { einstellen, useEinstellungen } from '../wallet/einstellungen.ts';
 import { kurzAdresse } from '../wallet/adresse.ts';
+import { betragText } from '../wallet/betrag.ts';
 import { kopieren } from '../geraet/geraet.ts';
 import { useZahlungen } from '../ui/daten.ts';
 import { S, Kopf, Betrag, Zahlungszeile, useMeldung } from '../ui/teile.tsx';
@@ -33,6 +34,10 @@ function useHochzaehlen(ziel: bigint | null): bigint | null {
   return wert;
 }
 
+/**
+ * Start: das Guthaben in der Mitte, darunter die Bewegung des Tages und die
+ * Adresse, dann die Aktionen und die letzten Zahlungen.
+ */
 export function Start() {
   const t = useT();
   const nav = useNav();
@@ -44,43 +49,54 @@ export function Start() {
   const stand = useHochzaehlen(konto ? BigInt(konto.balance) : null);
   const liste = [...wartend, ...verlauf].slice(0, 6);
 
+  // Was heute dazukam oder wegging -- nur aus den Zahlungen, die schon in Bloecken stehen.
+  const heute = useMemo(() => {
+    const h = new Date(), anfang = new Date(h.getFullYear(), h.getMonth(), h.getDate()).getTime() / 1000;
+    let summe = 0n;
+    for (const z of verlauf) if (z.zeit !== null && z.zeit >= anfang) summe += z.art === 'aus' ? -(z.betrag + z.gebuehr) : z.betrag;
+    return summe;
+  }, [verlauf]);
+
   return (
     <div className="seite mit-nav">
-      <Kopf titel={t.start.titel} rechts={
-        <button type="button" className="klein sinkt" aria-label={t.start.sperren} onClick={wallet.sperren}><S n="schloss" /></button>} />
+      <Kopf titel={t.start.titel} rechts={<>
+        <button type="button" className="klein sinkt" aria-label={t.allg.scannen} onClick={() => nav.gehe({ n: 'senden', scan: true })}><S n="scan" /></button>
+        <button type="button" className="klein sinkt" aria-label={t.start.sperren} onClick={wallet.sperren}><S n="schloss" /></button>
+      </>} />
 
       {offline && <div className="band" role="status">{t.start.offline}</div>}
 
       <div className="guthaben auf">
-        <div className="etikett">{t.start.guthaben}</div>
-        <div className="betragzeile">
-          {verborgen
-            ? <div className="betrag"><div className="gross" aria-hidden="true">••••<i>••</i></div><div className="einheit">YSR</div></div>
-            : stand === null
-              ? <div style={{ color: 'var(--leise)', fontSize: 15 }}>{offline ? '–' : t.start.laedt}</div>
-              : <Betrag wert={stand} ziel={BigInt(konto?.balance ?? stand)} />}
-          <button type="button" className="klein leer sinkt" style={{ marginRight: -8 }} aria-pressed={verborgen}
+        <div className="etikettzeile">
+          <span className="etikett">{t.start.gesamt}</span>
+          <button type="button" className="klein leer sinkt" aria-pressed={verborgen}
                   aria-label={verborgen ? t.start.zeigen : t.start.verbergen} onClick={() => einstellen({ verborgen: !verborgen })}>
-            <S n={verborgen ? 'augeZu' : 'auge'} g={22} />
+            <S n={verborgen ? 'augeZu' : 'auge'} g={18} />
           </button>
         </div>
-        <div className="trenn" />
-        <div className="adresszeile">
-          <div><small>{t.start.adresse}</small><span className="ziffern">{kurzAdresse(wallet.adresse, '')}</span></div>
-          <button type="button" className="klein sinkt" aria-label={t.start.adresseKopieren}
+        {verborgen
+          ? <div className="betrag"><div className="gross" aria-hidden="true">••••<i>••</i></div><div className="einheit">YSR</div></div>
+          : stand === null
+            ? <div style={{ color: 'var(--leise)', fontSize: 15, minHeight: 56, display: 'flex', alignItems: 'center' }}>{offline ? '–' : t.start.laedt}</div>
+            : <Betrag wert={stand} ziel={BigInt(konto?.balance ?? stand)} />}
+        <div className="unterzeile-start">
+          {!verborgen && heute !== 0n && (
+            <span className={`pille ${heute > 0n ? 'gruen' : 'blau'}`}><i />{heute > 0n ? '+' : '−'}{betragText(heute < 0n ? -heute : heute, t.code)} YSR {t.start.heute}</span>
+          )}
+          <button type="button" className="adress-pille sinkt" aria-label={t.start.adresseKopieren}
                   onClick={async () => { if (wallet.adresse && await kopieren(wallet.adresse)) melde(t.start.adresseKopiert); }}>
-            <S n="kopie" g={18} />
+            <span>{kurzAdresse(wallet.adresse, '')}</span><S n="kopie" g={14} />
           </button>
         </div>
       </div>
 
-      <div className="rund-reihe auf" style={{ animationDelay: '.06s' }}>
-        <button type="button" className="rund blau" onClick={() => nav.gehe({ n: 'senden' })}><span className="kreis"><S n="hoch" g={24} w={2.2} /></span><span>{t.start.senden}</span></button>
-        <button type="button" className="rund" onClick={() => nav.gehe({ n: 'empfangen' })}><span className="kreis"><S n="runter" g={24} w={2.2} /></span><span>{t.start.empfangen}</span></button>
-        <button type="button" className="rund" onClick={() => nav.gehe({ n: 'senden', scan: true })}><span className="kreis"><S n="scan" g={24} /></span><span>{t.start.scannen}</span></button>
+      <div className="aktionen auf" style={{ animationDelay: '.06s' }}>
+        <button type="button" className="knopf sinkt" onClick={() => nav.gehe({ n: 'senden' })}><S n="hoch" g={20} w={2.2} /><span>{t.start.senden}</span></button>
+        <button type="button" className="knopf zweit sinkt" onClick={() => nav.gehe({ n: 'empfangen' })}><S n="runter" g={20} w={2.2} /><span>{t.start.empfangen}</span></button>
+        <button type="button" className="klein sinkt" aria-label={t.start.scannen} onClick={() => nav.gehe({ n: 'senden', scan: true })}><S n="scan" g={22} /></button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }} className="auf">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} className="auf">
         <div className="ueber">
           <b>{t.start.letzte}</b>
           {liste.length > 0 && <button type="button" className="verweis" onClick={() => nav.reiter('verlauf')}>{t.start.alle}</button>}
@@ -89,7 +105,6 @@ export function Start() {
           ? <div className="karte"><div className="leerstand">{konto ? t.start.leer : offline ? t.start.offline : t.start.laedt}</div></div>
           : <div className="karte">{liste.map(z => <Zahlungszeile key={z.txid} z={z} onTipp={() => nav.gehe({ n: 'detail', zahlung: z })} />)}</div>}
       </div>
-
     </div>
   );
 }

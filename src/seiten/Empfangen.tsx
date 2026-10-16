@@ -10,7 +10,7 @@ import { DECIMALS } from '../kern/params.ts';
 import { kopieren, teilen } from '../geraet/geraet.ts';
 import { tippeBetrag, tippeText } from '../wallet/tasten.ts';
 import { S, KopfZurueck, Vierer, QrBild, Blatt, useMeldung } from '../ui/teile.tsx';
-import { Tippfeld, useTastatur, betragKlasse } from '../ui/tastatur.tsx';
+import { Tippfeld, betragKlasse } from '../ui/tastatur.tsx';
 
 /**
  * Empfangen: die eigene Adresse als QR-Code -- wahlweise mit Betrag und
@@ -22,7 +22,6 @@ export function Empfangen({ fuer }: { fuer?: string }) {
   const nav = useNav();
   const wallet = useWallet();
   const melde = useMeldung();
-  const tast = useTastatur();
   const { name } = useKontakte();
   const zeichen = dezimalZeichen(t.code);
   const adresse = wallet.adresse ?? '';
@@ -57,24 +56,25 @@ export function Empfangen({ fuer }: { fuer?: string }) {
             {anforderung.notiz && <div style={{ fontSize: 14, color: 'var(--lesen)' }}>{anforderung.notiz}</div>}
           </div>
         )}
-        <div style={{ alignSelf: 'stretch', height: 1, background: 'var(--linie)' }} />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <div className="etikett">{t.empfangen.deine}</div>
           <Vierer adresse={adresse} klasse="mittig" />
         </div>
-      </div>
 
-      <div className="paar-knoepfe">
-        <button type="button" className="knopf sinkt" style={{ fontSize: 16 }} onClick={async () => { if (await kopieren(anforderung ? code : adresse)) melde(t.allg.kopiert); }}>
-          <S n="kopie" g={19} /><span>{t.empfangen.kopieren}</span>
-        </button>
-        <button type="button" className="knopf zweit sinkt" onClick={weitergeben}><S n="teilen" g={19} /><span>{t.empfangen.teilen}</span></button>
+        <div className="paar-knoepfe" style={{ alignSelf: 'stretch' }}>
+          <button type="button" className="knopf zweit sinkt" style={{ fontSize: 15 }} onClick={async () => { if (await kopieren(anforderung ? code : adresse)) melde(t.allg.kopiert); }}>
+            <S n="kopie" g={18} /><span>{t.empfangen.kopieren}</span>
+          </button>
+          <button type="button" className="knopf zweit sinkt" style={{ fontSize: 15 }} onClick={weitergeben}><S n="teilen" g={18} /><span>{t.empfangen.teilen}</span></button>
+        </div>
       </div>
 
       {anforderung
         ? <button type="button" className="knopf zweit sinkt" onClick={() => { setAnforderung(null); setVermerkt(false); }}>{t.empfangen.ohneBetrag}</button>
-        : <button type="button" className="knopf zweit sinkt" style={{ justifyContent: 'space-between', fontSize: 15, fontWeight: 600 }} onClick={() => setBlatt(true)}>
-            <span>{t.empfangen.anfordern}</span><S n="weiter" g={18} w={2.2} />
+        : <button type="button" className="auswahlzeile sinkt" onClick={() => setBlatt(true)}>
+            <span className="kachel aus"><S n="runter" g={22} w={2.2} /></span>
+            <span className="worte"><b>{t.empfangen.anfordern}</b><small>{t.empfangen.anfordernText}</small></span>
+            <S n="weiter" g={18} w={2.2} />
           </button>}
 
       <div className="fuell" />
@@ -85,7 +85,7 @@ export function Empfangen({ fuer }: { fuer?: string }) {
           <p>{t.empfangen.blattText}</p>
           <div className="feldgruppe">
             <span className="feldname">{t.senden.betrag}</span>
-            <div className={`betragfeld ${tast.aktiv === 'anf-betrag' ? 'aktiv' : ''}`}>
+            <div className="betragblock" style={{ padding: 0 }}>
               <div className="oben">
                 <Tippfeld id="anf-betrag" art="ziffern" label={t.senden.betrag} wert={eingabe} platz="0" klasse={betragKlasse(eingabe)} auto
                           onTaste={z => setEingabe(b => tippeBetrag(b, z, zeichen, DECIMALS))} />
@@ -98,7 +98,7 @@ export function Empfangen({ fuer }: { fuer?: string }) {
               <span className="feldname">{t.senden.notiz} <span style={{ fontWeight: 500, color: 'var(--leise)' }}>{t.allg.optional}</span></span>
               <small>{notizBytes(notizEingabe)} / {NOTIZ_BYTES}</small>
             </div>
-            <Tippfeld id="anf-notiz" art="text" klasse="feld vertieft" gross="anfang" label={t.senden.notiz} wert={notizEingabe}
+            <Tippfeld id="anf-notiz" art="text" klasse="feld" gross="anfang" label={t.senden.notiz} wert={notizEingabe}
                       onTaste={z => setNotizEingabe(n => notizKuerzen(tippeText(n, z)))} />
           </div>
           <button type="button" className="knopf sinkt" disabled={einheiten <= 0n}

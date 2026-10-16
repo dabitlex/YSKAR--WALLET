@@ -181,7 +181,7 @@ export function Vierer({ adresse, klasse }: { adresse: string; klasse?: string }
 }
 
 export function Kopf({ titel, rechts }: { titel: string; rechts?: ReactNode }) {
-  return <div className="kopf"><h1>{titel}</h1>{rechts}</div>;
+  return <div className="kopf"><h1>{titel}</h1>{rechts && <div className="kopf-rechts">{rechts}</div>}</div>;
 }
 
 export function KopfZurueck({ titel, zurueck, rechts, mitte }: { titel?: string; zurueck: () => void; rechts?: ReactNode; mitte?: ReactNode }) {
@@ -195,33 +195,55 @@ export function KopfZurueck({ titel, zurueck, rechts, mitte }: { titel?: string;
   );
 }
 
-export function Schritte({ n, von }: { n: number; von: number }) {
-  const t = useT();
-  return (
-    <div className="schrittkopf">
-      <small>{t.allg.schritt(n, von)}</small>
-      <div>{Array.from({ length: von }, (_, i) => <i key={i} className={i < n ? 'an' : undefined} />)}</div>
-    </div>
-  );
-}
-
 export function Kasten({ art, symbol, children }: { art: 'warn' | 'ruhig' | 'rot'; symbol: SymbolName; children: ReactNode }) {
   return <div className={`kasten ${art}`}><S n={symbol} /><div>{children}</div></div>;
 }
 
+/** Vier ruhige Farbtoene, fest je Name -- derselbe Kontakt sieht ueberall gleich aus. */
+function ton(name: string): string {
+  let h = 0;
+  for (const c of name) h = (h * 31 + c.codePointAt(0)!) >>> 0;
+  const n = h % 4;
+  return n === 0 ? '' : `t${n}`;
+}
+
 export function Bild({ name, g = 40 }: { name: string; g?: number }) {
-  return <span className="bild" aria-hidden="true" style={{ width: g, height: g, fontSize: Math.round(g * 0.35) }}>{kuerzel(name)}</span>;
+  return <span className={`bild ${ton(name)}`} aria-hidden="true" style={{ width: g, height: g, fontSize: Math.round(g * 0.35) }}>{kuerzel(name)}</span>;
 }
 
 export function Wartering({ gross }: { gross?: boolean }) {
-  const g = gross ? 68 : 40, r = gross ? 30 : 17.5, b = gross ? 4 : 3, u = 2 * Math.PI * r;
+  const g = gross ? 68 : 44, r = gross ? 30 : 19.5, b = gross ? 4 : 3, u = 2 * Math.PI * r;
   return (
     <div className={`wartering ${gross ? 'gross' : ''}`}>
       <svg className="ring" width={g} height={g} viewBox={`0 0 ${g} ${g}`} aria-hidden="true">
-        <circle cx={g / 2} cy={g / 2} r={r} fill="none" stroke="#555960" strokeWidth={b} />
-        <circle cx={g / 2} cy={g / 2} r={r} fill="none" stroke="#F0B45A" strokeWidth={b} strokeLinecap="round" strokeDasharray={`${u * 0.28} ${u}`} />
+        <circle cx={g / 2} cy={g / 2} r={r} fill="none" stroke="#3A3E45" strokeWidth={b} />
+        <circle cx={g / 2} cy={g / 2} r={r} fill="none" stroke="#F5B65B" strokeWidth={b} strokeLinecap="round" strokeDasharray={`${u * 0.28} ${u}`} />
       </svg>
       <S n="hoch" g={gross ? 26 : 16} w={2.2} />
+    </div>
+  );
+}
+
+/**
+ * Drei Stufen nebeneinander: gesendet, im Block, bestaetigt.
+ * `stand` = wie viele davon erledigt sind (1 bis 3).
+ */
+export function Stufenleiste({ stand, namen }: { stand: 1 | 2 | 3; namen: [string, string, string] }) {
+  return (
+    <div className="stufenleiste" role="img" aria-label={namen.slice(0, stand).join(', ')}>
+      {namen.map((n, i) => {
+        const art = i < stand ? 'fertig' : i === stand ? 'dran' : 'offen';
+        return (
+          <div key={n} className={i <= stand ? 'an' : undefined}>
+            <div className="reihe">
+              <i className={i === 0 ? 'unsichtbar' : i <= stand ? 'voll' : undefined} />
+              <span className={`punkt ${art}`}>{art === 'fertig' && <S n="haken" g={12} w={3} />}</span>
+              <i className={i === 2 ? 'unsichtbar' : i < stand ? 'voll' : undefined} />
+            </div>
+            <span>{n}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -256,25 +278,35 @@ export function useZeit() {
   }, [t]);
 }
 
+/**
+ * Eine Zahlung in der Liste. Ein bekannter Kontakt steht mit seinen
+ * Initialen da, alles andere mit einem runden Symbol. Eine wartende Zahlung
+ * traegt eine kleine Pille statt eines Satzes.
+ */
 export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () => void; mitUhr?: boolean }) {
   const t = useT();
-  const wer = useWer();
+  const { name } = useKontakte();
   const zeit = useZeit();
   const ein = z.art !== 'aus';
+  const belohnung = z.art === 'belohnung' || z.art === 'pool';
+  const kontakt = z.gegen ? name(z.gegen) : null;
   const titel = z.art === 'belohnung' ? t.zahlung.belohnung : z.art === 'pool' ? t.zahlung.pool
-    : z.art === 'ein' ? t.zahlung.von(wer(z.gegen)) : t.zahlung.an(wer(z.gegen));
+    : kontakt ?? kurzAdresse(z.gegen, '?');
   const wartet = z.hoehe === null;
   const wann = z.zeit === null ? '' : mitUhr ? zeit.uhr(z.zeit) : zeit.kurz(z.zeit);
-  const zusatz = wartet ? t.zahlung.wartet
-    : [wann, z.notiz ? t.zahlung.notiz(z.notiz) : z.art === 'belohnung' || z.art === 'pool' ? t.zahlung.block(zeit.zahl(z.hoehe!)) : t.zahlung.bestaetigt]
-        .filter(Boolean).join(' · ');
+  const zusatz = [wann, z.notiz ? t.zahlung.notiz(z.notiz) : belohnung ? t.zahlung.block(zeit.zahl(z.hoehe ?? 0)) : '']
+    .filter(Boolean).join(' · ');
   return (
     <button type="button" className="zeile" onClick={onTipp}>
       {wartet && !ein ? <Wartering />
+        : kontakt && !belohnung ? <Bild name={kontakt} g={44} />
         : <div className={`kachel ${wartet ? 'bern' : ein ? 'ein' : 'aus'}`}>
-            <S n={z.art === 'belohnung' || z.art === 'pool' ? 'block' : ein ? 'runter' : 'hoch'} g={18} w={2.2} />
+            <S n={belohnung ? 'block' : ein ? 'runter' : 'hoch'} g={20} w={2.2} />
           </div>}
-      <div className="mitte"><b>{titel}</b><small className={wartet ? 'wartet' : undefined}>{zusatz}</small></div>
+      <div className="mitte">
+        <b>{titel}</b>
+        <small>{wartet ? <><span>{wann}</span><span className="pille bern"><i />{t.zahlung.wartetKurz}</span></> : zusatz}</small>
+      </div>
       <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}{betragText(z.betrag, t.code)}</span>
     </button>
   );
@@ -287,7 +319,7 @@ const REITER_BILD: Record<Reiter, SymbolName> = { start: 'haus', kontakte: 'leut
 export function Nav() {
   const t = useT();
   const nav = useNav();
-  const namen: Record<Reiter, string> = { start: 'Start', kontakte: t.kontakte.titel, verlauf: t.verlauf.titel, einstellungen: t.einst.titel };
+  const namen: Record<Reiter, string> = { start: t.start.titel, kontakte: t.kontakte.titel, verlauf: t.verlauf.titel, einstellungen: t.einst.kurz };
   return (
     <>
       <div className="schleier" aria-hidden="true" />
@@ -327,9 +359,9 @@ export function obenauflegen(inhalt: ReactNode) {
 
 /* ------------------------------------------------------------------- Logo */
 
-export function Praegung({ klein, spielt }: { klein?: boolean; spielt?: boolean }) {
+export function Praegung({ klein, gross, spielt }: { klein?: boolean; gross?: boolean; spielt?: boolean }) {
   return (
-    <div className={`praegung ${klein ? 'halb' : ''} ${spielt ? 'spielt' : ''}`} style={{ ['--umriss' as string]: `url(${umrissBild})` }}>
+    <div className={`praegung ${klein ? 'halb' : ''} ${gross ? 'gross' : ''} ${spielt ? 'spielt' : ''}`} style={{ ['--umriss' as string]: `url(${umrissBild})` }}>
       <img src={praegungBild} alt="YSKAR" draggable={false} />
       {spielt && <div className="stempel" aria-hidden="true" />}
     </div>
@@ -477,9 +509,10 @@ export function Schieber({ text, label, onFertig, gesperrt }: { text: string; la
 
 /* --------------------------------------------------------------------- QR */
 
+/** Der QR-Code mit dem Logo in der Mitte. Stufe H verkraftet die verdeckten Module. */
 export function QrBild({ text, label }: { text: string; label: string }) {
   const { n, d } = useMemo(() => {
-    const q = QRCode.create(text, { errorCorrectionLevel: 'M' });
+    const q = QRCode.create(text, { errorCorrectionLevel: 'H' });
     const groesse = q.modules.size, daten = q.modules.data;
     let pfad = '';
     for (let y = 0; y < groesse; y++) {
@@ -494,7 +527,8 @@ export function QrBild({ text, label }: { text: string; label: string }) {
   }, [text]);
   return (
     <div className="qrplatte">
-      <svg viewBox={`0 0 ${n} ${n}`} shapeRendering="crispEdges" role="img" aria-label={label}><path fill="#1E2023" d={d} /></svg>
+      <svg viewBox={`0 0 ${n} ${n}`} shapeRendering="crispEdges" role="img" aria-label={label}><path fill="#15171A" d={d} /></svg>
+      <span className="qr-logo" aria-hidden="true"><i style={{ ['--umriss' as string]: `url(${umrissBild})` }} /></span>
     </div>
   );
 }

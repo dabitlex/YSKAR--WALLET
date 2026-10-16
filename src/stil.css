@@ -1,7 +1,12 @@
 /*
-  YSKAR Wallet -- ein Aussehen, dunkelgrau.
-  Karten liegen eine Stufe ueber dem Grund, Eingabefelder und die
-  Guthabenkarte eine Stufe darunter (vertieft, wie das gepraegte Logo).
+  YSKAR Wallet -- Fassung 2 "Graphit".
+
+  Ein tiefes Graphit als Grund, Flaechen ohne Raender: Tiefe entsteht nur
+  durch Helligkeitsstufen (Grund -> Karte -> Flaeche). Ein einziger Akzent
+  (Elektroblau) mit weichem Schein, und zwar nur auf dem Hauptknopf, dem
+  Schieber und dem aktiven Punkt der Navigation.
+
+  Entwurf: Figma "YSKAR Wallet -- Android", Seite "Fassung 2".
 */
 @font-face{font-family:'Manrope';src:url('./schrift/manrope-latin-wght-normal.woff2') format('woff2');font-weight:200 800;font-display:block}
 @font-face{font-family:'IBM Plex Mono';src:url('./schrift/ibm-plex-mono-latin-400-normal.woff2') format('woff2');font-weight:400;font-display:block}
@@ -9,12 +14,14 @@
 
 :root{
   color-scheme:dark;
-  --grund:#303338; --senke:#282A2F; --tief:#25272B; --karte:#3A3D43; --rand:#484C53; --linie:#464950;
-  --text:#F2F4F6; --lesen:#D7DADF; --leise:#A9AEB6; --blass:#868C95;
-  --blau:#1F5BF0; --blau-hell:#8FB0FF; --blau-flaeche:#33405C;
-  --gruen:#5FD3A2; --gruen-voll:#23936A; --gruen-flaeche:#2B463C;
-  --bern:#F0B45A; --bern-flaeche:#4A3F2B; --bern-text:#F3DDB8;
-  --rot:#FF9A8F; --rot-voll:#C23B2E; --rot-flaeche:#4A2F2C;
+  --grund:#1B1D21; --senke:#15171A; --tief:#121417; --karte:#25282D; --flaeche:#2F3338; --nav:#2A2D33; --blatt:#23262B;
+  --rand:#2C2F35; --linie:#2B2E33; --rand-hell:#3A3E45;
+  --text:#F4F5F7; --lesen:#D5D9DF; --leise:#AEB4BD; --blass:#7D8590;
+  --blau:#4C7DFF; --blau-druck:#3E6AE0; --blau-hell:#9DB9FF; --blau-flaeche:#263352; --blau-punkt:#6E96FF;
+  --gruen:#3DDC97; --gruen-voll:#1F9E6E; --gruen-flaeche:#1F3A30;
+  --bern:#F5B65B; --bern-flaeche:#3E3324; --bern-text:#F7E1BE;
+  --rot:#FF6B6B; --rot-voll:#D13B3B; --rot-flaeche:#3F2426;
+  --schein:0 8px 24px -4px rgba(76,125,255,.38);
   --schrift:'Manrope',system-ui,sans-serif;
   --ziffern:'IBM Plex Mono',ui-monospace,monospace;
   /* Android zeichnet bis unter Statusleiste und Gestenbalken; Capacitor traegt deren Hoehe ein. */
@@ -33,181 +40,192 @@ h1,h2,p{margin:0}
 .waehlbar{-webkit-user-select:text;user-select:text}
 .nur-leser{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-/* ---------- Gerüst ---------- */
+/* ---------- Geruest ---------- */
 .app{position:relative;height:100%;max-width:520px;margin:0 auto;overflow:hidden;background:var(--grund)}
-.seite{position:absolute;inset:0;display:flex;flex-direction:column;gap:18px;padding:calc(var(--oben) + 16px) 20px calc(var(--unten) + 24px);
+.seite{position:absolute;inset:0;display:flex;flex-direction:column;gap:20px;padding:calc(var(--oben) + 16px) 20px calc(var(--unten) + 24px);
   overflow-y:auto;overflow-x:hidden;animation:herein .24s ease both}
-.seite.mit-nav{padding-bottom:calc(var(--unten) + 116px)}
+.seite.mit-nav{padding-bottom:calc(var(--unten) + 120px)}
 .seite.eng{gap:12px}
 .fuell{flex:1 0 8px}
 @keyframes herein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes auf{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .auf{animation:auf .45s cubic-bezier(.2,.7,.2,1) both}
 
-.kopf{display:flex;align-items:center;justify-content:space-between;min-height:44px;flex-shrink:0}
-.kopf h1{font-size:28px;font-weight:800;letter-spacing:-.02em}
+.kopf{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;flex-shrink:0}
+.kopf h1{font-size:28px;font-weight:800;letter-spacing:-.02em;flex:1;min-width:0}
 .kopf-zurueck{display:flex;align-items:center;gap:12px;min-height:44px;flex-shrink:0}
 .kopf-zurueck h1{font-size:20px;font-weight:800;letter-spacing:-.01em;flex:1;min-width:0}
+.kopf-rechts{display:flex;gap:10px;flex-shrink:0}
 
 /* ---------- Tasten ---------- */
-.sinkt{transition:transform .09s ease-out,box-shadow .09s ease-out,background-color .09s ease-out}
-.sinkt:active{transform:translateY(2px) scale(.97);transition-duration:.05s}
-.klein{width:44px;height:44px;border-radius:14px;border:1px solid var(--rand);background:var(--karte);color:var(--text);
+.sinkt{transition:transform .09s ease-out,box-shadow .09s ease-out,background-color .09s ease-out,opacity .09s ease-out}
+.sinkt:active{transform:translateY(1px) scale(.97);transition-duration:.05s}
+/* Runde Taste, 44 px. Ohne Rand: Die Flaeche hebt sie vom Grund ab. */
+.klein{width:44px;height:44px;border-radius:50%;border:0;background:var(--karte);color:var(--text);
   display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0}
-.klein.leer{background:transparent;border-color:transparent;color:var(--leise)}
-.klein.im-feld{border:0;border-radius:13px;background:#474A51}
-.knopf{min-height:56px;border-radius:18px;border:0;background:var(--blau);color:#fff;font-size:17px;font-weight:700;width:100%;padding:0 18px;
-  display:flex;align-items:center;justify-content:center;gap:10px;flex-shrink:0;
-  box-shadow:0 6px 14px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.22)}
-.knopf:active{background:#1848C4;box-shadow:inset 0 3px 7px rgba(0,0,0,.45)}
-.knopf.zweit{background:var(--karte);border:1px solid var(--rand);color:var(--text);font-size:16px;box-shadow:none}
-.knopf.zweit:active{background:#2F3136}
-.knopf.gefahr{background:var(--rot-voll)}
-.knopf.gefahr:active{background:#9C2D22}
-.knopf:disabled{opacity:.45;box-shadow:none}
+.klein:active{background:var(--flaeche)}
+.klein.leer{background:transparent;color:var(--leise)}
+.klein.im-feld{width:40px;height:40px;background:var(--flaeche)}
+.knopf{min-height:56px;border-radius:18px;border:0;background:var(--blau);color:#fff;font-size:17px;font-weight:700;width:100%;padding:0 20px;
+  display:flex;align-items:center;justify-content:center;gap:10px;flex-shrink:0;box-shadow:var(--schein)}
+.knopf:active{background:var(--blau-druck);box-shadow:none}
+.knopf.zweit{background:var(--karte);color:var(--text);box-shadow:none}
+.knopf.zweit:active{background:var(--flaeche)}
+.knopf.gefahr{background:var(--rot-voll);box-shadow:none}
+.knopf.gefahr:active{background:#B33232}
+.knopf:disabled{opacity:.4;box-shadow:none}
 .knopf.text{background:transparent;box-shadow:none;color:var(--blau-hell);font-size:15px;min-height:48px}
 .paar-knoepfe{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;flex-shrink:0}
 .stapel{display:flex;flex-direction:column;gap:10px;flex-shrink:0}
 .verweis{background:none;border:0;padding:0;color:var(--blau-hell);font-size:14px;font-weight:700;min-height:44px;display:inline-flex;align-items:center}
 
-/* ---------- Flächen ---------- */
-.karte{background:var(--karte);border:1px solid var(--rand);border-radius:22px;display:flex;flex-direction:column;flex-shrink:0}
+/* ---------- Flaechen ---------- */
+.karte{background:var(--karte);border-radius:22px;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
 .karte.innen{padding:4px 18px}
-.vertieft{background:var(--senke);border:1px solid #1F2125;box-shadow:inset 0 2px 4px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.06)}
+.vertieft{background:var(--karte)}
 .rubrik{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--leise);padding:6px 4px 0;text-transform:uppercase;flex-shrink:0}
 .hinweis{display:flex;gap:10px;align-items:flex-start;color:var(--leise);font-size:13px;line-height:1.5;padding:0 4px;flex-shrink:0}
-.hinweis svg{flex-shrink:0;margin-top:1px}
+.hinweis svg{flex-shrink:0;margin-top:1px;color:var(--blass)}
+.hinweis.bern svg{color:var(--bern)}
 .kasten{display:flex;gap:12px;align-items:flex-start;border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.5;flex-shrink:0}
 .kasten svg{flex-shrink:0;margin-top:1px}
 .kasten.warn{background:var(--bern-flaeche);color:var(--bern-text)}
 .kasten.warn svg{color:var(--bern)}
 .kasten.warn strong{color:#fff}
-.kasten.ruhig{background:var(--karte);border:1px solid var(--rand);color:var(--lesen)}
+.kasten.ruhig{background:var(--karte);color:var(--lesen)}
 .kasten.ruhig svg{color:var(--leise)}
 .kasten.rot{background:var(--rot-flaeche);color:#FFD9D4}
 .kasten.rot svg{color:var(--rot)}
 .fehlertext{color:var(--rot);font-size:13px;font-weight:600;min-height:20px}
 .gutzeile{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--gruen);min-height:20px}
 .gutzeile.rot{color:var(--rot)}
+.gutzeile.leise{color:var(--leise)}
 
 /* ---------- Felder ---------- */
 .feldgruppe{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
 .feldname{font-size:14px;font-weight:700;color:var(--lesen)}
 .feldkopf{display:flex;justify-content:space-between;align-items:baseline}
 .feldkopf small{font-family:var(--ziffern);font-size:12px;color:var(--leise)}
-.feld{min-height:52px;border-radius:16px;padding:14px 16px;font-size:15px;line-height:22px;width:100%}
-.feld-huelle{display:flex;align-items:center;gap:4px;border-radius:18px;padding:6px 6px 6px 16px}
+.feld{min-height:52px;border-radius:16px;padding:14px 16px;font-size:15px;line-height:22px;width:100%;background:var(--karte)}
+.feld-huelle{display:flex;align-items:center;gap:6px;border-radius:18px;padding:8px 8px 8px 16px;background:var(--karte)}
 .suche{position:relative;flex-shrink:0}
-.suche svg{position:absolute;left:14px;top:14px;color:var(--leise);pointer-events:none}
+.suche svg{position:absolute;left:16px;top:14px;color:var(--leise);pointer-events:none}
 
-/* ---------- Guthaben ---------- */
-.guthaben{background:var(--tief);box-shadow:inset 0 2px 6px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.07);border-radius:28px;padding:20px 22px 18px;
-  display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+/* ---------- Guthaben (Start) ---------- */
+.guthaben{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0 4px;flex-shrink:0}
 .etikett{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--leise)}
-.betragzeile{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px}
+.etikettzeile{display:flex;align-items:center;gap:8px;min-height:44px;margin:-14px 0}
+.etikettzeile .klein{width:36px;height:36px}
 .betrag{display:flex;align-items:baseline;gap:8px;min-width:0;max-width:100%}
-.betrag .gross{font-size:44px;line-height:1;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+.betrag .gross{font-size:56px;line-height:1;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
 /* Beim Hochzaehlen haelt der unsichtbare Endwert den Platz frei. */
 .betrag .gross.zaehlt{display:grid}
 .betrag .gross.zaehlt > span{grid-area:1/1}
 .betrag .gross .mass{visibility:hidden}
-.betrag .einheit{flex-shrink:0}
 .betrag .gross i{font-style:normal;color:var(--blass)}
-.betrag .einheit{font-size:16px;font-weight:700;color:var(--leise)}
-.betrag.mittel .gross{font-size:36px}
-.trenn{height:1px;background:#3A3D42;margin-top:4px}
-.adresszeile{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:4px}
-.adresszeile small{display:block;font-size:12px;color:var(--leise);margin-bottom:3px}
-.adresszeile .ziffern{font-size:14px}
-.adresszeile .klein{border-color:#44474E;background:#33363B}
+.betrag .einheit{flex-shrink:0;font-size:18px;font-weight:800;color:var(--leise)}
+.betrag.mittel .gross{font-size:44px}
+.betrag.mittel .einheit{font-size:15px}
+.unterzeile-start{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+.adress-pille{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 12px;border-radius:999px;border:0;background:var(--karte);color:var(--lesen);
+  font-family:var(--ziffern);font-size:12px}
+.adress-pille svg{color:var(--blass)}
+.adress-pille:active{background:var(--flaeche)}
+.trenn{height:1px;background:var(--linie);margin-top:4px}
 
-.rund-reihe{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0 12px;flex-shrink:0}
-.rund{display:flex;flex-direction:column;align-items:center;gap:9px;padding:2px 0;border:0;background:transparent;font-size:14px;font-weight:700}
-.rund .kreis{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#41444B;border:1px solid #53575E;
-  box-shadow:0 6px 14px rgba(0,0,0,.26),inset 0 1px 0 rgba(255,255,255,.09);transition:transform .09s ease-out,box-shadow .09s ease-out,background-color .09s ease-out}
-.rund.blau .kreis{background:var(--blau);border-color:transparent;color:#fff;box-shadow:0 6px 14px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.25)}
-.rund:active .kreis{transform:translateY(3px) scale(.94);box-shadow:inset 0 3px 7px rgba(0,0,0,.5);background:#2F3136}
-.rund.blau:active .kreis{background:#1848C4}
+/* Aktionen: zwei breite Pillen und die Scan-Taste. */
+.aktionen{display:flex;gap:10px;flex-shrink:0}
+.aktionen .knopf{flex:1;min-width:0;padding:0 14px}
+.aktionen .klein{width:56px;height:56px;border-radius:18px}
 
 /* ---------- Listen ---------- */
 .ueber{display:flex;align-items:center;justify-content:space-between;min-height:44px;flex-shrink:0}
 .ueber b{font-size:18px;font-weight:800;letter-spacing:-.01em}
-.zeile{display:flex;align-items:center;gap:12px;padding:12px 16px;border:0;border-bottom:1px solid var(--linie);background:transparent;text-align:left;width:100%;min-height:64px}
+.zeile{display:flex;align-items:center;gap:14px;padding:14px 16px;border:0;border-bottom:1px solid var(--linie);background:transparent;text-align:left;width:100%;min-height:72px}
 .zeile:last-child{border-bottom:0}
-.zeile:active{background:rgba(0,0,0,.14)}
-.zeile:first-child{border-radius:21px 21px 0 0}.zeile:last-child{border-radius:0 0 21px 21px}.zeile:only-child{border-radius:21px}
-.zeile .mitte{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.zeile:active{background:rgba(255,255,255,.03)}
+.zeile .mitte{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .zeile .mitte b{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.zeile .mitte small{font-size:13px;color:var(--leise);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.zeile .mitte small.wartet{color:var(--bern);font-weight:600}
+.zeile .mitte small{font-size:13px;color:var(--leise);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:8px}
 .zeile .wert{font-family:var(--ziffern);font-size:15px;font-weight:500;white-space:nowrap}
 .zeile .wert.plus{color:var(--gruen)}
 .zeile > svg.pfeil{color:var(--blass);flex-shrink:0}
-.kachel{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kachel{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .kachel.aus{background:var(--blau-flaeche);color:var(--blau-hell)}
 .kachel.ein{background:var(--gruen-flaeche);color:var(--gruen)}
 .kachel.bern{background:var(--bern-flaeche);color:var(--bern)}
-.wartering{position:relative;width:40px;height:40px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.kachel.gross{width:64px;height:64px}
+/* Kleine Kachel vor einer Einstellzeile. */
+.kachel.klein-kachel{width:36px;height:36px;border-radius:11px;background:var(--flaeche);color:var(--lesen)}
+.kachel.klein-kachel.rot{background:var(--rot-flaeche);color:var(--rot)}
+.wartering{position:relative;width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .wartering > svg.ring{position:absolute;inset:0;animation:dreh 1.6s linear infinite}
 .wartering.gross{width:68px;height:68px}
 @keyframes dreh{to{transform:rotate(360deg)}}
-.bild{border-radius:50%;background:#4A4E55;border:1px solid #5B5F67;font-weight:800;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.einstellzeile{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:0;border:0;border-bottom:1px solid var(--linie);
-  background:transparent;font-size:15px;font-weight:600;text-align:left;width:100%}
+/* Initialen eines Kontakts. Vier ruhige Toene, nach dem Namen gewaehlt. */
+.bild{border-radius:50%;background:#30405E;color:var(--text);font-weight:800;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bild.t1{background:#33544A}.bild.t2{background:#544533}.bild.t3{background:#4D3854}
+.einstellzeile{display:flex;align-items:center;gap:14px;min-height:56px;padding:0;border:0;border-bottom:1px solid var(--linie);
+  background:transparent;font-size:15px;font-weight:700;text-align:left;width:100%}
 .einstellzeile:last-child{border-bottom:0}
-.einstellzeile .rechts{display:flex;align-items:center;gap:6px;color:var(--leise);font-weight:500}
+.einstellzeile > span:not(.kachel):not(.rechts){flex:1;min-width:0}
+.einstellzeile .rechts{display:flex;align-items:center;gap:6px;color:var(--leise);font-weight:500;font-size:14px}
 .einstellzeile .rechts svg{color:var(--blass)}
 .einstellzeile.rot{color:var(--rot)}
 .schalter{width:52px;height:44px;padding:0;border:0;background:transparent;display:flex;align-items:center}
-.schalter span{width:52px;height:30px;border-radius:999px;background:#5B5F67;display:flex;align-items:center;padding:3px;transition:background-color .15s}
+.schalter span{width:52px;height:30px;border-radius:999px;background:var(--rand-hell);display:flex;align-items:center;padding:3px;transition:background-color .15s}
 .schalter span::after{content:'';width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .15s}
 .schalter[aria-checked="true"] span{background:var(--blau)}
 .schalter[aria-checked="true"] span::after{transform:translateX(22px)}
+/* Segment-Schalter (Verlauf): eine Pille, der aktive Teil ist heller. */
+.segment{display:flex;gap:4px;padding:4px;border-radius:22px;background:var(--karte);flex-shrink:0}
+.segment button{flex:1;height:36px;border-radius:18px;border:0;background:transparent;color:var(--leise);font-size:14px;font-weight:700;padding:0}
+.segment button[aria-pressed="true"]{background:var(--flaeche);color:var(--text)}
 .chips{display:flex;gap:8px;flex-shrink:0}
-.chip{height:44px;padding:0 18px;border-radius:14px;border:1px solid var(--rand);background:var(--karte);color:var(--lesen);font-size:14px;font-weight:700}
-.chip[aria-pressed="true"]{background:#F2F4F6;color:#1E2023;border-color:transparent}
+.chip{height:44px;padding:0 16px;border-radius:999px;border:0;background:var(--karte);color:var(--lesen);font-size:14px;font-weight:700}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--senke)}
 .leerstand{color:var(--leise);font-size:15px;text-align:center;padding:28px 12px}
 
 /* ---------- schwebende Navigation ---------- */
-.schleier{position:absolute;left:0;right:0;bottom:0;height:calc(var(--unten) + 132px);background:linear-gradient(to bottom,rgba(48,51,56,0),#303338 62%);pointer-events:none}
-.nav{position:absolute;left:20px;right:20px;bottom:calc(var(--unten) + 20px);height:64px;padding:0 8px;border-radius:32px;background:#3F4249;border:1px solid #555960;
-  box-shadow:0 14px 30px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.09);display:flex;align-items:center;justify-content:space-between}
+.schleier{position:absolute;left:0;right:0;bottom:0;height:calc(var(--unten) + 140px);background:linear-gradient(to bottom,rgba(27,29,33,0),#1B1D21 60%);pointer-events:none}
+.nav{position:absolute;left:20px;right:20px;bottom:calc(var(--unten) + 24px);height:64px;padding:0 8px;border-radius:32px;background:var(--nav);
+  box-shadow:0 12px 28px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
 /* Die Leiste kommt mit der Seite herein, nicht vor ihr. */
 .nav,.schleier{animation:herein .24s ease both}
 .nav button{height:48px;min-width:44px;border-radius:24px;border:0;background:transparent;color:var(--leise);display:flex;align-items:center;justify-content:center;gap:8px;
-  font-size:14px;font-weight:700;padding:0 11px;white-space:nowrap}
-.nav button[aria-current="page"]{background:var(--blau-flaeche);color:var(--blau-hell);padding:0 15px}
-@media (max-width:380px){.nav{left:14px;right:14px}.nav button{font-size:13px}.seite{padding-left:16px;padding-right:16px}.rund-reihe{padding:0}}
+  font-size:14px;font-weight:700;padding:0 12px;white-space:nowrap}
+.nav button[aria-current="page"]{background:var(--blau);color:#fff;padding:0 16px;box-shadow:var(--schein)}
+@media (max-width:380px){.nav{left:14px;right:14px}.nav button{font-size:13px}.seite{padding-left:16px;padding-right:16px}}
 
 /* ---------- PIN ---------- */
-.pinseite{align-items:center;padding-left:32px;padding-right:32px}
+.pinseite{align-items:center;padding-left:24px;padding-right:24px}
 .pinseite h1{font-size:24px;font-weight:800;letter-spacing:-.02em;text-align:center}
 .pinseite p.unter{font-size:15px;color:var(--leise);text-align:center;margin-top:-10px}
-.punkte{display:flex;gap:16px;margin-top:14px}
-.punkte span{width:14px;height:14px;border-radius:50%;border:2px solid #5B5F67;transition:background-color .12s,border-color .12s,transform .18s cubic-bezier(.3,1.8,.5,1)}
-.punkte span.voll{background:#5C8BFF;border-color:#5C8BFF;transform:scale(1.18)}
+.punkte{display:flex;gap:14px;margin-top:10px}
+.punkte span{width:12px;height:12px;border-radius:50%;border:2px solid var(--rand-hell);transition:background-color .12s,border-color .12s,transform .18s cubic-bezier(.3,1.8,.5,1)}
+.punkte span.voll{background:var(--blau);border-color:var(--blau);transform:scale(1.15)}
 .punkte.gut span{background:var(--gruen);border-color:var(--gruen)}
 .punkte.falsch{animation:ruettel .36s}
 @keyframes ruettel{20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
-.tasten{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;width:294px;max-width:100%;flex-shrink:0}
-.taste{height:72px;border-radius:22px;border:1px solid var(--rand);background:var(--karte);font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 5px 12px rgba(0,0,0,.26),inset 0 1px 0 rgba(255,255,255,.08);padding:0}
-.taste:active{background:#2D2F34;box-shadow:inset 0 3px 6px rgba(0,0,0,.5)}
-.taste.leer{background:transparent;border-color:transparent;box-shadow:none;color:var(--leise)}
+.tasten{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;max-width:340px;flex-shrink:0}
+.taste{height:64px;border-radius:32px;border:0;background:var(--karte);font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0}
+.taste:active{background:var(--flaeche)}
+.taste.leer{background:transparent;color:var(--leise)}
 .taste.finger{color:var(--blau-hell)}
 .taste:disabled{opacity:.4}
 /* Das Logo fuellt den Platz ueber dem Titel und wird kleiner, wenn der Bildschirm niedriger ist. Bleibt zu wenig, faellt es weg. */
 .pinseite .logo-platz{flex:1 1 0;min-height:0;align-self:stretch;display:flex;align-items:center;justify-content:center;container-type:size}
 .pinseite .logo-platz .praegung{height:min(168px,100%);width:auto;aspect-ratio:264/188;margin:0}
 @container (max-height:64px){.pinseite .logo-platz .praegung{display:none}}
-@media (max-height:780px){.taste{height:64px}}
-@media (max-height:700px){.taste{height:60px}}
-@media (max-height:610px){.taste{height:52px;font-size:23px}.tasten{gap:10px}.pinseite{gap:12px}}
+@media (max-height:780px){.taste{height:58px;border-radius:29px}}
+@media (max-height:700px){.taste{height:54px;border-radius:27px}}
+@media (max-height:610px){.taste{height:48px;border-radius:24px;font-size:23px}.tasten{gap:8px}.pinseite{gap:12px}}
 
 /* ---------- Logo, Lader ---------- */
 .praegung{position:relative;width:264px;height:188px;flex-shrink:0}
 .praegung img{display:block;width:100%;height:100%}
-.stempel{position:absolute;left:9.09%;top:12.77%;width:81.82%;height:74.92%;background:#5A5E66;opacity:0;filter:drop-shadow(0 18px 14px rgba(0,0,0,.45));
+.praegung.gross{width:300px;height:214px}
+.stempel{position:absolute;left:9.09%;top:12.77%;width:81.82%;height:74.92%;background:#4A4F58;opacity:0;filter:drop-shadow(0 18px 14px rgba(0,0,0,.5));
   -webkit-mask:var(--umriss) center / 100% 100% no-repeat;mask:var(--umriss) center / 100% 100% no-repeat}
 .praegung.spielt img{animation:abdruck .9s both}
 .praegung.spielt .stempel{animation:stempeln .9s both}
@@ -219,91 +237,133 @@ h1,h2,p{margin:0}
 .lader-seite.geht{opacity:0;pointer-events:none}
 .lader{position:absolute;left:0;right:0;bottom:calc(var(--unten) + 72px);display:flex;flex-direction:column;align-items:center;gap:14px;opacity:0;transition:opacity .35s}
 .lader.sichtbar{opacity:1}
-.lader-text{font-size:14px;font-weight:600;color:#B4B9C1;min-height:21px}
-.rille{width:208px;height:8px;border-radius:4px;background:rgba(0,0,0,.38);box-shadow:inset 0 1px 2px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.09);overflow:hidden}
-.rille div{width:0;height:100%;border-radius:4px;background:#4F82FF;transition:width .6s cubic-bezier(.3,.7,.3,1)}
+.lader-text{font-size:14px;font-weight:600;color:var(--leise);min-height:21px}
+.rille{width:208px;height:6px;border-radius:3px;background:var(--karte);overflow:hidden}
+.rille div{width:0;height:100%;border-radius:3px;background:var(--blau);transition:width .6s cubic-bezier(.3,.7,.3,1)}
 
 /* ---------- Einstieg ---------- */
-.gross-titel{font-size:34px;line-height:1.1;font-weight:800;letter-spacing:-.03em}
-.fliess{font-size:16px;line-height:1.55;color:var(--lesen)}
-.punktliste{display:flex;flex-direction:column;gap:12px}
-.punktliste div{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:600;color:var(--lesen)}
-.punktliste span{width:32px;height:32px;border-radius:10px;background:var(--gruen-flaeche);color:var(--gruen);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.schrittkopf{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0}
-.schrittkopf small{font-size:13px;font-weight:700;color:var(--leise)}
-.schrittkopf div{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px}
-.schrittkopf i{height:4px;border-radius:2px;background:#555960}
-.schrittkopf i.an{background:var(--blau)}
+.hero{display:flex;align-items:center;justify-content:center;flex-shrink:0;min-height:120px}
+.gross-titel{font-size:40px;line-height:1.1;font-weight:800;letter-spacing:-.03em}
+.fliess{font-size:16px;line-height:1.55;color:var(--leise)}
+.mittig{text-align:center}
 .titel2{font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em}
-.wortraster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 8px}
-.wort{height:40px;border-radius:12px;background:#2C2E33;display:flex;align-items:center;gap:10px;padding:0 12px;min-width:0}
+.sprachknopf{height:36px;padding:0 14px;border-radius:999px;border:0;background:var(--karte);color:var(--lesen);font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:8px;align-self:flex-end}
+.fuss{font-size:13px;color:var(--blass);text-align:center;line-height:1.5}
+/* Die 12 Woerter: zwei nummerierte Spalten, kein Kaestchen je Wort. */
+.wortliste{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px;padding:8px 24px}
+.wortliste div{display:flex;align-items:baseline;gap:12px;min-width:0}
+.wortliste small{font-family:var(--ziffern);font-size:14px;color:var(--blass);width:28px;flex-shrink:0}
+.wortliste b{font-size:17px;font-weight:700;white-space:nowrap}
+.wortliste b.zu{color:var(--blass);letter-spacing:.12em}
+.wortraster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.wort{height:44px;border-radius:12px;background:var(--flaeche);display:flex;align-items:center;gap:10px;padding:0 12px;min-width:0}
 .wort small{font-family:var(--ziffern);font-size:12px;color:var(--leise)}
 .wort b{font-size:16px;font-weight:700;white-space:nowrap}
 .wort b.zu{color:var(--leise)}
 .wort b.falsch{color:var(--rot)}
 .wortraster.eins{grid-template-columns:minmax(0,1fr);gap:10px}
-.wortraster.eins .wort{height:52px;border-radius:16px;padding:0 16px}
-.tonknopf.grau{background:#474A51;border:1px solid #585C64;color:var(--lesen)}
-.tonknopf:disabled{opacity:.45}
+.wortraster.eins .wort{height:56px;border-radius:18px;padding:0 18px;background:var(--karte)}
 .tonknopf{height:48px;border-radius:14px;background:var(--blau-flaeche);border:0;color:var(--blau-hell);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:9px;width:100%}
+.tonknopf.grau{background:var(--flaeche);color:var(--lesen)}
+.tonknopf:disabled{opacity:.45}
+.grosskreis{width:140px;height:140px;border-radius:50%;background:var(--blau-flaeche);color:var(--blau-hell);display:flex;align-items:center;justify-content:center;align-self:center;flex-shrink:0}
+.auswahlzeile{display:flex;align-items:center;gap:14px;padding:14px 16px;border:0;border-radius:22px;background:var(--karte);text-align:left;width:100%}
+.auswahlzeile:active{background:var(--flaeche)}
+.auswahlzeile .worte{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.auswahlzeile b{font-size:15px;font-weight:700}
+.auswahlzeile small{font-size:13px;color:var(--leise)}
+.auswahlzeile .kachel{border-radius:14px}
+.auswahlzeile > svg{color:var(--blass);flex-shrink:0}
 
 /* ---------- Senden ---------- */
-.betragfeld{border-radius:22px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;background:var(--senke);border:1px solid #1F2125;box-shadow:inset 0 2px 4px rgba(0,0,0,.35)}
-.betragfeld .oben{display:flex;align-items:baseline;gap:10px}
-.betragfeld .oben span{font-size:18px;font-weight:700;color:var(--leise)}
-.betragfeld .unten{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:var(--leise)}
-.betragfeld .unten b{font-family:var(--ziffern);font-weight:400;color:var(--lesen)}
-.betragfeld .alles{height:44px;padding:0 14px;border-radius:12px;border:0;background:var(--blau-flaeche);color:var(--blau-hell);font-size:14px;font-weight:700}
-.gebuehr{padding:14px 16px;gap:4px;border-radius:18px}
-.gebuehr div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:14px}
-.gebuehr b{font-weight:700;color:var(--lesen)}
-.gebuehr small{font-size:13px;color:var(--leise)}
-.mitte-block{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 0 2px;flex-shrink:0}
-.mitte-block > small{font-size:14px;font-weight:600;color:var(--leise)}
+.an-feld{display:flex;align-items:center;gap:10px;min-height:56px;padding:0 8px 0 16px;border-radius:18px;background:var(--karte);flex-shrink:0}
+.an-feld.aktiv{box-shadow:0 0 0 1.5px var(--blau)}
+.an-feld > span.wort-an{font-size:14px;font-weight:700;color:var(--leise);flex-shrink:0}
+.an-feld .tippfeld{flex:1;min-width:0;min-height:44px;padding:6px 0;font-size:14px;line-height:1.7;display:flex;flex-wrap:wrap;align-items:center;gap:0 9px}
+.an-chip{display:inline-flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:999px;border:0;background:var(--blau-flaeche);color:var(--text);font-size:14px;font-weight:700;flex-shrink:0}
+.an-chip svg{color:var(--leise)}
+.zuletzt{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px;flex-shrink:0}
+.zuletzt::-webkit-scrollbar{display:none}
+.zuletzt button{display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:transparent;padding:0;flex-shrink:0;width:60px;font-size:13px;font-weight:600;color:var(--leise)}
+.zuletzt button span.name{max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zuletzt .neu{width:48px;height:48px;border-radius:50%;border:1.5px dashed var(--rand-hell);display:flex;align-items:center;justify-content:center;color:var(--leise)}
+.betragblock{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 0;flex-shrink:0}
+.betragblock .oben{display:flex;align-items:baseline;gap:10px;max-width:100%}
+.betragblock .oben span{font-size:18px;font-weight:800;color:var(--leise)}
+.betragblock .tippfeld{height:64px;font-size:56px;line-height:64px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums;min-width:40px;text-align:center}
+.betragblock .tippfeld.lang1{font-size:40px}
+.betragblock .tippfeld.lang2{font-size:30px;letter-spacing:-.02em}
+.betragblock .tippfeld.lang3{font-size:22px;letter-spacing:0}
+.betragblock .unten{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--leise)}
+.betragblock .unten b{font-family:var(--ziffern);font-weight:400;color:var(--lesen)}
+.betragblock .alles{height:28px;padding:0 10px;border-radius:999px;border:0;background:var(--karte);color:var(--blau-hell);font-size:13px;font-weight:700}
+.notizknopf{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;padding:0;color:var(--blass);font-size:13px;font-weight:600;min-height:28px;align-self:center}
+.gebuehrzeile{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 8px;font-size:13px;color:var(--leise);text-align:center;flex-shrink:0}
+.gebuehrzeile b{font-family:var(--ziffern);font-weight:400;color:var(--lesen);white-space:nowrap}
+.mitte-block{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0 2px;flex-shrink:0}
+.mitte-block > small{font-size:15px;font-weight:700;color:var(--leise)}
 .paar{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:14px 0;border-bottom:1px solid var(--linie);font-size:14px}
 .paar:last-child{border-bottom:0}
 .paar > span:first-child{color:var(--leise);flex-shrink:0}
 .paar.hoch{flex-direction:column;gap:5px}
 .paar.hoch b{font-size:16px;font-weight:700}
 .paar.rechts > div{display:flex;flex-direction:column;align-items:flex-end;gap:3px;min-width:0}
-.paar.summe b{font-size:15px;font-weight:700}
-.paar.summe .ziffern{font-size:16px;font-weight:500}
+.paar.summe b{font-weight:700;color:var(--leise)}
+.paar.summe .ziffern{font-size:16px;font-weight:500;color:var(--text)}
 .vierer{font-family:var(--ziffern);font-size:14px;line-height:1.7;display:flex;flex-wrap:wrap;gap:0 9px}
 .vierer span.rand{color:var(--blau-hell);font-weight:500}
 .vierer.klein-schrift{font-size:12px;gap:0 6px;justify-content:flex-end;color:var(--lesen)}
 .vierer.mittig{justify-content:center}
-.schieber{position:relative;height:64px;border-radius:32px;overflow:hidden;touch-action:none;flex-shrink:0}
-.schieber .spur{position:absolute;left:0;top:0;bottom:0;width:62px;border-radius:32px;background:rgba(31,91,240,.28)}
-.schieber .wort-mitte{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:40px;font-size:16px;font-weight:700;color:var(--lesen);pointer-events:none}
+.schieber{position:relative;height:64px;border-radius:32px;overflow:hidden;touch-action:none;flex-shrink:0;background:var(--karte)}
+.schieber .spur{position:absolute;left:0;top:0;bottom:0;width:62px;border-radius:32px;background:rgba(76,125,255,.22)}
+.schieber .wort-mitte{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:40px;font-size:17px;font-weight:700;color:var(--leise);pointer-events:none}
 .schieber .pfeile{position:absolute;right:20px;top:20px;color:var(--blass);display:flex;pointer-events:none;animation:wink 1.6s ease-in-out infinite}
 @keyframes wink{0%,100%{transform:translateX(0);opacity:.6}50%{transform:translateX(5px);opacity:1}}
-.knauf{position:absolute;left:4px;top:4px;width:54px;height:54px;border-radius:50%;border:0;padding:0;background:var(--blau);color:#fff;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.25);touch-action:none}
+.knauf{position:absolute;left:4px;top:4px;width:56px;height:56px;border-radius:50%;border:0;padding:0;background:var(--blau);color:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--schein);touch-action:none}
 .schieber.zurueck .knauf,.schieber.zurueck .spur{transition:transform .32s cubic-bezier(.3,1.5,.5,1),width .32s cubic-bezier(.3,1.5,.5,1)}
 .schieber.auto .knauf,.schieber.auto .spur{transition:transform .5s cubic-bezier(.5,0,.2,1),width .5s cubic-bezier(.5,0,.2,1)}
-.schieber.fertig .knauf{background:var(--gruen-voll)}
+.schieber.fertig .knauf{background:var(--gruen-voll);box-shadow:none}
 .schieber.fertig .pfeile{display:none}
-.unterzeile{text-align:center;font-size:13px;color:var(--leise)}
-.gruenfeld{width:96px;height:96px;border-radius:32px;background:var(--gruen-flaeche);display:flex;align-items:center;justify-content:center;animation:plopp .5s both cubic-bezier(.3,1.6,.5,1)}
+.unterzeile{text-align:center;font-size:13px;color:var(--blass)}
+/* Gesendet: der Haken im Ring. */
+.gruenfeld{width:104px;height:104px;border-radius:50%;background:var(--gruen-flaeche);display:flex;align-items:center;justify-content:center;animation:plopp .5s both cubic-bezier(.3,1.6,.5,1)}
 .gruenfeld svg{overflow:visible}
 .gruenfeld .ring{fill:var(--gruen-voll);stroke:var(--gruen);stroke-width:3;stroke-dasharray:189;animation:zieh .55s .12s both ease-out}
 .gruenfeld .strich{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:44;animation:haken .34s .55s both ease-out}
 @keyframes plopp{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:none}}
 @keyframes zieh{from{stroke-dashoffset:189;fill-opacity:0}to{stroke-dashoffset:0;fill-opacity:1}}
 @keyframes haken{from{stroke-dashoffset:44}to{stroke-dashoffset:0}}
-.pille{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;font-size:13px;font-weight:700}
+.pille{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700}
 .pille.bern{background:var(--bern-flaeche);color:var(--bern)}
 .pille.gruen{background:var(--gruen-flaeche);color:var(--gruen)}
-.pille i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.pille.blau{background:var(--blau-flaeche);color:var(--blau-hell)}
+.pille i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.anwen{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--leise)}
+.anwen .ziffern{color:var(--text);font-size:18px;font-weight:500}
+.anwen b{color:var(--text);font-weight:700}
+/* Drei Stufen nebeneinander (Gesendet). */
+.stufenleiste{display:flex;align-self:stretch;flex-shrink:0;padding:0 8px}
+.stufenleiste > div{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--leise)}
+.stufenleiste > div.an{color:var(--text)}
+.stufenleiste .reihe{display:flex;align-items:center;align-self:stretch}
+.stufenleiste .reihe i{flex:1;height:2px;background:var(--rand-hell)}
+.stufenleiste .reihe i.voll{background:var(--gruen-voll)}
+.stufenleiste .reihe i.unsichtbar{opacity:0}
+.stufenleiste .punkt{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stufenleiste .punkt.fertig{background:var(--gruen-voll);color:#fff}
+.stufenleiste .punkt.dran{border:3px solid var(--bern);animation:puls 1.4s ease-in-out infinite}
+.stufenleiste .punkt.offen{border:2px solid var(--rand-hell)}
+/* Stufen untereinander (Detail). */
 .stufen{padding:16px 18px}
 .stufe{display:flex;gap:14px}
 .stufe .saeule{display:flex;flex-direction:column;align-items:center}
 .stufe .punkt{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .stufe .punkt.fertig{background:var(--gruen-voll);color:#fff}
 .stufe .punkt.dran{border:3px solid var(--bern);animation:puls 1.4s ease-in-out infinite}
-.stufe .punkt.offen{border:2px solid #555960}
-@keyframes puls{50%{box-shadow:0 0 0 5px rgba(240,180,90,.18)}}
-.stufe .strich{width:2px;flex:1;background:#555960;margin:4px 0;min-height:10px}
+.stufe .punkt.offen{border:2px solid var(--rand-hell)}
+@keyframes puls{50%{box-shadow:0 0 0 5px rgba(245,182,91,.18)}}
+.stufe .strich{width:2px;flex:1;background:var(--rand-hell);margin:4px 0;min-height:10px}
 .stufe .worte{display:flex;flex-direction:column;gap:2px;padding-bottom:14px}
 .stufe:last-child .worte{padding-bottom:0}
 .stufe .worte b{font-size:15px;font-weight:700}
@@ -312,40 +372,45 @@ h1,h2,p{margin:0}
 
 /* ---------- Empfangen ---------- */
 .qrkarte{border-radius:28px;padding:24px 20px 20px;align-items:center;gap:18px}
-.qrplatte{background:#fff;border-radius:20px;padding:14px;display:flex}
-.qrplatte svg{display:block;width:212px;height:212px;max-width:60vw;max-height:60vw}
+.qrplatte{position:relative;background:#fff;border-radius:24px;padding:16px;display:flex}
+.qrplatte svg{display:block;width:216px;height:216px;max-width:60vw;max-height:60vw}
+/* Das Logo in der Mitte des Codes: der Umriss, dunkel auf der weissen Platte. */
+.qr-logo{position:absolute;left:50%;top:50%;width:60px;height:48px;transform:translate(-50%,-50%);background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.qr-logo i{display:block;width:48px;height:31px;background:#15171A;-webkit-mask:var(--umriss) center / contain no-repeat;mask:var(--umriss) center / contain no-repeat}
 
 /* ---------- Kontakt-Verlauf ---------- */
 .kontaktkopf{display:flex;align-items:center;gap:12px;padding:calc(var(--oben) + 16px) 20px 12px;flex-shrink:0}
-.kontaktkopf h1{font-size:17px;font-weight:800;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kontaktkopf h1{font-size:20px;font-weight:800;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kontaktkopf small{font-family:var(--ziffern);font-size:12px;color:var(--leise)}
-.gespraech{flex:1;overflow-y:auto;padding:8px 20px 14px;display:flex;flex-direction:column;gap:8px}
+.gespraech{flex:1;overflow-y:auto;padding:8px 20px 16px;display:flex;flex-direction:column;gap:8px}
 .gespraech::before{content:'';flex:1}
-.tagmarke{align-self:center;font-size:12px;font-weight:700;color:var(--leise);padding:6px 0 2px}
+.tagmarke{align-self:center;font-size:12px;font-weight:700;color:var(--blass);padding:6px 0 2px}
 .blase{max-width:78%;padding:12px 16px 10px;display:flex;flex-direction:column;gap:4px;border:0;text-align:left}
-.blase.r{align-self:flex-end;border-radius:20px 20px 6px 20px;background:var(--blau-flaeche)}
-.blase.l{align-self:flex-start;border-radius:20px 20px 20px 6px;background:var(--karte);border:1px solid var(--rand)}
-.blase.frage{align-self:flex-end;border-radius:20px 20px 6px 20px;border:1px dashed #6B7079;background:transparent}
+.blase.r{align-self:flex-end;border-radius:20px 20px 6px 20px;background:var(--blau);color:#fff}
+.blase.l{align-self:flex-start;border-radius:20px 20px 20px 6px;background:var(--karte)}
+.blase.frage{align-self:flex-end;border-radius:20px 20px 6px 20px;border:1.5px dashed var(--rand-hell);background:transparent}
 .blase .summe{font-family:var(--ziffern);font-size:18px;font-weight:500}
-.blase .summe small{font-size:13px;color:#C5CBD6}
+.blase .summe small{font-size:13px;opacity:.75}
 .blase.l .summe{color:var(--gruen)}
-.blase.l .summe small,.blase.l .zeit{color:var(--leise)}
+.blase.l .summe small,.blase.l .zeit,.blase.frage .zeit{color:var(--leise);opacity:1}
 .blase .text{font-size:15px;line-height:1.4;overflow-wrap:anywhere}
-.blase .zeit{font-size:12px;color:#C5CBD6;display:flex;align-items:center;gap:6px}
-.blase .zeit.wartet{color:var(--bern);font-weight:600}
+.blase .zeit{font-size:12px;opacity:.8;display:flex;align-items:center;gap:6px}
+.blase .zeit.wartet{color:var(--bern);font-weight:600;opacity:1}
+.blase.r .zeit.wartet{color:#FFE2B0}
 .blase .marke{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--leise)}
-.fussleiste{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px 20px calc(var(--unten) + 20px);background:#2A2C31;border-top:1px solid #3F4248;flex-shrink:0}
+.fussleiste{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px 20px calc(var(--unten) + 24px);flex-shrink:0}
 
 /* ---------- Blatt (von unten) und Meldung ---------- */
-.blatt-grund{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:30;display:flex;align-items:flex-end;animation:dunkel .2s both}
+.blatt-grund{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:30;display:flex;align-items:flex-end;animation:dunkel .2s both}
 @keyframes dunkel{from{opacity:0}}
-.blatt{width:100%;max-height:92%;overflow-y:auto;background:#34373C;border-radius:28px 28px 0 0;border-top:1px solid var(--rand);padding:10px 20px calc(var(--unten) + 24px);
+.blatt{width:100%;max-height:92%;overflow-y:auto;background:var(--blatt);border-radius:28px 28px 0 0;padding:10px 16px calc(var(--unten) + 28px);
   display:flex;flex-direction:column;gap:16px;animation:hoch .28s cubic-bezier(.2,.8,.2,1) both}
 @keyframes hoch{from{transform:translateY(100%)}}
-.blatt::before{content:'';width:40px;height:4px;border-radius:2px;background:#5B5F67;align-self:center;flex-shrink:0}
-.blatt h2{font-size:20px;font-weight:800;letter-spacing:-.01em}
-.blatt p{font-size:15px;line-height:1.5;color:var(--lesen)}
-.meldung{position:absolute;left:50%;bottom:calc(var(--unten) + 104px);transform:translateX(-50%);background:#F2F4F6;color:#1E2023;font-size:14px;font-weight:700;padding:11px 18px;border-radius:999px;
+.blatt::before{content:'';width:40px;height:4px;border-radius:2px;background:var(--rand-hell);align-self:center;flex-shrink:0}
+.blatt h2{font-size:20px;font-weight:800;letter-spacing:-.01em;padding:0 4px}
+.blatt p{font-size:15px;line-height:1.5;color:var(--lesen);padding:0 4px}
+.blatt .karte{background:var(--karte)}
+.meldung{position:absolute;left:50%;bottom:calc(var(--unten) + 104px);transform:translateX(-50%);background:var(--text);color:var(--senke);font-size:14px;font-weight:700;padding:11px 18px;border-radius:999px;
   z-index:60;box-shadow:0 10px 24px rgba(0,0,0,.45);animation:meldung 2.2s both;pointer-events:none;white-space:nowrap;max-width:calc(100% - 40px);overflow:hidden;text-overflow:ellipsis}
 @keyframes meldung{0%{opacity:0;transform:translate(-50%,10px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,0)}}
 .band{background:var(--bern-flaeche);color:var(--bern-text);font-size:13px;font-weight:600;border-radius:14px;padding:10px 14px;flex-shrink:0}
@@ -353,22 +418,17 @@ h1,h2,p{margin:0}
 /* ---------- eigene Tastatur ---------- */
 /* Tippfelder: Sie zeigen ihren Wert und oeffnen die Tastatur der App, nie die des Telefons. */
 .tippfeld{cursor:text;scroll-margin:20px 0 28px;outline-offset:0}
-.tippfeld .platz{color:#8D939B}
-.strich{display:inline-block;width:2px;height:1.15em;border-radius:1px;background:#5C8BFF;margin-left:1px;vertical-align:-.2em;flex-shrink:0;animation:blinkt 1.1s steps(1) infinite}
+.tippfeld .platz{color:var(--blass)}
+.strich{display:inline-block;width:2px;height:1.15em;border-radius:1px;background:var(--blau-punkt);margin-left:1px;vertical-align:-.2em;flex-shrink:0;animation:blinkt 1.1s steps(1) infinite}
 @keyframes blinkt{50%{opacity:0}}
 .feld.tippfeld{white-space:pre-wrap;overflow-wrap:anywhere}
-.feld.tippfeld.aktiv,.feld-huelle.aktiv,.betragfeld.aktiv,.suche .tippfeld.aktiv{border-color:#5C8BFF;box-shadow:0 0 0 3px rgba(92,139,255,.25),inset 0 2px 4px rgba(0,0,0,.35)}
+.feld.tippfeld.aktiv,.feld-huelle.aktiv,.suche .tippfeld.aktiv{box-shadow:0 0 0 1.5px var(--blau)}
 .feld-huelle .tippfeld{flex:1;min-width:0;min-height:44px;padding:6px 0;font-size:14px;line-height:1.7;display:flex;flex-wrap:wrap;align-items:center;gap:0 9px}
-.feld-huelle .tippfeld span + .strich{margin-left:-8px}
-.suche .tippfeld{min-height:48px;border-radius:16px;padding:12px 14px 12px 44px;font-size:15px;line-height:22px;white-space:pre-wrap;overflow-wrap:anywhere}
-.betragfeld .tippfeld{flex:1;min-width:0;height:48px;font-size:40px;line-height:48px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums}
-.betragfeld .tippfeld.lang1{font-size:30px}
-.betragfeld .tippfeld.lang2{font-size:22px;letter-spacing:-.02em}
-.betragfeld .tippfeld.lang3{font-size:17px;letter-spacing:0}
-.wort.tippfeld{border:1px solid transparent;overflow:hidden}
-.wort.tippfeld.aktiv{border-color:#5C8BFF;background:#2A3044}
+.feld-huelle .tippfeld span + .strich,.an-feld .tippfeld span + .strich{margin-left:-8px}
+.suche .tippfeld{min-height:48px;border-radius:24px;padding:12px 16px 12px 46px;font-size:15px;line-height:22px;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--karte)}
+.wort.tippfeld{border:1.5px solid transparent;overflow:hidden}
+.wort.tippfeld.aktiv{border-color:var(--blau)}
 .wort.tippfeld b + .strich{margin-left:-9px}
-.gutzeile.leise{color:var(--leise)}
 
 /* Solange getippt wird, endet der Inhalt ueber der Tastatur. */
 .app.tippt .seite{bottom:var(--tastatur);padding-bottom:16px}
@@ -377,16 +437,16 @@ h1,h2,p{margin:0}
 .app.tippt .nav,.app.tippt .schleier{display:none}
 .app.tippt .meldung{bottom:calc(var(--tastatur) + 14px)}
 
-.tastatur{position:absolute;left:0;right:0;bottom:0;z-index:35;background:#26282C;border-top:1px solid #3F4248;padding:0 5px calc(var(--unten) + 8px);
-  display:flex;flex-direction:column;touch-action:none;box-shadow:0 -10px 24px rgba(0,0,0,.28);animation:hoch .22s cubic-bezier(.2,.8,.2,1) both}
+.tastatur{position:absolute;left:0;right:0;bottom:0;z-index:35;background:#17191D;padding:0 5px calc(var(--unten) + 8px);
+  display:flex;flex-direction:column;touch-action:none;box-shadow:0 -10px 24px rgba(0,0,0,.35);animation:hoch .22s cubic-bezier(.2,.8,.2,1) both}
 .tastatur.steht{animation:none}
 .tleiste{display:flex;align-items:center;gap:8px;min-height:50px;padding:0 3px 0 5px}
 .tlinks{flex:1;min-width:0;display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;touch-action:pan-x}
 .tlinks::-webkit-scrollbar{display:none}
-.tknopf{height:36px;padding:0 13px;border-radius:11px;border:1px solid #4A4E55;background:#383B41;color:var(--lesen);font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap}
-.tknopf:active{background:#2D2F34}
+.tknopf{height:36px;padding:0 13px;border-radius:11px;border:0;background:var(--karte);color:var(--lesen);font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap}
+.tknopf:active{background:var(--flaeche)}
 .tknopf.vorschlag{font-family:var(--ziffern);font-weight:500;font-size:15px;color:var(--text)}
-.tknopf.vorschlag.genau{background:var(--blau-flaeche);border-color:#4A5F8F;color:#fff}
+.tknopf.vorschlag.genau{background:var(--blau-flaeche);color:var(--blau-hell)}
 .tfertig{height:44px;padding:0 12px;border:0;background:transparent;color:var(--blau-hell);font-size:15px;font-weight:800;flex-shrink:0}
 .tfertig:active{opacity:.6}
 .thinweis{font-size:14px;font-weight:600;color:var(--leise);padding-left:6px;white-space:nowrap}
@@ -394,28 +454,28 @@ h1,h2,p{margin:0}
 .tblock{display:flex;flex-direction:column;gap:7px}
 .treihe{display:flex;gap:5px}
 .tluecke{flex:0 1 0;min-width:0}
-.ttaste{flex:1 1 0;min-width:0;height:46px;padding:0;border-radius:9px;border:1px solid #4A4E55;background:#3D4046;color:var(--text);font-size:21px;font-weight:600;
-  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.06);touch-action:none}
-.ttaste{position:relative}
-.ttaste:active,.ttaste.unten{background:#5A5F68;transform:translateY(1px);box-shadow:none}
-.ttaste.dunkel{background:#2F3237;border-color:#42454C;color:var(--lesen)}
-.ttaste.dunkel:active,.ttaste.dunkel.unten{background:#4A4E55}
+.ttaste{flex:1 1 0;min-width:0;height:46px;padding:0;border-radius:9px;border:0;background:var(--nav);color:var(--text);font-size:21px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 rgba(0,0,0,.35);touch-action:none;position:relative}
+.ttaste:active,.ttaste.unten{background:var(--rand-hell);transform:translateY(1px);box-shadow:none}
+.ttaste.dunkel{background:#202328;color:var(--lesen)}
+.ttaste.dunkel:active,.ttaste.dunkel.unten{background:var(--flaeche)}
 /* Das getippte Zeichen gross ueber der Taste: Der Finger verdeckt sie. */
 .ttaste[data-z].unten::after{content:attr(data-z);position:absolute;left:50%;bottom:calc(100% + 5px);transform:translateX(-50%);min-width:46px;height:54px;padding:0 8px;border-radius:12px;
-  background:#5A5F68;border:1px solid #7A808B;color:#fff;font-family:var(--schrift);font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  background:var(--rand-hell);color:#fff;font-family:var(--schrift);font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;
   box-shadow:0 8px 18px rgba(0,0,0,.5);pointer-events:none;z-index:2}
 .tastatur.t-adresse .ttaste[data-z].unten::after,.tastatur.t-wort .ttaste[data-z].unten::after{font-family:var(--ziffern);font-weight:500}
 .treihe > .ttaste[data-z]:first-child.unten::after{left:-2px;transform:none}
 .treihe > .ttaste[data-z]:last-child.unten::after{left:auto;right:-2px;transform:none}
-.ttaste.dunkel.an{background:#F2F4F6;border-color:transparent;color:#1E2023}
+.ttaste.dunkel.an{background:var(--text);color:var(--senke)}
 .ttaste.klein-schrift{font-size:15px;font-weight:800;letter-spacing:.02em}
-.ttaste.leertaste{background:#3D4046}
+.ttaste.leertaste{background:var(--nav)}
 .tastatur.t-ziffern{padding-left:14px;padding-right:14px}
 .ziffernblock{gap:8px}
 .ziffernblock .treihe{gap:8px}
-.ziffernblock .ttaste{height:52px;border-radius:14px;font-size:24px;font-weight:700}
+.ziffernblock .ttaste{height:56px;border-radius:28px;font-size:24px;font-weight:700;box-shadow:none;background:var(--karte)}
+.ziffernblock .ttaste.dunkel{background:transparent}
 .tastatur.t-adresse .ttaste,.tastatur.t-wort .ttaste{font-family:var(--ziffern);font-weight:500;font-size:20px}
-@media (max-height:640px){.ttaste{height:42px}.ziffernblock .ttaste{height:46px}}
+@media (max-height:640px){.ttaste{height:42px}.ziffernblock .ttaste{height:48px;border-radius:24px}}
 
 /* ---------- Scanner ---------- */
 .scanner{position:absolute;inset:0;background:#000;z-index:40;display:flex;flex-direction:column}
@@ -429,3 +489,6 @@ h1,h2,p{margin:0}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01s!important;animation-delay:0s!important;transition-duration:.01s!important}
 }
+
+/* Auf dem Blatt liegen Felder eine Stufe heller, sonst gingen sie im Blatt unter. */
+.blatt .feld,.blatt .wort,.blatt .betragblock .alles,.blatt .karte{background:var(--flaeche)}

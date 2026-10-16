@@ -7,10 +7,10 @@ import { bioStand, bioEinschalten, bioAusschalten } from '../wallet/biometrie.ts
 import { einfuegen, sichtschutz } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { LOESCHEN, tippeWort, wortVorschlaege, istWort, woerterAusText } from '../wallet/tasten.ts';
-import { S, KopfZurueck, Schritte, Kasten, PinFeld, Praegung, Vierer, useZurueck, type PinAntwort } from '../ui/teile.tsx';
+import { S, KopfZurueck, Blatt, PinFeld, Praegung, Vierer, useZurueck, type PinAntwort } from '../ui/teile.tsx';
 import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
-type Schritt = 'willkommen' | 'pin' | 'pinNochmal' | 'woerter' | 'pruefen' | 'eingabe' | 'bio';
+type Schritt = 'willkommen' | 'wahl' | 'woerter' | 'pruefen' | 'eingabe' | 'pin' | 'pinNochmal' | 'bio' | 'fertig';
 
 /** Zu leicht zu erraten: sechs gleiche Ziffern oder eine einfache Reihe. */
 function schwach(pin: string): boolean {
@@ -21,11 +21,11 @@ function schwach(pin: string): boolean {
 /**
  * Einstieg: neue Wallet erstellen oder eine bestehende wiederherstellen.
  *
- *   neu:    PIN (zweimal) -> 12 Woerter aufschreiben -> drei davon eintippen
- *   wieder: 12 Woerter eingeben -> PIN (zweimal)
+ *   neu:    12 Woerter aufschreiben -> drei davon eintippen -> PIN (zweimal) -> Fingerabdruck? -> fertig
+ *   wieder: 12 Woerter eingeben -> PIN (zweimal) -> Fingerabdruck? -> fertig
  *
- * Gespeichert wird erst ganz am Ende. Wer vorher abbricht, hinterlaesst
- * nichts auf dem Geraet.
+ * Gespeichert wird erst ganz am Ende, mit "Zur Wallet". Wer vorher abbricht,
+ * hinterlaesst nichts auf dem Geraet.
  */
 export function Einstieg() {
   const t = useT();
@@ -34,6 +34,7 @@ export function Einstieg() {
   const [schritt, setSchritt] = useState<Schritt>('willkommen');
   const [weg, setWeg] = useState<'neu' | 'wieder'>('neu');
   const [pin, setPin] = useState('');
+  const [mitBio, setMitBio] = useState(false);
   const [eingabe, setEingabe] = useState<string[]>(() => Array<string>(12).fill(''));
   const [offen, setOffen] = useState(false);
   const [arbeitet, setArbeitet] = useState(false);
@@ -45,25 +46,26 @@ export function Einstieg() {
   const gueltig = anzahl === 12 && isValidMnemonic(sauber);
   const tast = useTastatur();
   const adresse = useMemo(() => (gueltig ? keypairFromMnemonic(sauber).address : null), [gueltig, sauber]);
+  const neueAdresse = useMemo(() => (wallet.frisch ? keypairFromMnemonic(wallet.frisch).address : null), [wallet.frisch]);
 
   // Solange Woerter zu sehen oder einzugeben sind: keine Bildschirmfotos.
   const geheim = schritt === 'woerter' || schritt === 'pruefen' || schritt === 'eingabe';
   useEffect(() => { if (!geheim) return; sichtschutz(true); return () => sichtschutz(false); }, [geheim]);
 
-  const anfang = () => { wallet.verwerfen(); setPin(''); setEingabe(Array<string>(12).fill('')); setOffen(false); setFehler(''); setSchritt('willkommen'); };
+  const anfang = () => { wallet.verwerfen(); setPin(''); setMitBio(false); setEingabe(Array<string>(12).fill('')); setOffen(false); setFehler(''); setSchritt('willkommen'); };
   useZurueck(() => {
-    if (schritt === 'pinNochmal') setSchritt('pin');
+    if (schritt === 'wahl') setSchritt('willkommen');
     else if (schritt === 'pruefen') setSchritt('woerter');
+    else if (schritt === 'pin') setSchritt(weg === 'neu' ? 'pruefen' : 'eingabe');
+    else if (schritt === 'pinNochmal') setSchritt('pin');
     else anfang();
-  }, schritt !== 'willkommen' && !arbeitet);
+  }, schritt !== 'willkommen' && schritt !== 'fertig' && !arbeitet);
 
-  const abschliessen = async (mitBio: boolean) => {
+  /** Der letzte Schritt: Tresor anlegen. Der Fingerabdruck ist dann schon eingerichtet, wenn gewuenscht. */
+  const abschliessen = async () => {
     if (arbeitet) return;
     setArbeitet(true); setFehler('');
     try {
-      if (mitBio && !(await bioEinschalten(pin, t.bio.grund, t.allg.abbrechen))) {
-        setFehler(t.bio.nichtGeklappt); setArbeitet(false); return;
-      }
       if (weg === 'neu') await wallet.versiegeln(pin);
       else if (!(await wallet.wiederherstellen(sauber, pin))) throw new Error('Woerter ungueltig');
     } catch (e) {
@@ -74,41 +76,63 @@ export function Einstieg() {
     }
   };
 
-  const nachPruefung = async () => {
+  const nachPin = async () => {
     const stand = await bioStand();
-    if (stand.da) setSchritt('bio'); else await abschliessen(false);
+    setSchritt(stand.da ? 'bio' : 'fertig');
   };
 
-  if (schritt === 'willkommen') {
+  const fingerEinschalten = async () => {
+    if (arbeitet) return;
+    setArbeitet(true); setFehler('');
+    const ok = await bioEinschalten(pin, t.bio.grund, t.allg.abbrechen);
+    setArbeitet(false);
+    if (!ok) { setFehler(t.bio.nichtGeklappt); return; }
+    setMitBio(true); setSchritt('fertig');
+  };
+
+  const neuStarten = () => { setWeg('neu'); if (!wallet.frisch) wallet.erstellen(); setSchritt('woerter'); };
+  const wiederStarten = () => { setWeg('wieder'); setSchritt('eingabe'); };
+
+  if (schritt === 'willkommen' || schritt === 'wahl') {
     return (
-      <div className="seite" style={{ paddingLeft: 24, paddingRight: 24 }}>
-        <div className="kopf" style={{ justifyContent: 'flex-end' }}>
-          <button type="button" className="klein sinkt" style={{ width: 'auto', padding: '0 14px', gap: 8, fontSize: 14, fontWeight: 700 }}
-                  onClick={() => einstellen({ sprache: sprachCode(sprache) === 'de' ? 'en' : 'de' })}>
-            <S n="welt" g={18} /><span>{sprachCode(sprache) === 'de' ? 'Deutsch' : 'English'}</span>
-          </button>
-        </div>
+      <div className="seite" style={{ paddingTop: 'calc(var(--oben) + 12px)' }}>
+        <button type="button" className="sprachknopf sinkt" onClick={() => einstellen({ sprache: sprachCode(sprache) === 'de' ? 'en' : 'de' })}>
+          <S n="welt" g={16} /><span>{sprachCode(sprache) === 'de' ? 'Deutsch' : 'English'}</span>
+        </button>
         <div className="fuell" />
-        <div style={{ alignSelf: 'center', margin: '-16px 0' }}><Praegung /></div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <h1 className="gross-titel">{t.willkommen.titel1}<br />{t.willkommen.titel2}</h1>
-          <p className="fliess" style={{ fontSize: 17 }}>{t.willkommen.text}</p>
-        </div>
-        <div className="punktliste">
-          {[t.willkommen.punkt1, t.willkommen.punkt2, t.willkommen.punkt3].map(p =>
-            <div key={p}><span><S n="haken" g={16} w={2.4} /></span>{p}</div>)}
+        <div className="hero"><Praegung gross /></div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+          <h1 className="gross-titel mittig">{t.willkommen.titel1}<br />{t.willkommen.titel2}</h1>
+          <p className="fliess mittig" style={{ maxWidth: 340 }}>{t.willkommen.kurz}</p>
         </div>
         <div className="fuell" />
         <div className="stapel">
-          <button type="button" className="knopf sinkt" onClick={() => { setWeg('neu'); setSchritt('pin'); }}>{t.willkommen.neu}</button>
-          <button type="button" className="knopf zweit sinkt" onClick={() => { setWeg('wieder'); setSchritt('eingabe'); }}>{t.willkommen.wieder}</button>
+          <button type="button" className="knopf sinkt" onClick={() => setSchritt('wahl')}>{t.willkommen.los}</button>
+          <button type="button" className="knopf text sinkt" onClick={wiederStarten}>{t.willkommen.habe}</button>
         </div>
+        <p className="fuss">{t.willkommen.fuss}</p>
+        {schritt === 'wahl' && (
+          <Blatt titel={t.willkommen.wahl} onZu={() => setSchritt('willkommen')}>
+            <div className="stapel">
+              <button type="button" className="auswahlzeile sinkt" onClick={neuStarten}>
+                <span className="kachel aus"><S n="plus" g={22} w={2.2} /></span>
+                <span className="worte"><b>{t.willkommen.neu}</b><small>{t.willkommen.neuText}</small></span>
+                <S n="weiter" g={18} w={2.2} />
+              </button>
+              <button type="button" className="auswahlzeile sinkt" onClick={wiederStarten}>
+                <span className="kachel ein"><S n="einfuegen" g={22} /></span>
+                <span className="worte"><b>{t.willkommen.wieder}</b><small>{t.willkommen.wiederText}</small></span>
+                <S n="weiter" g={18} w={2.2} />
+              </button>
+            </div>
+          </Blatt>
+        )}
       </div>
     );
   }
 
   if (schritt === 'pin') {
-    return <PinFeld key="pin" titel={t.pin.festlegen} unter={t.pin.festlegenText} zurueck={weg === 'neu' ? anfang : () => setSchritt('eingabe')}
+    return <PinFeld key="pin" titel={t.pin.festlegen} unter={t.pin.festlegenText} zurueck={() => setSchritt(weg === 'neu' ? 'pruefen' : 'eingabe')}
       onPin={async (p): Promise<PinAntwort> => {
         if (schwach(p)) return { fehler: t.pin.schwach };
         setPin(p); setTimeout(() => setSchritt('pinNochmal'), 250);
@@ -120,44 +144,42 @@ export function Einstieg() {
     return <PinFeld key="nochmal" titel={t.pin.wiederholen} unter={t.pin.wiederholenText} zurueck={() => setSchritt('pin')}
       onPin={async (p): Promise<PinAntwort> => {
         if (p !== pin) { setTimeout(() => setSchritt('pin'), 1400); return { fehler: t.pin.ungleich }; }
-        if (weg === 'neu') { if (!wallet.frisch) wallet.erstellen(); setTimeout(() => setSchritt('woerter'), 250); }
-        else setTimeout(nachPruefung, 250);
+        setTimeout(nachPin, 250);
         return 'ok';
       }} />;
   }
 
   if (schritt === 'woerter') {
     return (
-      <div className="seite" style={{ paddingLeft: 24, paddingRight: 24, gap: 20 }}>
-        <KopfZurueck zurueck={anfang} mitte={<Schritte n={2} von={3} />} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <h1 className="titel2">{t.woerter.titel}</h1>
-          <p className="fliess">{t.woerter.text}</p>
+      <div className="seite">
+        <KopfZurueck zurueck={anfang} titel="" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+          <h1 className="titel2 mittig">{t.woerter.titel}</h1>
+          <p className="fliess mittig" style={{ fontSize: 15, maxWidth: 340 }}>{t.woerter.text}</p>
         </div>
         <Wortkarte woerter={woerter} offen={offen} umschalten={() => setOffen(o => !o)} />
-        <Kasten art="warn" symbol="warnung"><strong>{t.woerter.warnStark}</strong> {t.woerter.warnText}</Kasten>
         <div className="fuell" />
-        <button type="button" className="knopf sinkt" onClick={() => { setOffen(false); setSchritt('pruefen'); }}>{t.woerter.weiter}</button>
+        <div className="hinweis bern"><S n="warnung" g={18} /><div><strong style={{ color: 'var(--lesen)' }}>{t.woerter.warnStark}</strong> {t.woerter.warnText}</div></div>
+        <button type="button" className="knopf sinkt" disabled={!offen} onClick={() => { setOffen(false); setSchritt('pruefen'); }}>{t.woerter.weiter}</button>
       </div>
     );
   }
 
   if (schritt === 'pruefen') {
-    return <Pruefung woerter={woerter} zurueck={() => setSchritt('woerter')} fertig={nachPruefung} arbeitet={arbeitet} fehler={fehler} />;
+    return <Pruefung woerter={woerter} zurueck={() => setSchritt('woerter')} fertig={() => setSchritt('pin')} arbeitet={arbeitet} fehler={fehler} />;
   }
 
   if (schritt === 'eingabe') {
     return (
-      <div className="seite" style={{ paddingLeft: 24, paddingRight: 24, gap: 20 }}>
-        <KopfZurueck zurueck={anfang} mitte={<Schritte n={1} von={2} />} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <h1 className="titel2">{t.wieder.titel}</h1>
-          <p className="fliess">{t.wieder.text}</p>
+      <div className="seite">
+        <KopfZurueck zurueck={anfang} titel="" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+          <h1 className="titel2 mittig">{t.wieder.titel}</h1>
+          <p className="fliess mittig" style={{ fontSize: 15, maxWidth: 340 }}>{t.wieder.text}</p>
         </div>
         <div className="feldgruppe">
           <div className="feldkopf"><span className="feldname">{t.wieder.feld}</span><small>{t.wieder.zaehler(anzahl)}</small></div>
-          {/* Dieselbe Karte mit zwoelf Feldern wie beim Erstellen -- hier zum Hineintippen. */}
-          <div className="karte" style={{ padding: 16, gap: 14, borderRadius: 24 }}>
+          <div className="karte" style={{ padding: 12, gap: 12, borderRadius: 24 }}>
             <Wortfelder kennung="w" werte={eingabe} nummern={eingabe.map((_, i) => i + 1)} auto
                         setze={(i, w) => setEingabe(e => e.map((x, j) => (j === i ? w : x)))} />
             <div className="paar-knoepfe">
@@ -182,36 +204,58 @@ export function Einstieg() {
     );
   }
 
-  // schritt === 'bio'
+  if (schritt === 'bio') {
+    return (
+      <div className="seite">
+        <KopfZurueck zurueck={() => setSchritt('pin')} titel="" />
+        <div className="fuell" />
+        <div className="grosskreis"><S n="finger" g={68} w={1.6} /></div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+          <h1 className="titel2 mittig">{t.bio.titel}</h1>
+          <p className="fliess mittig" style={{ fontSize: 15, maxWidth: 340 }}>{t.bio.text}</p>
+        </div>
+        <div className="fehlertext" role="alert" style={{ textAlign: 'center' }}>{fehler}</div>
+        <div className="fuell" />
+        <div className="fuell" />
+        <div className="stapel">
+          <button type="button" className="knopf sinkt" disabled={arbeitet} onClick={fingerEinschalten}>{t.bio.ja}</button>
+          <button type="button" className="knopf text sinkt" disabled={arbeitet} onClick={() => { setMitBio(false); setSchritt('fertig'); }}>{t.bio.nein}</button>
+        </div>
+      </div>
+    );
+  }
+
+  // schritt === 'fertig'
+  const fertigAdresse = weg === 'neu' ? neueAdresse : adresse;
   return (
-    <div className="seite" style={{ paddingLeft: 24, paddingRight: 24, gap: 20 }}>
+    <div className="seite" style={{ alignItems: 'center' }}>
       <div className="fuell" />
-      <div style={{ alignSelf: 'center', width: 96, height: 96, borderRadius: 32, background: 'var(--blau-flaeche)', color: 'var(--blau-hell)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <S n="finger" g={48} w={1.6} />
+      <div className="gruenfeld" style={{ width: 140, height: 140 }}>
+        <svg width="96" height="96" viewBox="0 0 64 64" aria-hidden="true"><circle className="ring" cx="32" cy="32" r="30" transform="rotate(-90 32 32)" /><path className="strich" d="M19 33l9 9 17-19" /></svg>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, textAlign: 'center' }}>
-        <h1 className="titel2">{t.bio.titel}</h1>
-        <p className="fliess">{t.bio.text}</p>
+      <div className="auf" style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', animationDelay: '.5s' }}>
+        <h1 className="titel2 mittig">{t.willkommen.fertigTitel}</h1>
+        <p className="fliess mittig" style={{ fontSize: 15, maxWidth: 340 }}>{t.willkommen.fertigText}{mitBio ? '' : ''}</p>
       </div>
+      {fertigAdresse && <span className="adress-pille auf" style={{ height: 36, fontSize: 14, animationDelay: '.6s' }}>{fertigAdresse.slice(0, 12)}…{fertigAdresse.slice(-4)}</span>}
       <div className="fehlertext" role="alert" style={{ textAlign: 'center' }}>{fehler}</div>
       <div className="fuell" />
-      <div className="stapel">
-        <button type="button" className="knopf sinkt" disabled={arbeitet} onClick={() => abschliessen(true)}>{t.bio.ja}</button>
-        <button type="button" className="knopf zweit sinkt" disabled={arbeitet} onClick={() => abschliessen(false)}>{t.bio.nein}</button>
-      </div>
+      <div className="fuell" />
+      <button type="button" className="knopf sinkt auf" style={{ animationDelay: '.7s' }} disabled={arbeitet} onClick={abschliessen}>{t.willkommen.zurWallet}</button>
     </div>
   );
 }
 
+/** Die 12 Woerter in zwei Spalten. Zuerst verdeckt -- der Blick muss gewollt sein. */
 export function Wortkarte({ woerter, offen, umschalten }: { woerter: string[]; offen: boolean; umschalten: () => void }) {
   const t = useT();
   return (
-    <div className="karte" style={{ padding: 16, gap: 14, borderRadius: 24 }}>
-      <div className="wortraster">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="wortliste">
         {woerter.map((w, i) => (
-          <div key={i} className="wort">
-            <small>{String(i + 1).padStart(2, '0')}</small>
-            <b className={offen ? undefined : 'zu'}>{offen ? w : '••••••'}</b>
+          <div key={i}>
+            <small>{i + 1}.</small>
+            <b className={offen ? undefined : 'zu'}>{offen ? w : '••••'}</b>
           </div>
         ))}
       </div>
@@ -289,11 +333,11 @@ function Pruefung({ woerter, zurueck, fertig, arbeitet, fehler }: { woerter: str
     else setFalsch(true);
   };
   return (
-    <div className="seite" style={{ paddingLeft: 24, paddingRight: 24, gap: 20 }}>
-      <KopfZurueck zurueck={zurueck} mitte={<Schritte n={3} von={3} />} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <h1 className="titel2">{t.woerter.pruefTitel}</h1>
-        <p className="fliess">{t.woerter.pruefText}</p>
+    <div className="seite">
+      <KopfZurueck zurueck={zurueck} titel="" />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+        <h1 className="titel2 mittig">{t.woerter.pruefTitel}</h1>
+        <p className="fliess mittig" style={{ fontSize: 15, maxWidth: 340 }}>{t.woerter.pruefText}</p>
       </div>
       <Wortfelder kennung="wort" werte={werte} nummern={stellen.map(s => s + 1)} einspaltig auto
                   setze={(i, w) => { setFalsch(false); setWerte(alt => alt.map((x, j) => (j === i ? w : x))); }} />

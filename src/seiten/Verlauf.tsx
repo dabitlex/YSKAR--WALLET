@@ -78,19 +78,19 @@ export function Verlauf() {
     finally { setLaedt(false); }
   };
 
-  const chip = (r: Richtung, name: string) =>
-    <button type="button" className="chip sinkt" aria-pressed={richtung === r} onClick={() => setRichtung(r)}>{name}</button>;
+  const teil = (r: Richtung, name: string) =>
+    <button type="button" aria-pressed={richtung === r} onClick={() => setRichtung(r)}>{name}</button>;
 
   return (
     <div className="seite mit-nav eng">
       <Kopf titel={t.verlauf.titel} />
       <div className="suche">
         <S n="lupe" />
-        <Tippfeld id="suche" art="text" klasse="vertieft" label={t.verlauf.sucheLabel} platz={t.verlauf.suche} wert={suche}
+        <Tippfeld id="suche" art="text" label={t.verlauf.sucheLabel} platz={t.verlauf.suche} wert={suche}
                   onTaste={z => setSuche(x => tippeText(x, z))} einfuegen={x => setSuche(x.replace(/\s+/g, ' ').trim().slice(0, 64))}
                   leiste={suche !== '' && <button type="button" className="tknopf" onClick={() => setSuche('')}>{t.tast.leeren}</button>} />
       </div>
-      <div className="chips">{chip('alle', t.verlauf.alle)}{chip('ein', t.verlauf.eingang)}{chip('aus', t.verlauf.ausgang)}</div>
+      <div className="segment" role="group">{teil('alle', t.verlauf.alle)}{teil('ein', t.verlauf.eingang)}{teil('aus', t.verlauf.ausgang)}</div>
 
       {offene.length > 0 && <>
         <div className="rubrik">{t.verlauf.wartend}</div>

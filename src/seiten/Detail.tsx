@@ -5,7 +5,7 @@ import { ausEintrag, bestaetigungen, type Zahlung } from '../wallet/zahlungen.ts
 import { betragGenau } from '../wallet/betrag.ts';
 import { useKontakte } from '../wallet/kontakte.ts';
 import { imBrowserOeffnen, kopieren } from '../geraet/geraet.ts';
-import { S, KopfZurueck, Betrag, Vierer, Wartering, useMeldung, useZeit } from '../ui/teile.tsx';
+import { S, KopfZurueck, Betrag, Bild, Vierer, Wartering, useMeldung, useZeit } from '../ui/teile.tsx';
 
 export function Detail({ zahlung }: { zahlung: Zahlung }) {
   const t = useT();
@@ -41,9 +41,11 @@ export function Detail({ zahlung }: { zahlung: Zahlung }) {
 
       <div className="mitte-block" style={{ gap: 12 }}>
         {wartet && !ein ? <Wartering gross />
-          : <div className={`kachel ${wartet ? 'bern' : ein ? 'ein' : 'aus'}`} style={{ width: 56, height: 56, borderRadius: 18 }}>
-              <S n={belohnung ? 'block' : ein ? 'runter' : 'hoch'} g={26} w={2.2} />
+          : wer && !belohnung ? <Bild name={wer} g={64} />
+          : <div className={`kachel gross ${wartet ? 'bern' : ein ? 'ein' : 'aus'}`}>
+              <S n={belohnung ? 'block' : ein ? 'runter' : 'hoch'} g={28} w={2.2} />
             </div>}
+        {wer && !belohnung && <small>{ein ? t.zahlung.von(wer) : t.zahlung.an(wer)}</small>}
         <Betrag wert={z.betrag} vz={ein ? '+' : '−'} klasse="mittel" />
         <div className={`pille ${wartet ? 'bern' : 'gruen'}`}><i />{wartet ? t.detail.wartet : t.detail.s3Da(zeit.zahl(n))}</div>
       </div>

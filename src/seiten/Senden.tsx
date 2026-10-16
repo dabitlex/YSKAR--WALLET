@@ -17,7 +17,7 @@ import { bioAktiv, bioPin } from '../wallet/biometrie.ts';
 import { gesendetMerken } from '../wallet/gesendet.ts';
 import { einfuegen, erfolgGefuehl, fehlerGefuehl } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
-import { S, KopfZurueck, Betrag, Vierer, Kasten, Schieber, PinFeld, Bild, useMeldung, useZurueck, type PinAntwort } from '../ui/teile.tsx';
+import { S, KopfZurueck, Betrag, Vierer, Kasten, Schieber, PinFeld, Bild, Stufenleiste, useMeldung, useZurueck, type PinAntwort } from '../ui/teile.tsx';
 import { Scanner } from '../ui/scanner.tsx';
 import { Tippfeld, useTastatur, betragKlasse } from '../ui/tastatur.tsx';
 import type { Zahlung } from '../wallet/zahlungen.ts';
@@ -51,6 +51,7 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
   const [betrag, setBetrag] = useState(vorBetrag ? einheitenEingabe(vorBetrag, zeichen, DECIMALS, DECIMALS) : '');
   const [alles, setAlles] = useState(false);
   const [notiz, setNotiz] = useState(vorNotiz ?? '');
+  const [notizOffen, setNotizOffen] = useState(false);
   const [scannt, setScannt] = useState(!!scan);
   const [markt, setMarkt] = useState<Markt | null>(null);
   const [fehler, setFehler] = useState('');
@@ -167,30 +168,27 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
     const bestaetigt = (daten.konto?.history ?? []).some(e => e.txid === ergebnis.txid);
     const wer = name(ergebnis.gegen);
     return (
-      <div className="seite">
+      <div className="seite" style={{ alignItems: 'center' }}>
         <div className="fuell" />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22 }}>
-          <div className="gruenfeld">
-            <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><circle className="ring" cx="32" cy="32" r="30" transform="rotate(-90 32 32)" /><path className="strich" d="M19 33l9 9 17-19" /></svg>
-          </div>
-          <div className="auf" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, animationDelay: '.5s' }}>
-            <h1 className="titel2">{t.senden.gesendet}</h1>
-            <Betrag wert={ergebnis.betrag} klasse="mittel" />
-            <p style={{ fontSize: 15, color: 'var(--leise)' }}>{t.senden.anWen}{' '}
-              {wer ? <b style={{ color: 'var(--lesen)' }}>{wer}</b> : <span className="ziffern" style={{ color: 'var(--lesen)' }}>{adresse.slice(0, 8)}…{adresse.slice(-4)}</span>}</p>
-          </div>
-          <div className="karte auf" style={{ alignSelf: 'stretch', flexDirection: 'row', gap: 14, padding: '16px 18px', alignItems: 'flex-start', borderRadius: 24, animationDelay: '.62s' }}>
-            <div className={`kachel ${bestaetigt ? 'ein' : 'bern'}`}><S n={bestaetigt ? 'haken' : 'uhr'} g={20} w={bestaetigt ? 2.6 : 2} /></div>
-            <div>
-              <b style={{ display: 'block', fontSize: 15 }}>{bestaetigt ? t.senden.bestaetigtTitel : t.senden.wartetTitel}</b>
-              <span style={{ display: 'block', marginTop: 3, fontSize: 14, lineHeight: 1.45, color: 'var(--leise)' }}>{bestaetigt ? t.senden.bestaetigtText : t.senden.wartetText}</span>
-            </div>
+        <div className="gruenfeld">
+          <svg width="72" height="72" viewBox="0 0 64 64" aria-hidden="true"><circle className="ring" cx="32" cy="32" r="30" transform="rotate(-90 32 32)" /><path className="strich" d="M19 33l9 9 17-19" /></svg>
+        </div>
+        <div className="auf" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, animationDelay: '.5s' }}>
+          <h1 className="titel2">{t.senden.gesendet}</h1>
+          <div className="anwen">
+            <span className="ziffern">{betragText(ergebnis.betrag, t.code)} YSR</span>
+            <span>{t.senden.anWen}</span>
+            {wer ? <><Bild name={wer} g={24} /><b>{wer}</b></> : <span className="ziffern" style={{ fontSize: 15 }}>{adresse.slice(0, 8)}…{adresse.slice(-4)}</span>}
           </div>
         </div>
+        <div className="auf" style={{ alignSelf: 'stretch', display: 'flex', flexDirection: 'column', gap: 18, animationDelay: '.62s' }}>
+          <Stufenleiste stand={bestaetigt ? 3 : 1} namen={[t.senden.stufe1, t.senden.stufe2, t.senden.stufe3]} />
+          <p className="fliess mittig" style={{ fontSize: 15 }}>{bestaetigt ? t.senden.bestaetigtText : t.senden.wartetText}</p>
+        </div>
         <div className="fuell" />
-        <div className="stapel auf" style={{ animationDelay: '.74s' }}>
+        <div className="stapel auf" style={{ alignSelf: 'stretch', animationDelay: '.74s' }}>
           <button type="button" className="knopf sinkt" onClick={() => nav.reiter('start')}>{t.senden.uebersicht}</button>
-          <button type="button" className="knopf zweit sinkt" onClick={() => nav.ersetze({ n: 'detail', zahlung: ergebnis })}>{t.senden.ansehen}</button>
+          <button type="button" className="knopf text sinkt" onClick={() => nav.ersetze({ n: 'detail', zahlung: ergebnis })}>{t.senden.ansehen}</button>
         </div>
       </div>
     );
@@ -206,21 +204,23 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
     return (
       <div className="seite">
         <KopfZurueck titel={t.senden.pruefen} zurueck={zurueck} />
-        <div className="mitte-block"><small>{t.senden.duSendest}</small><Betrag wert={einheiten} /></div>
-        <div className="karte innen" style={{ borderRadius: 24 }}>
-          <div className="paar hoch">
-            <span>{t.senden.an}</span>
-            {zielName && <b>{zielName}</b>}
-            <Vierer adresse={adresse} />
+        <div className="mitte-block">
+          {zielName ? <Bild name={zielName} g={64} /> : <div className="kachel aus gross"><S n="hoch" g={28} w={2.2} /></div>}
+          <small>{zielName ? t.senden.duSendestAn(zielName) : t.senden.duSendest}</small>
+          <Betrag wert={einheiten} klasse="mittel" />
+        </div>
+        <div className="karte innen">
+          <div className="paar rechts">
+            <span>{t.senden.empfaenger}</span>
+            <div><Vierer adresse={adresse} klasse="klein-schrift" /></div>
           </div>
-          <div className="paar"><span>{t.senden.betrag}</span><span className="ziffern">{genau(einheiten)} YSR</span></div>
           <div className="paar"><span>{t.senden.netzgebuehr}</span><span className="ziffern">{genau(gebuehr)} YSR</span></div>
           {notiz && <div className="paar"><span>{t.senden.notiz}</span><span style={{ fontWeight: 600, textAlign: 'right', overflowWrap: 'anywhere' }}>{notizKuerzen(notiz)}</span></div>}
           <div className="paar summe"><b>{t.senden.gesamt}</b><span className="ziffern">{genau(summe)} YSR</span></div>
         </div>
         {fehler
           ? <Kasten art="rot" symbol="warnung">{fehler}</Kasten>
-          : <Kasten art="warn" symbol="warnung"><strong>{t.senden.warnung}</strong>{!bekannt && <> {t.senden.neueAdresse}</>}</Kasten>}
+          : <div className="hinweis bern"><S n="info" g={18} /><div><strong style={{ color: 'var(--lesen)' }}>{t.senden.warnung}</strong>{!bekannt && <> {t.senden.neueAdresse}</>}</div></div>}
         <div className="fuell" />
         <div className="stapel">
           <Schieber key={versuch} text={arbeitet ? t.senden.sendet : t.senden.schieben} label={t.senden.schiebenLabel} onFertig={geschoben} gesperrt={arbeitet || !reicht} />
@@ -232,70 +232,75 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
 
   /* --------------------------------------------------------------- eingabe */
   const kontaktliste = Object.entries(kontakte).sort((a, b) => a[1].localeCompare(b[1], t.code));
+  const chipAn = zielGueltig && !!zielName && tast.aktiv !== 'an';
   return (
     <div className="seite">
       <KopfZurueck titel={t.senden.titel} zurueck={zurueck} />
 
       <div className="feldgruppe">
-        <span className="feldname">{t.senden.empfaenger}</span>
-        <div className={`feld-huelle vertieft ${tast.aktiv === 'an' ? 'aktiv' : ''}`}>
-          <Tippfeld id="an" art="adresse" klasse="ziffern" label={t.senden.empfaenger} wert={ziel} platz={t.senden.platz}
-                    zeige={vierer(ziel).map((g, i) => <span key={i}>{g}</span>)}
-                    onTaste={z => setZiel(a => tippeAdresse(a, z))}
-                    leiste={ziel !== '' && <button type="button" className="tknopf" onClick={() => setZiel('')}>{t.tast.leeren}</button>}
-                    weiter={betrag === '' ? () => tast.oeffne('betrag') : undefined} />
+        <div className={`an-feld ${tast.aktiv === 'an' ? 'aktiv' : ''}`}>
+          <span className="wort-an">{t.senden.an}</span>
+          {chipAn
+            ? <>
+                <button type="button" className="an-chip sinkt" aria-label={`${zielName}, ${t.tast.leeren}`} onClick={() => setZiel('')}>
+                  <Bild name={zielName!} g={28} /><span>{zielName}</span><S n="kreuz" g={14} w={2.4} />
+                </button>
+                <span style={{ flex: 1 }} />
+              </>
+            : <Tippfeld id="an" art="adresse" klasse="ziffern" label={t.senden.empfaenger} wert={ziel} platz={t.senden.platz}
+                        zeige={vierer(ziel).map((g, i) => <span key={i}>{g}</span>)}
+                        onTaste={z => setZiel(a => tippeAdresse(a, z))}
+                        leiste={ziel !== '' && <button type="button" className="tknopf" onClick={() => setZiel('')}>{t.tast.leeren}</button>}
+                        weiter={betrag === '' ? () => tast.oeffne('betrag') : undefined} />}
           <button type="button" className="klein im-feld sinkt" aria-label={t.allg.einfuegen}
                   onClick={async () => { const x = await einfuegen(); if (!uebernehmen(x)) melde(t.senden.keinCode); }}><S n="einfuegen" g={19} /></button>
           <button type="button" className="klein im-feld sinkt" aria-label={t.allg.scannen} onClick={() => setScannt(true)}><S n="scan" g={19} /></button>
         </div>
-        {adresse === '' ? (kontaktliste.length > 0 &&
-            <div className="chips" style={{ overflowX: 'auto', margin: '0 -20px', padding: '0 20px' }}>
-              {kontaktliste.map(([a, n]) =>
-                <button key={a} type="button" className="chip sinkt" style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 8, flexShrink: 0 }} onClick={() => setZiel(a)}>
-                  <Bild name={n} g={28} /><span>{n}</span>
-                </button>)}
-            </div>)
+        {adresse === '' ? null
           : eigene ? <div className="gutzeile rot"><S n="warnung" g={15} />{t.senden.eigene}</div>
-          : zielGueltig ? <div className="gutzeile"><S n="haken" g={15} w={2.6} />{zielName ? t.senden.kontakt(zielName) : t.senden.gueltig}</div>
+          : zielGueltig ? (zielName ? null : <div className="gutzeile"><S n="haken" g={15} w={2.6} />{t.senden.gueltig}</div>)
           // Solange noch getippt wird, ist eine halbe Adresse kein Fehler.
           : tast.aktiv === 'an' && adresse.length < 42 ? <div className="gutzeile leise">{t.senden.zeichen(adresse.length)}</div>
           : <div className="gutzeile rot"><S n="warnung" g={15} />{t.senden.ungueltig}</div>}
       </div>
 
-      <div className="feldgruppe">
-        <span className="feldname">{t.senden.betrag}</span>
-        <div className={`betragfeld ${tast.aktiv === 'betrag' ? 'aktiv' : ''}`}>
-          <div className="oben">
-            <Tippfeld id="betrag" art="ziffern" label={t.senden.betrag} wert={betrag} platz="0" klasse={betragKlasse(betrag)}
-                      onTaste={z => { setAlles(false); setBetrag(b => tippeBetrag(b, z, zeichen, DECIMALS)); }} />
-            <span>YSR</span>
-          </div>
-          <div className="trenn" style={{ margin: 0 }} />
-          <div className="unten">
-            <span>{t.senden.verfuegbar} <b>{betragText(guthaben, t.code)} YSR</b></span>
-            <button type="button" className="alles sinkt" aria-pressed={alles} onClick={() => setAlles(true)}>{t.senden.alles}</button>
-          </div>
+      {adresse === '' && kontaktliste.length > 0 && (
+        <div className="zuletzt" aria-label={t.senden.zuletzt}>
+          {kontaktliste.slice(0, 8).map(([a, n]) =>
+            <button key={a} type="button" className="sinkt" onClick={() => setZiel(a)}><Bild name={n} g={48} /><span className="name">{n}</span></button>)}
+        </div>
+      )}
+
+      <div className="fuell" />
+
+      <div className="betragblock">
+        <div className="oben">
+          <Tippfeld id="betrag" art="ziffern" label={t.senden.betrag} wert={betrag} platz="0" klasse={betragKlasse(betrag)} auto={!!an && !vorBetrag}
+                    onTaste={z => { setAlles(false); setBetrag(b => tippeBetrag(b, z, zeichen, DECIMALS)); }} />
+          <span>YSR</span>
+        </div>
+        <div className="unten">
+          <span>{t.senden.verfuegbar} <b>{betragText(guthaben, t.code)} YSR</b></span>
+          <button type="button" className="alles sinkt" aria-pressed={alles} onClick={() => setAlles(true)}>{t.senden.alles}</button>
         </div>
         {einheiten > 0n && (staub || !reicht) && <div className="gutzeile rot"><S n="warnung" g={15} />{staub ? t.senden.staub : t.senden.zuViel}</div>}
-      </div>
-
-      <div className="feldgruppe">
-        <div className="feldkopf">
-          <span className="feldname">{t.senden.notiz} <span style={{ fontWeight: 500, color: 'var(--leise)' }}>{t.allg.optional}</span></span>
-          <small>{notizBytes(notiz)} / {NOTIZ_BYTES}</small>
-        </div>
-        <Tippfeld id="notiz" art="text" klasse="feld vertieft" gross="anfang" label={t.senden.notiz} wert={notiz}
-                  onTaste={z => setNotiz(n => notizKuerzen(tippeText(n, z)))}
-                  einfuegen={x => setNotiz(n => notizKuerzen((n + x).replace(/[\u0000-\u001f\u007f]/g, ' ').trimStart()))} />
-        {notiz && <div className="hinweis"><S n="info" g={16} />{t.senden.notizHinweis}</div>}
-      </div>
-
-      <div className="karte gebuehr">
-        <div><b>{t.senden.netzgebuehr}</b><span className="ziffern">{genau(gebuehr)} YSR</span></div>
-        <small>{t.senden.gebuehrText}</small>
+        {notizOffen || notiz
+          ? <div className="feldgruppe" style={{ alignSelf: 'stretch', paddingTop: 6 }}>
+              <div className="feldkopf">
+                <span className="feldname">{t.senden.notiz} <span style={{ fontWeight: 500, color: 'var(--leise)' }}>{t.allg.optional}</span></span>
+                <small>{notizBytes(notiz)} / {NOTIZ_BYTES}</small>
+              </div>
+              <Tippfeld id="notiz" art="text" klasse="feld" gross="anfang" label={t.senden.notiz} wert={notiz} auto={notizOffen && !notiz}
+                        onTaste={z => setNotiz(n => notizKuerzen(tippeText(n, z)))}
+                        einfuegen={x => setNotiz(n => notizKuerzen((n + x).replace(/[\u0000-\u001f\u007f]/g, ' ').trimStart()))} />
+              {notiz && <div className="hinweis"><S n="info" g={16} />{t.senden.notizHinweis}</div>}
+            </div>
+          : <button type="button" className="notizknopf" onClick={() => setNotizOffen(true)}><S n="stift" g={14} /><span>{t.senden.notizHinzu}</span></button>}
       </div>
 
       <div className="fuell" />
+
+      <div className="gebuehrzeile"><span>{t.senden.netzgebuehr}</span><b>{genau(gebuehr)} YSR</b><span>· {t.senden.gebuehrText}</span></div>
       <button type="button" className="knopf sinkt" disabled={!bereit} onClick={() => { setFehler(''); setSchritt('pruefen'); }}>{t.allg.weiter}</button>
 
       {scannt && <Scanner onZu={() => setScannt(false)} onText={text => { if (!uebernehmen(text)) return false; setScannt(false); return true; }} />}

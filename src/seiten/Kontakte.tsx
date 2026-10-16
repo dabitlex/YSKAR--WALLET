@@ -45,7 +45,7 @@ export function Kontakte() {
       {alle.length > 0 && (
         <div className="suche">
           <S n="lupe" />
-          <Tippfeld id="ksuche" art="text" klasse="vertieft" label={t.kontakte.sucheLabel} platz={t.kontakte.suche} wert={suche}
+          <Tippfeld id="ksuche" art="text" label={t.kontakte.sucheLabel} platz={t.kontakte.suche} wert={suche}
                     onTaste={z => setSuche(x => tippeText(x, z))}
                     leiste={suche !== '' && <button type="button" className="tknopf" onClick={() => setSuche('')}>{t.tast.leeren}</button>} />
         </div>
@@ -107,13 +107,13 @@ export function KontaktBearbeiten({ adresse: vor }: { adresse?: string }) {
       <KopfZurueck titel={bestehend ? t.kontakte.bearbeiten : t.kontakte.neu} zurueck={nav.zurueck} />
       <div className="feldgruppe">
         <span className="feldname">{t.kontakte.name}</span>
-        <Tippfeld id="kname" art="text" klasse="feld vertieft" gross="woerter" label={t.kontakte.name} wert={name} auto={!bestehend}
+        <Tippfeld id="kname" art="text" klasse="feld" gross="woerter" label={t.kontakte.name} wert={name} auto={!bestehend}
                   onTaste={z => setName(n => tippeText(n, z, NAME_MAX))}
                   weiter={ziel === '' ? () => tast.oeffne('kadresse') : undefined} />
       </div>
       <div className="feldgruppe">
         <span className="feldname">{t.kontakte.adresse}</span>
-        <div className={`feld-huelle vertieft ${tast.aktiv === 'kadresse' ? 'aktiv' : ''}`}>
+        <div className={`feld-huelle ${tast.aktiv === 'kadresse' ? 'aktiv' : ''}`}>
           <Tippfeld id="kadresse" art="adresse" klasse="ziffern" label={t.kontakte.adresse} wert={ziel} platz={t.senden.platz}
                     zeige={vierer(ziel).map((g, i) => <span key={i}>{g}</span>)}
                     onTaste={z => setZiel(x => tippeAdresse(x, z))}
