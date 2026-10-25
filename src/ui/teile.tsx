@@ -46,6 +46,11 @@ const PFADE = {
   gross: <path d="M12 4 4 12.5h4.5V19h7v-6.5H20L12 4z" />,
   tausch: <><path d="M4 7h13" /><path d="m13 3 4 4-4 4" /><path d="M20 17H7" /><path d="m11 13-4 4 4 4" /></>,
   minus: <path d="M5 12h14" />,
+  // Zahlungsarten: schraege Pfeile fuer raus und rein, Schichten fuer den Pool-Anteil, ein Edelstein fuer die Blockbelohnung.
+  raus: <><path d="M7 17 17 7" /><path d="M9 7h8v8" /></>,
+  rein: <><path d="M17 7 7 17" /><path d="M15 17H7V9" /></>,
+  pool: <><path d="m12 3 9 5-9 5-9-5 9-5z" /><path d="m3 12.5 9 5 9-5" /><path d="m3 17 9 5 9-5" /></>,
+  belohnung: <><path d="M7 3h10l4 6-9 12L3 9l4-6z" /><path d="M3 9h18" /><path d="m10 3 2 6 2-6" /><path d="m12 9-3 12" /><path d="m12 9 3 12" /></>,
   kurve: <path d="M3 17l5-6 4 3 4-6 5 4" />,
 };
 export type SymbolName = keyof typeof PFADE;
@@ -302,8 +307,8 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
     <button type="button" className="zeile" onClick={onTipp}>
       {wartet && !ein ? <Wartering />
         : kontakt && !belohnung ? <Bild name={kontakt} g={44} />
-        : <div className={`kachel ${wartet ? 'bern' : ein ? 'ein' : 'aus'}`}>
-            <S n={belohnung ? 'block' : ein ? 'runter' : 'hoch'} g={20} w={2.2} />
+        : <div className={`kachel art ${wartet ? 'bern' : belohnung ? 'block' : ein ? 'ein' : 'aus'}`}>
+            <S n={z.art === 'pool' ? 'pool' : z.art === 'belohnung' ? 'belohnung' : ein ? 'rein' : 'raus'} g={20} w={2} />
           </div>}
       <div className="mitte">
         <b>{titel}</b>
@@ -537,7 +542,7 @@ export function QrBild({ text, label }: { text: string; label: string }) {
   return (
     <div className="qrplatte">
       <svg viewBox={`0 0 ${n} ${n}`} shapeRendering="crispEdges" role="img" aria-label={label}><path fill="#06112A" d={d} /></svg>
-      <span className="qr-logo" aria-hidden="true"><i style={{ ['--umriss' as string]: `url(${zeichenBild})` }} /></span>
+      <span className="qr-logo" aria-hidden="true"><img src={zeichenBild} alt="" draggable={false} /></span>
     </div>
   );
 }

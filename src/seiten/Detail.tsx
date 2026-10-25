@@ -42,8 +42,8 @@ export function Detail({ zahlung }: { zahlung: Zahlung }) {
       <div className="mitte-block" style={{ gap: 12 }}>
         {wartet && !ein ? <Wartering gross />
           : wer && !belohnung ? <Bild name={wer} g={64} />
-          : <div className={`kachel gross ${wartet ? 'bern' : ein ? 'ein' : 'aus'}`}>
-              <S n={belohnung ? 'block' : ein ? 'runter' : 'hoch'} g={28} w={2.2} />
+          : <div className={`kachel art gross ${wartet ? 'bern' : belohnung ? 'block' : ein ? 'ein' : 'aus'}`}>
+              <S n={z.art === 'pool' ? 'pool' : z.art === 'belohnung' ? 'belohnung' : ein ? 'rein' : 'raus'} g={28} w={2} />
             </div>}
         {wer && !belohnung && <small>{ein ? t.zahlung.von(wer) : t.zahlung.an(wer)}</small>}
         <Betrag wert={z.betrag} vz={ein ? '+' : '−'} klasse="mittel" />

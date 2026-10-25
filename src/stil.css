@@ -173,6 +173,13 @@ h1,h2,p{margin:0}
 .kachel.ein{background:rgba(59,229,154,.12);color:var(--gruen)}
 .kachel.bern{background:var(--bern-flaeche);color:var(--bern)}
 .kachel.gross{width:64px;height:64px}
+/* Zahlungsart: abgerundetes Quadrat mit getoenter Flaeche und Linie -- rein gruen, raus blau, Block und Pool cyan. */
+.kachel.art{width:42px;height:42px;border-radius:13px;border:1px solid transparent}
+.kachel.art.aus{background:rgba(47,123,255,.14);border-color:rgba(47,123,255,.35);color:#9DB9FF}
+.kachel.art.ein{background:rgba(59,229,154,.12);border-color:rgba(59,229,154,.32);color:var(--gruen)}
+.kachel.art.block{background:rgba(99,216,255,.1);border-color:rgba(99,216,255,.32);color:var(--blau-hell)}
+.kachel.art.bern{background:rgba(255,180,84,.12);border-color:rgba(255,180,84,.32);color:var(--bern)}
+.kachel.art.gross{width:64px;height:64px;border-radius:20px}
 /* Kleine Kachel vor einer Einstellzeile. */
 .kachel.klein-kachel{width:36px;height:36px;border-radius:11px;background:var(--glas);border:1px solid var(--rand);color:var(--lesen)}
 .kachel.klein-kachel.rot{background:rgba(255,107,107,.12);border-color:rgba(255,107,107,.3);color:var(--rot)}
@@ -385,7 +392,7 @@ h1,h2,p{margin:0}
 .qrplatte svg{display:block;width:216px;height:216px;max-width:60vw;max-height:60vw}
 /* Das Logo in der Mitte des Codes: der Umriss, dunkel auf der weissen Platte. */
 .qr-logo{position:absolute;left:50%;top:50%;width:52px;height:52px;transform:translate(-50%,-50%);background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center}
-.qr-logo i{display:block;width:34px;height:34px;background:#06112A;-webkit-mask:var(--umriss) center / contain no-repeat;mask:var(--umriss) center / contain no-repeat}
+.qr-logo img{display:block;width:36px;height:36px}
 
 /* ---------- Kontakt-Verlauf ---------- */
 .kontaktkopf{display:flex;align-items:center;gap:12px;padding:calc(var(--oben) + 16px) 20px 12px;flex-shrink:0}
