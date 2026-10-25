@@ -5,8 +5,6 @@ import { useT } from '../i18n/index.ts';
 import { betragText, betragZahl, dezimalZeichen } from '../wallet/betrag.ts';
 import { vierer, kurzAdresse } from '../wallet/adresse.ts';
 import { kuerzel, useKontakte } from '../wallet/kontakte.ts';
-import { useEinstellungen } from '../wallet/einstellungen.ts';
-import { useKurs, fiatText, wert } from '../wallet/kurs.ts';
 import type { Zahlung } from '../wallet/zahlungen.ts';
 import * as tresor from '../wallet/tresor.ts';
 import { tippGefuehl, fehlerGefuehl, beiZurueck } from '../geraet/geraet.ts';
@@ -291,9 +289,6 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
   const t = useT();
   const { name } = useKontakte();
   const zeit = useZeit();
-  const { waehrung } = useEinstellungen();
-  const kurs = useKurs();
-  const fiat = wert(z.betrag, kurs, waehrung);
   const ein = z.art !== 'aus';
   const belohnung = z.art === 'belohnung' || z.art === 'pool';
   const kontakt = z.gegen ? name(z.gegen) : null;
@@ -316,7 +311,6 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
       </div>
       <span className="rechts">
         <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}{betragText(z.betrag, t.code)}</span>
-        {fiat !== null && <small>{ein ? '+' : '−'}{fiatText(fiat, waehrung, t.code)}</small>}
       </span>
     </button>
   );

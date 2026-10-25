@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useT, sprachCode } from '../i18n/index.ts';
 import { useDaten, useNav, useWallet } from '../zustand.tsx';
 import { einstellen, useEinstellungen, type Sprache } from '../wallet/einstellungen.ts';
-import { WAEHRUNG_CODE, WAEHRUNG_ZEICHEN, type Waehrung } from '../wallet/kurs.ts';
 import { bioAktiv, bioAusschalten, bioEinschalten, bioStand } from '../wallet/biometrie.ts';
 import { kopieren, sichtschutz } from '../geraet/geraet.ts';
 import { istNativ, letzteFehler } from '../geraet/plattform.ts';
@@ -20,7 +19,7 @@ export function Einstellungen() {
   const melde = useMeldung();
   const e = useEinstellungen();
   const [bio, setBio] = useState(bioAktiv());
-  const [blatt, setBlatt] = useState<null | 'sperre' | 'sprache' | 'waehrung' | 'entfernen'>(null);
+  const [blatt, setBlatt] = useState<null | 'sperre' | 'sprache' | 'entfernen'>(null);
   const [pinFuer, setPinFuer] = useState<null | 'bio' | 'entfernen'>(null);
 
   const sperrText = (s: number) => (s === 0 ? t.einst.sofort : s === 60 ? t.einst.min1 : t.einst.min5);
@@ -86,7 +85,6 @@ export function Einstellungen() {
       <div className="rubrik">{t.einst.allgemein}</div>
       <div className="karte innen" style={{ padding: '0 16px' }}>
         <button type="button" className="einstellzeile" onClick={() => setBlatt('sprache')}>{kachel('welt')}<span>{t.einst.sprache}</span><span className="rechts"><span>{sprachText(e.sprache)}</span>{pfeil}</span></button>
-        <button type="button" className="einstellzeile" onClick={() => setBlatt('waehrung')}>{kachel('kurve')}<span>{t.einst.waehrung}</span><span className="rechts"><span>{e.waehrung === 'eur' ? t.einst.euro : t.einst.dollar} ({WAEHRUNG_ZEICHEN[e.waehrung]})</span>{pfeil}</span></button>
       </div>
 
       <div className="rubrik">{t.einst.ueber}</div>
@@ -118,20 +116,6 @@ export function Einstellungen() {
             {(['system', 'de', 'en'] as Sprache[]).map(s => (
               <button key={s} type="button" className="einstellzeile" aria-pressed={e.sprache === s} onClick={() => { einstellen({ sprache: s }); setBlatt(null); }}>
                 <span>{sprachText(s)}</span>{e.sprache === s && <span className="rechts" style={{ color: 'var(--blau-hell)' }}><S n="haken" g={18} w={2.6} /></span>}
-              </button>
-            ))}
-          </div>
-        </Blatt>
-      )}
-      {blatt === 'waehrung' && (
-        <Blatt titel={t.einst.waehrung} onZu={() => setBlatt(null)}>
-          <p>{t.einst.waehrungText}</p>
-          <div className="karte">
-            {(['eur', 'usd'] as Waehrung[]).map(w => (
-              <button key={w} type="button" className="zeile" aria-pressed={e.waehrung === w} onClick={() => { einstellen({ waehrung: w }); setBlatt(null); }}>
-                <span className={`kachel ${e.waehrung === w ? 'aus' : 'klein-kachel'}`} style={{ width: 40, height: 40, borderRadius: 20, fontSize: 18, fontWeight: 800 }}>{WAEHRUNG_ZEICHEN[w]}</span>
-                <span className="mitte"><b>{w === 'eur' ? t.einst.euro : t.einst.dollar}</b><small>{WAEHRUNG_CODE[w]}</small></span>
-                {e.waehrung === w && <span style={{ color: 'var(--blau-hell)' }}><S n="haken" g={20} w={2.6} /></span>}
               </button>
             ))}
           </div>

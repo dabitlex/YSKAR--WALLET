@@ -6,10 +6,7 @@ import { kurzAdresse } from '../wallet/adresse.ts';
 import { betragText } from '../wallet/betrag.ts';
 import { kopieren } from '../geraet/geraet.ts';
 import { useZahlungen } from '../ui/daten.ts';
-import { S, Kopf, Betrag, Zahlungszeile, Zeichen, useMeldung } from '../ui/teile.tsx';
-import { useKurs, fiatText, wert } from '../wallet/kurs.ts';
-import { Kurve, KommtBald } from './Kurs.tsx';
-import { quelle } from '../wallet/kurs.ts';
+import { S, Kopf, Betrag, Zahlungszeile, useMeldung } from '../ui/teile.tsx';
 
 /** Das Guthaben zaehlt beim ersten Erscheinen hoch, danach springt es nicht mehr. */
 let gezaehlt = false;
@@ -47,11 +44,7 @@ export function Start() {
   const wallet = useWallet();
   const { konto, offline } = useDaten();
   const { wartend, verlauf } = useZahlungen();
-  const { verborgen, waehrung } = useEinstellungen();
-  const kurs = useKurs();
-  const [bald, setBald] = useState(false);
-  const [kurve, setKurve] = useState<number[]>([]);
-  useEffect(() => { let lebt = true; quelle.verlauf('1w', waehrung).then(w => { if (lebt) setKurve(w); }).catch(() => {}); return () => { lebt = false; }; }, [waehrung]);
+  const { verborgen } = useEinstellungen();
   const melde = useMeldung();
   const stand = useHochzaehlen(konto ? BigInt(konto.balance) : null);
   const liste = [...wartend, ...verlauf].slice(0, 6);
@@ -64,8 +57,6 @@ export function Start() {
     return summe;
   }, [verlauf]);
 
-  const guthabenWert = konto && !verborgen ? wert(BigInt(konto.balance), kurs, waehrung) : null;
-  const fmt = (n: number) => fiatText(n, waehrung, t.code);
   const rund = (label: string, symbol: Parameters<typeof S>[0]['n'], onTipp: () => void, blau = false) => (
     <button type="button" className={`rund sinkt ${blau ? 'blau' : ''}`} onClick={onTipp}><span className="kreis"><S n={symbol} g={24} w={2.2} /></span><span>{label}</span></button>
   );
@@ -92,7 +83,6 @@ export function Start() {
             ? <div style={{ color: 'var(--leise)', fontSize: 15, minHeight: 56, display: 'flex', alignItems: 'center' }}>{offline ? '–' : t.start.laedt}</div>
             : <Betrag wert={stand} ziel={BigInt(konto?.balance ?? stand)} />}
         <div className="unterzeile-start">
-          {guthabenWert !== null && <span className="fiatwert">≈ {fmt(guthabenWert)}</span>}
           {!verborgen && heute !== 0n && (
             <span className={`pille ${heute > 0n ? 'gruen' : 'blau'}`}><i />{heute > 0n ? '+' : '−'}{betragText(heute < 0n ? -heute : heute, t.code)} YSR {t.start.heute}</span>
           )}
@@ -108,24 +98,8 @@ export function Start() {
       <div className="rund-reihe auf" style={{ animationDelay: '.06s' }}>
         {rund(t.start.senden, 'hoch', () => nav.gehe({ n: 'senden' }), true)}
         {rund(t.start.empfangen, 'runter', () => nav.gehe({ n: 'empfangen' }))}
-        {rund(t.start.swap, 'tausch', () => setBald(true))}
         {rund(t.start.scannen, 'scan', () => nav.gehe({ n: 'senden', scan: true }))}
       </div>
-
-      {kurs && (
-        <button type="button" className="karte tokenzeile auf" style={{ animationDelay: '.1s' }} onClick={() => nav.gehe({ n: 'kurs' })}>
-          <span className="kachel logo-kachel"><Zeichen g={24} /></span>
-          <span className="mitte">
-            <b>YSKAR</b>
-            <small><span className="ziffern">{fmt(kurs.preis[waehrung])}</span><span className={kurs.aenderung24h >= 0 ? 'gruen' : 'rot'}>{kurs.aenderung24h >= 0 ? '+' : '−'}{Math.abs(kurs.aenderung24h).toLocaleString(t.code, { maximumFractionDigits: 1 })} %</span>{kurs.demo && <span className="demo-marke">{t.start.demo}</span>}</small>
-          </span>
-          <Kurve werte={kurve} hoehe={20} klein />
-          <span className="rechts">
-            <span className="ziffern">{verborgen ? '••••' : betragText(konto ? BigInt(konto.balance) : 0n, t.code)} YSR</span>
-            <small>{guthabenWert === null ? '' : fmt(guthabenWert)}</small>
-          </span>
-        </button>
-      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} className="auf">
         <div className="ueber">
@@ -136,7 +110,6 @@ export function Start() {
           ? <div className="karte"><div className="leerstand">{konto ? t.start.leer : offline ? t.start.offline : t.start.laedt}</div></div>
           : <div className="karte">{liste.map(z => <Zahlungszeile key={z.txid} z={z} onTipp={() => nav.gehe({ n: 'detail', zahlung: z })} />)}</div>}
       </div>
-      {bald && <KommtBald titel={t.start.swap} onZu={() => setBald(false)} />}
     </div>
   );
 }

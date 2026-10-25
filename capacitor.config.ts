@@ -12,7 +12,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
  */
 const config: CapacitorConfig = {
   appId: 'net.yskar.wallet.test',
-  appName: 'YSKAR Wallet Test',
+  appName: 'YSKAR Wallet',
   webDir: 'dist',
   android: {
     allowMixedContent: false,

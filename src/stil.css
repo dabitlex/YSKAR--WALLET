@@ -142,32 +142,13 @@ h1,h2,p{margin:0}
 .adress-pille:active{background:var(--flaeche)}
 .trenn{height:1px;background:var(--linie);margin-top:4px}
 
-/* Wert in Euro oder Dollar unter dem Guthaben. */
-.fiatwert{font-size:17px;font-weight:500;color:var(--lesen);letter-spacing:-.01em}
-/* Runde Aktionen: Senden, Empfangen, Swap, Scannen. */
-.rund-reihe{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:0 4px;flex-shrink:0}
+/* Runde Aktionen: Senden, Empfangen, Scannen. */
+.rund-reihe{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0 24px;flex-shrink:0}
 .rund{display:flex;flex-direction:column;align-items:center;gap:8px;padding:2px 0;border:0;background:transparent;font-size:13px;font-weight:500;color:var(--lesen)}
 .rund .kreis{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--glas);border:1px solid var(--rand-hell);color:var(--text);transition:background-color .09s ease-out}
 .rund.blau .kreis{background:var(--blau);border-color:transparent;color:#fff;box-shadow:var(--schein)}
 .rund:active .kreis{background:var(--flaeche)}
 .rund.blau:active .kreis{background:var(--blau-druck);box-shadow:none}
-/* Die YSKAR-Zeile: Kurs, Mini-Kurve, Bestand. */
-.tokenzeile{flex-direction:row;align-items:center;gap:12px;padding:14px 16px;border:0;text-align:left;width:100%;color:var(--text)}
-.tokenzeile:active{background:var(--flaeche)}
-.tokenzeile .mitte{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.tokenzeile .mitte b{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
-.tokenzeile .mitte small{font-family:var(--ziffern);font-size:13px;color:var(--leise);display:flex;align-items:center;gap:8px;white-space:nowrap}
-.tokenzeile .mitte small .gruen{color:var(--gruen);font-weight:500}
-.tokenzeile .mitte small .rot{color:var(--rot);font-weight:500}
-.tokenzeile .rechts{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
-.tokenzeile .rechts .ziffern{font-size:14px;font-weight:500}
-.tokenzeile .rechts small{font-family:var(--ziffern);font-size:12px;color:var(--leise)}
-.logo-kachel{border-radius:14px;background:rgba(47,123,255,.12);border:1px solid rgba(99,216,255,.25)}
-.logo-kachel img{width:24px;height:24px}
-.demo-marke{font-family:var(--ziffern);font-size:10px;font-weight:500;letter-spacing:.08em;padding:2px 7px;border-radius:999px;background:rgba(255,180,84,.12);border:1px solid rgba(255,180,84,.35);color:var(--bern)}
-.kurve{display:block;width:100%;flex-shrink:0;overflow:visible}
-.tokenzeile .kurve{width:44px;flex:0 0 44px}
-.kurve path{transition:d .3s}
 /* Aktionen: zwei breite Pillen und die Scan-Taste. */
 .aktionen{display:flex;gap:10px;flex-shrink:0}
 .aktionen .knopf{flex:1;min-width:0;padding:0 14px}
@@ -535,20 +516,6 @@ h1,h2,p{margin:0}
 .hero .muenze{margin:8px 0}
 .pinseite .logo-platz .muenze{--d:min(120px,100%);aspect-ratio:1;height:auto;margin:0}
 @container (max-height:64px){.pinseite .logo-platz .muenze{display:none}}
-
-/* ---------- Kurs: Chart-Karte und Eckdaten ---------- */
-.chartkarte{padding:16px 18px 14px;gap:12px}
-.chartkarte .ttl{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600}
-.chartkarte .ttl small{font-family:var(--ziffern);font-size:12px;font-weight:400;color:var(--leise)}
-.chartkarte .kurve{height:150px}
-/* Eckdaten als Linienraster, zwei Spalten -- wie .eckdaten auf der Website. */
-.eckdaten{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--linie);flex-shrink:0}
-.eckdaten > div{padding:13px 0;border-bottom:1px solid var(--linie);display:flex;flex-direction:column;gap:4px;min-width:0}
-.eckdaten > div:nth-child(odd){padding-right:16px}
-.eckdaten > div:nth-child(even){padding-left:20px;border-left:1px solid var(--linie)}
-.eckdaten .k{font-size:12px;color:var(--leise)}
-.eckdaten .v{font-family:var(--ziffern);font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.eckdaten .v small{font-size:12px;color:var(--leise);margin-left:6px}
 
 /* ---------- Einstellungen: Kopfkarte ---------- */
 .profilkarte{flex-direction:row;align-items:center;gap:14px;padding:16px;border-color:var(--rand-hell);

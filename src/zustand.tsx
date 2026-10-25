@@ -241,8 +241,7 @@ export type Ort =
   | { n: 'detail'; zahlung: Zahlung }
   | { n: 'kontakt'; adresse: string }
   | { n: 'kontaktBearbeiten'; adresse?: string }
-  | { n: 'pinAendern' } | { n: 'woerterZeigen' }
-  | { n: 'kurs' };
+  | { n: 'pinAendern' } | { n: 'woerterZeigen' };
 
 export type Reiter = 'start' | 'kontakte' | 'verlauf' | 'einstellungen';
 export const REITER: Reiter[] = ['start', 'kontakte', 'verlauf', 'einstellungen'];
