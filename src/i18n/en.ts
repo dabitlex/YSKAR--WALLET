@@ -3,7 +3,7 @@ import type { Woerterbuch } from './de.ts';
 export const en: Woerterbuch = {
   code: 'en-GB',
   allg: {
-    weiter: 'Continue', zurueck: 'Back', abbrechen: 'Cancel', fertig: 'Done', schliessen: 'Close',
+    weiter: 'Continue', zurueck: 'Back', abbrechen: 'Cancel', fertig: 'Done', schliessen: 'Close', an: 'On', aus: 'Off',
     kopiert: 'Copied', einfuegen: 'Paste from clipboard', scannen: 'Scan QR code',
     heute: 'Today', gestern: 'Yesterday', optional: '(optional)',
     schritt: (n, von) => `Step ${n} of ${von}`,
@@ -203,6 +203,14 @@ export const en: Woerterbuch = {
     sofort: 'immediately', min1: 'after 1 minute', min5: 'after 5 minutes',
     sperreTitel: 'Auto-lock', sperreText: 'How long the wallet stays open after you leave the app.',
     allgemein: 'GENERAL', sprache: 'Language', system: 'Same as device',
+    meldung: 'Notify on incoming', meldungTitel: 'Notify on incoming payments',
+    meldungText: 'The app checks for new incoming payments in the background about every 15 minutes and notifies you – even when it is closed. Only payments included in a block are reported. No server learns which device belongs to your address.',
+    meldungVerzoegert: 'Android batches such checks; the notification may arrive a few minutes after the payment.',
+    meldungVerweigert: 'Notifications for this app are turned off in the system. Allow them in Android settings and it will work.',
+    meldungAkku: 'So the check also runs in power-saving mode, exempt the app from battery optimisation.',
+    meldungAkkuKnopf: 'Open battery optimisation', meldungAkkuFrei: 'Battery optimisation: exempt',
+    meldungAn: 'Notifications are on', meldungAus: 'Notifications are off',
+    meldungKanal: 'Incoming payments', meldungKanalText: 'New YSR on your address', meldungVon: 'From', meldungBlock: 'Block', meldungGesperrt: 'New incoming payment in your wallet',
     waehrung: 'Currency', waehrungText: 'The value of your balance is shown in this currency. The rate comes from the market once YSR is listed.', euro: 'Euro', dollar: 'US dollar',
     ueber: 'ABOUT', version: 'Version', netz: 'Network', hauptkette: 'Main chain',
     diagnose: 'Copy diagnostics', diagnoseKopiert: 'Diagnostics copied',

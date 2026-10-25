@@ -5,6 +5,7 @@ import { einstellen, useEinstellungen, type Sprache } from '../wallet/einstellun
 import { bioAktiv, bioAusschalten, bioEinschalten, bioStand } from '../wallet/biometrie.ts';
 import { kopieren, sichtschutz } from '../geraet/geraet.ts';
 import { istNativ, letzteFehler } from '../geraet/plattform.ts';
+import { eingangMoeglich, eingangStand, eingangEinschalten, eingangAusschalten, eingangAkku, type EingangStand } from '../geraet/eingang.ts';
 import { S, Kopf, KopfZurueck, Blatt, Kasten, PinFeld, Zeichen, useMeldung, type PinAntwort } from '../ui/teile.tsx';
 import { kurzAdresse } from '../wallet/adresse.ts';
 import { Wortkarte } from './Einstieg.tsx';
@@ -19,7 +20,25 @@ export function Einstellungen() {
   const melde = useMeldung();
   const e = useEinstellungen();
   const [bio, setBio] = useState(bioAktiv());
-  const [blatt, setBlatt] = useState<null | 'sperre' | 'sprache' | 'entfernen'>(null);
+  const [blatt, setBlatt] = useState<null | 'sperre' | 'sprache' | 'meldung' | 'entfernen'>(null);
+  const [meldung, setMeldung] = useState<EingangStand | null>(null);
+  useEffect(() => { if (eingangMoeglich()) eingangStand().then(setMeldung); }, []);
+  // Nach dem Rueckweg aus den Android-Einstellungen den Stand neu lesen.
+  useEffect(() => {
+    const neu = () => { if (document.visibilityState === 'visible' && eingangMoeglich()) eingangStand().then(setMeldung); };
+    document.addEventListener('visibilitychange', neu);
+    return () => document.removeEventListener('visibilitychange', neu);
+  }, []);
+  const meldungTexte = () => ({
+    sprache: t.code, kanal: t.einst.meldungKanal, kanalText: t.einst.meldungKanalText, von: t.einst.meldungVon,
+    belohnung: t.zahlung.belohnung, pool: t.zahlung.pool, block: t.einst.meldungBlock, gesperrt: t.einst.meldungGesperrt,
+  });
+  const meldungUmschalten = async () => {
+    if (!wallet.adresse) return;
+    const r = meldung?.an ? await eingangAusschalten() : await eingangEinschalten(wallet.adresse, meldungTexte());
+    setMeldung(r);
+    if (r.an && r.berechtigung !== 'granted') melde(t.einst.meldungVerweigert);
+  };
   const [pinFuer, setPinFuer] = useState<null | 'bio' | 'entfernen'>(null);
 
   const sperrText = (s: number) => (s === 0 ? t.einst.sofort : s === 60 ? t.einst.min1 : t.einst.min5);
@@ -52,6 +71,7 @@ export function Einstellungen() {
           setBio(ok); if (!ok) melde(t.bio.nichtGeklappt);
           setPinFuer(null);
         } else {
+          if (eingangMoeglich()) await eingangAusschalten();
           await wallet.vergessen();
         }
         return 'ok';
@@ -85,6 +105,11 @@ export function Einstellungen() {
       <div className="rubrik">{t.einst.allgemein}</div>
       <div className="karte innen" style={{ padding: '0 16px' }}>
         <button type="button" className="einstellzeile" onClick={() => setBlatt('sprache')}>{kachel('welt')}<span>{t.einst.sprache}</span><span className="rechts"><span>{sprachText(e.sprache)}</span>{pfeil}</span></button>
+        {eingangMoeglich() && (
+          <button type="button" className="einstellzeile" onClick={() => setBlatt('meldung')}>{kachel('glocke')}<span>{t.einst.meldung}</span>
+            <span className="rechts"><span className={`pille ${meldung?.an && meldung.berechtigung === 'granted' ? 'gruen' : ''}`} style={meldung?.an ? undefined : { color: 'var(--leise)', borderColor: 'var(--rand-hell)' }}>{meldung?.an ? t.allg.an : t.allg.aus}</span>{pfeil}</span>
+          </button>
+        )}
       </div>
 
       <div className="rubrik">{t.einst.ueber}</div>
@@ -119,6 +144,26 @@ export function Einstellungen() {
               </button>
             ))}
           </div>
+        </Blatt>
+      )}
+      {blatt === 'meldung' && (
+        <Blatt titel={t.einst.meldungTitel} onZu={() => setBlatt(null)}>
+          <p>{t.einst.meldungText}</p>
+          <div className="karte innen" style={{ padding: '0 16px' }}>
+            <div className="einstellzeile">
+              {kachel('glocke')}<span id="l-meldung">{meldung?.an ? t.einst.meldungAn : t.einst.meldungAus}</span>
+              <button type="button" role="switch" className="schalter" aria-checked={!!meldung?.an} aria-labelledby="l-meldung" onClick={meldungUmschalten}><span /></button>
+            </div>
+          </div>
+          {meldung?.an && meldung.berechtigung !== 'granted' && <Kasten art="warn" symbol="warnung">{t.einst.meldungVerweigert}</Kasten>}
+          {meldung?.an && meldung.berechtigung === 'granted' && (
+            meldung.akkuFrei
+              ? <div className="gutzeile"><S n="haken" g={16} w={2.6} />{t.einst.meldungAkkuFrei}</div>
+              : <>
+                  <Kasten art="ruhig" symbol="info">{t.einst.meldungAkku} {t.einst.meldungVerzoegert}</Kasten>
+                  <button type="button" className="knopf zweit sinkt" onClick={() => eingangAkku()}>{t.einst.meldungAkkuKnopf}</button>
+                </>
+          )}
         </Blatt>
       )}
       {blatt === 'entfernen' && (

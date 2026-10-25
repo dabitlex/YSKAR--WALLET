@@ -4,6 +4,7 @@ import { WalletProvider, DatenProvider, NavProvider, useWallet, useDaten, useNav
 import { kopfLaden } from './netz/api.ts';
 import { zahlungAusCode } from './wallet/qr.ts';
 import { appSchliessen, beiLink, linkAbholen } from './geraet/geraet.ts';
+import { eingangGeoeffnet } from './geraet/eingang.ts';
 import { MeldungProvider, Nav, Muenze, useZurueck, zurueckTasteVerbinden } from './ui/teile.tsx';
 import { TastaturRahmen } from './ui/tastatur.tsx';
 import { Einstieg } from './seiten/Einstieg.tsx';
@@ -90,6 +91,16 @@ function Seiten() {
     else if (nav.ort.n !== 'start') nav.reiter('start');
     else appSchliessen();
   }, true, 0);
+
+  // Ueber eine Eingangs-Meldung geoeffnet: zum Verlauf, wo der Eingang oben steht.
+  useEffect(() => {
+    const pruefen = () => { eingangGeoeffnet().then(txid => { if (txid) nav.reiter('verlauf'); }); };
+    pruefen();
+    const sicht = () => { if (document.visibilityState === 'visible') pruefen(); };
+    document.addEventListener('visibilitychange', sicht);
+    return () => document.removeEventListener('visibilitychange', sicht);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Ueber einen yskar:-Link geoeffnet: Senden mit den Angaben aus dem Link.
   useEffect(() => {

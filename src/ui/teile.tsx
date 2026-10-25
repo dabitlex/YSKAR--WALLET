@@ -46,6 +46,7 @@ const PFADE = {
   gross: <path d="M12 4 4 12.5h4.5V19h7v-6.5H20L12 4z" />,
   tausch: <><path d="M4 7h13" /><path d="m13 3 4 4-4 4" /><path d="M20 17H7" /><path d="m11 13-4 4 4 4" /></>,
   minus: <path d="M5 12h14" />,
+  glocke: <><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16z" /><path d="M10 21h4" /></>,
   // Zahlungsarten: schraege Pfeile fuer raus und rein, Schichten fuer den Pool-Anteil, ein Edelstein fuer die Blockbelohnung.
   raus: <><path d="M7 17 17 7" /><path d="M9 7h8v8" /></>,
   rein: <><path d="M17 7 7 17" /><path d="M15 17H7V9" /></>,

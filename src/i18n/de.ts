@@ -2,7 +2,7 @@
 export const de = {
   code: 'de-DE',
   allg: {
-    weiter: 'Weiter', zurueck: 'Zurück', abbrechen: 'Abbrechen', fertig: 'Fertig', schliessen: 'Schließen',
+    weiter: 'Weiter', zurueck: 'Zurück', abbrechen: 'Abbrechen', fertig: 'Fertig', schliessen: 'Schließen', an: 'An', aus: 'Aus',
     kopiert: 'Kopiert', einfuegen: 'Aus der Zwischenablage einfügen', scannen: 'QR-Code scannen',
     heute: 'Heute', gestern: 'Gestern', optional: '(optional)',
     schritt: (n: number, von: number) => `Schritt ${n} von ${von}`,
@@ -201,6 +201,14 @@ export const de = {
     sofort: 'sofort', min1: 'nach 1 Minute', min5: 'nach 5 Minuten',
     sperreTitel: 'Automatisch sperren', sperreText: 'Wie lange die Wallet offen bleibt, wenn du die App verlässt.',
     allgemein: 'ALLGEMEIN', sprache: 'Sprache', system: 'Wie das Gerät',
+    meldung: 'Benachrichtigung bei Eingang', meldungTitel: 'Benachrichtigung bei Eingang',
+    meldungText: 'Die App fragt im Hintergrund etwa alle 15 Minuten nach neuen Eingängen und meldet sie dir – auch wenn sie geschlossen ist. Gemeldet wird, was in einem Block steht. Kein Server erfährt dabei, welches Gerät zu deiner Adresse gehört.',
+    meldungVerzoegert: 'Android fasst solche Abfragen zusammen; die Meldung kann ein paar Minuten nach dem Eingang kommen.',
+    meldungVerweigert: 'Benachrichtigungen sind für diese App im System ausgeschaltet. Erlaube sie in den Android-Einstellungen, dann klappt es.',
+    meldungAkku: 'Damit die Abfrage auch bei Energiesparen läuft, nimm die App von der Akku-Optimierung aus.',
+    meldungAkkuKnopf: 'Akku-Optimierung öffnen', meldungAkkuFrei: 'Akku-Optimierung: ausgenommen',
+    meldungAn: 'Benachrichtigung ist an', meldungAus: 'Benachrichtigung ist aus',
+    meldungKanal: 'Eingänge', meldungKanalText: 'Neue YSR auf deiner Adresse', meldungVon: 'Von', meldungBlock: 'Block', meldungGesperrt: 'Neuer Eingang in deiner Wallet',
     waehrung: 'Währung', waehrungText: 'In dieser Währung wird der Wert deines Guthabens angezeigt. Der Kurs kommt vom Markt, sobald YSR gelistet ist.', euro: 'Euro', dollar: 'US-Dollar',
     ueber: 'ÜBER', version: 'Version', netz: 'Netz', hauptkette: 'Hauptkette',
     diagnose: 'Diagnose kopieren', diagnoseKopiert: 'Diagnose kopiert',

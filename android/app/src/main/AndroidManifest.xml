@@ -58,6 +58,8 @@
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Benachrichtigung bei Eingang (Android 13+ fragt den Nutzer). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Kamera nur fuer den QR-Scanner; das Bild verlaesst das Geraet nicht. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
