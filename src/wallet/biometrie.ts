@@ -36,8 +36,11 @@ export async function bioStand(): Promise<BioStand> {
 async function bestaetigen(grund: string, abbrechen: string): Promise<boolean> {
   if (!istNativ()) return false;
   try {
+    // Android zeigt App-Symbol und App-Namen selbst im Kopf des Dialogs. Deshalb
+    // nur eine Zeile von uns: der Grund als Titel, kein Untertitel, keine Beschreibung --
+    // sonst stehen Name und Grund doppelt da.
     await BiometricAuth.authenticate({
-      reason: grund, androidTitle: 'YSKAR Wallet', androidSubtitle: grund, cancelTitle: abbrechen,
+      androidTitle: grund, cancelTitle: abbrechen,
       // Kein Geraete-Code als Ersatz: Der Ersatz ist die eigene PIN der Wallet.
       allowDeviceCredential: false,
     });
