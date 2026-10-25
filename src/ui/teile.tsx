@@ -11,8 +11,7 @@ import type { Zahlung } from '../wallet/zahlungen.ts';
 import * as tresor from '../wallet/tresor.ts';
 import { tippGefuehl, fehlerGefuehl, beiZurueck } from '../geraet/geraet.ts';
 import { useNav, REITER, type Reiter } from '../zustand.tsx';
-import praegungBild from '../bilder/praegung.png';
-import umrissBild from '../bilder/umriss.png';
+import zeichenBild from '../bilder/zeichen.svg';
 
 /* ----------------------------------------------------------------- Symbole */
 
@@ -370,13 +369,18 @@ export function obenauflegen(inhalt: ReactNode) {
 
 /* ------------------------------------------------------------------- Logo */
 
-export function Praegung({ klein, gross, spielt }: { klein?: boolean; gross?: boolean; spielt?: boolean }) {
+/** Die Muenze der Website: dunkle Scheibe, blauer Ring, das Zeichen. Alles CSS -- siehe .muenze. */
+export function Muenze({ groesse = 'gross', spielt }: { groesse?: 'gross' | 'mittel' | 'klein'; spielt?: boolean }) {
   return (
-    <div className={`praegung ${klein ? 'halb' : ''} ${gross ? 'gross' : ''} ${spielt ? 'spielt' : ''}`} style={{ ['--umriss' as string]: `url(${umrissBild})` }}>
-      <img src={praegungBild} alt="YSKAR" draggable={false} />
-      {spielt && <div className="stempel" aria-hidden="true" />}
+    <div className={`muenze ${groesse} ${spielt ? 'spielt' : ''}`} role="img" aria-label="YSKAR">
+      <img src={zeichenBild} alt="" draggable={false} />
     </div>
   );
+}
+
+/** Das Zeichen allein, z. B. in einer Kachel. */
+export function Zeichen({ g = 24 }: { g?: number }) {
+  return <img src={zeichenBild} alt="" width={g} height={g} draggable={false} />;
 }
 
 /* -------------------------------------------------------------------- PIN */
@@ -437,7 +441,7 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck }: {
     <div className="seite pinseite">
       {zurueck && <div style={{ alignSelf: 'stretch', margin: '0 -12px' }}><KopfZurueck titel="" zurueck={zurueck} /></div>}
       {/* Der freie Platz liegt oben: mit Logo fuellt es ihn, ohne bleibt er leer. Titel und Punkte stehen dicht ueber den Tasten. */}
-      {logo ? <div className="logo-platz"><Praegung klein /></div> : <div className="fuell" />}
+      {logo ? <div className="logo-platz"><Muenze groesse="mittel" /></div> : <div className="fuell" />}
       <h1>{titel}</h1>
       {unter && <p className="unter">{unter}</p>}
       <div className={`punkte ${stand === 'gut' ? 'gut' : ''} ${stand === 'falsch' ? 'falsch' : ''}`} role="img" aria-label={t.pin.stellen(pin.length)}>
@@ -538,8 +542,8 @@ export function QrBild({ text, label }: { text: string; label: string }) {
   }, [text]);
   return (
     <div className="qrplatte">
-      <svg viewBox={`0 0 ${n} ${n}`} shapeRendering="crispEdges" role="img" aria-label={label}><path fill="#15171A" d={d} /></svg>
-      <span className="qr-logo" aria-hidden="true"><i style={{ ['--umriss' as string]: `url(${umrissBild})` }} /></span>
+      <svg viewBox={`0 0 ${n} ${n}`} shapeRendering="crispEdges" role="img" aria-label={label}><path fill="#06112A" d={d} /></svg>
+      <span className="qr-logo" aria-hidden="true"><i style={{ ['--umriss' as string]: `url(${zeichenBild})` }} /></span>
     </div>
   );
 }

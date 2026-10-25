@@ -92,8 +92,9 @@ export const de = {
   kurs: {
     titel: 'YSKAR · YSR', kurs: 'KURS', demoHinweis: 'Demo-Daten – noch kein Listing',
     bestand: 'Dein Bestand', hoch: (z: string) => `Hoch (${z})`, tief: (z: string) => `Tief (${z})`, blockzeit: 'Ø Blockzeit', minuten: (n: number) => `${n} min`,
-    kaufen: 'Kaufen', verkaufen: 'Verkaufen',
+    kaufen: 'Kaufen', verkaufen: 'Verkaufen', verlauf: 'Kursverlauf', wert: 'Wert',
     zeitraum: { '1t': '1T', '1w': '1W', '1m': '1M', '1j': '1J', alle: 'Alle' } as Record<string, string>,
+    zeitraumLang: { '1t': '1 Tag', '1w': '1 Woche', '1m': '1 Monat', '1j': '1 Jahr', alle: 'Gesamt' } as Record<string, string>,
   },
   zahlung: {
     an: (wer: string) => `An ${wer}`, von: (wer: string) => `Von ${wer}`,

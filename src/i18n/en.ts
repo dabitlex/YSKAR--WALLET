@@ -94,7 +94,9 @@ export const en: Woerterbuch = {
     titel: 'YSKAR · YSR', kurs: 'PRICE', demoHinweis: 'Demo data – not listed yet',
     bestand: 'Your holding', hoch: z => `High (${z})`, tief: z => `Low (${z})`, blockzeit: 'Avg. block time', minuten: n => `${n} min`,
     kaufen: 'Buy', verkaufen: 'Sell',
+    verlauf: 'Price history', wert: 'Value',
     zeitraum: { '1t': '1D', '1w': '1W', '1m': '1M', '1j': '1Y', alle: 'All' },
+    zeitraumLang: { '1t': '1 day', '1w': '1 week', '1m': '1 month', '1j': '1 year', alle: 'All time' },
   },
   zahlung: {
     an: wer => `To ${wer}`, von: wer => `From ${wer}`,

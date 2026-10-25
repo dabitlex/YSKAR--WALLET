@@ -4,7 +4,7 @@ import { WalletProvider, DatenProvider, NavProvider, useWallet, useDaten, useNav
 import { kopfLaden } from './netz/api.ts';
 import { zahlungAusCode } from './wallet/qr.ts';
 import { appSchliessen, beiLink, linkAbholen } from './geraet/geraet.ts';
-import { MeldungProvider, Nav, Praegung, useZurueck, zurueckTasteVerbinden } from './ui/teile.tsx';
+import { MeldungProvider, Nav, Muenze, useZurueck, zurueckTasteVerbinden } from './ui/teile.tsx';
 import { TastaturRahmen } from './ui/tastatur.tsx';
 import { Einstieg } from './seiten/Einstieg.tsx';
 import { Sperre } from './seiten/Sperre.tsx';
@@ -63,7 +63,7 @@ function Lader({ onFertig }: { onFertig: () => void }) {
   const prozent = [30, 60, 85, 100][stufe];
   return (
     <div className={`lader-seite ${geht ? 'geht' : ''}`}>
-      <Praegung spielt />
+      <Muenze spielt />
       <div className={`lader ${sichtbar ? 'sichtbar' : ''}`}>
         <div className="lader-text" aria-live="polite">{text}</div>
         <div className="rille" role="progressbar" aria-label={t.lader.fortschritt} aria-valuemin={0} aria-valuemax={100} aria-valuenow={prozent}>

@@ -6,7 +6,8 @@ import { WAEHRUNG_CODE, WAEHRUNG_ZEICHEN, type Waehrung } from '../wallet/kurs.t
 import { bioAktiv, bioAusschalten, bioEinschalten, bioStand } from '../wallet/biometrie.ts';
 import { kopieren, sichtschutz } from '../geraet/geraet.ts';
 import { istNativ, letzteFehler } from '../geraet/plattform.ts';
-import { S, Kopf, KopfZurueck, Blatt, Kasten, PinFeld, useMeldung, type PinAntwort } from '../ui/teile.tsx';
+import { S, Kopf, KopfZurueck, Blatt, Kasten, PinFeld, Zeichen, useMeldung, type PinAntwort } from '../ui/teile.tsx';
+import { kurzAdresse } from '../wallet/adresse.ts';
 import { Wortkarte } from './Einstieg.tsx';
 
 declare const __VERSION__: string;
@@ -64,6 +65,13 @@ export function Einstellungen() {
     <div className="seite mit-nav eng">
       <Kopf titel={t.einst.titel} />
 
+      {/* Die Kopfkarte: Zeichen, Netz, Adresse -- und dass die Kette lebt. */}
+      <div className="karte profilkarte">
+        <span className="zeichen"><Zeichen g={26} /></span>
+        <span className="worte"><b>{t.einst.hauptkette} · Mainnet</b><small>{kurzAdresse(wallet.adresse, '')}</small></span>
+        <span className={`pille ${daten.offline ? 'bern' : 'gruen'}`}><i />{daten.offline ? t.start.offline : 'LIVE'}</span>
+      </div>
+
       <div className="rubrik">{t.einst.sicherheit}</div>
       <div className="karte innen" style={{ padding: '0 16px' }}>
         <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'pinAendern' })}>{kachel('schloss')}<span>{t.einst.pinAendern}</span><span className="rechts">{pfeil}</span></button>
@@ -84,7 +92,6 @@ export function Einstellungen() {
       <div className="rubrik">{t.einst.ueber}</div>
       <div className="karte innen" style={{ padding: '0 16px' }}>
         <div className="einstellzeile">{kachel('info')}<span>{t.einst.version}</span><span className="rechts ziffern" style={{ fontSize: 14 }}>{__VERSION__}</span></div>
-        <div className="einstellzeile">{kachel('block')}<span>{t.einst.netz}</span><span className="rechts">{t.einst.hauptkette}</span></div>
         <button type="button" className="einstellzeile" onClick={diagnose}>{kachel('kopie')}<span>{t.einst.diagnose}</span><span className="rechts"><S n="kopie" g={18} /></span></button>
       </div>
 

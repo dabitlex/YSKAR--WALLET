@@ -6,8 +6,7 @@ import { kurzAdresse } from '../wallet/adresse.ts';
 import { betragText } from '../wallet/betrag.ts';
 import { kopieren } from '../geraet/geraet.ts';
 import { useZahlungen } from '../ui/daten.ts';
-import { S, Kopf, Betrag, Zahlungszeile, useMeldung } from '../ui/teile.tsx';
-import logoBild from '../bilder/praegung.png';
+import { S, Kopf, Betrag, Zahlungszeile, Zeichen, useMeldung } from '../ui/teile.tsx';
 import { useKurs, fiatText, wert } from '../wallet/kurs.ts';
 import { Kurve, KommtBald } from './Kurs.tsx';
 import { quelle } from '../wallet/kurs.ts';
@@ -73,6 +72,7 @@ export function Start() {
 
   return (
     <div className="seite mit-nav">
+      <div className="schein" aria-hidden="true" />
       <Kopf titel={t.start.titel} rechts={
         <button type="button" className="klein sinkt" aria-label={t.start.sperren} onClick={wallet.sperren}><S n="schloss" /></button>} />
 
@@ -114,7 +114,7 @@ export function Start() {
 
       {kurs && (
         <button type="button" className="karte tokenzeile auf" style={{ animationDelay: '.1s' }} onClick={() => nav.gehe({ n: 'kurs' })}>
-          <span className="kachel logo-kachel"><img src={logoBild} alt="" draggable={false} /></span>
+          <span className="kachel logo-kachel"><Zeichen g={24} /></span>
           <span className="mitte">
             <b>YSKAR</b>
             <small><span className="ziffern">{fmt(kurs.preis[waehrung])}</span><span className={kurs.aenderung24h >= 0 ? 'gruen' : 'rot'}>{kurs.aenderung24h >= 0 ? '+' : '−'}{Math.abs(kurs.aenderung24h).toLocaleString(t.code, { maximumFractionDigits: 1 })} %</span>{kurs.demo && <span className="demo-marke">{t.start.demo}</span>}</small>

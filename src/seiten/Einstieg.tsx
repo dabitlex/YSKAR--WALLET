@@ -7,7 +7,7 @@ import { bioStand, bioEinschalten, bioAusschalten } from '../wallet/biometrie.ts
 import { einfuegen, sichtschutz } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { LOESCHEN, tippeWort, wortVorschlaege, istWort, woerterAusText } from '../wallet/tasten.ts';
-import { S, KopfZurueck, Blatt, PinFeld, Praegung, Vierer, useZurueck, type PinAntwort } from '../ui/teile.tsx';
+import { S, KopfZurueck, Blatt, PinFeld, Muenze, Vierer, useZurueck, type PinAntwort } from '../ui/teile.tsx';
 import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
 type Schritt = 'willkommen' | 'wahl' | 'woerter' | 'pruefen' | 'eingabe' | 'pin' | 'pinNochmal' | 'bio' | 'fertig';
@@ -96,21 +96,22 @@ export function Einstieg() {
   if (schritt === 'willkommen' || schritt === 'wahl') {
     return (
       <div className="seite" style={{ paddingTop: 'calc(var(--oben) + 12px)' }}>
+        <div className="schein" aria-hidden="true" style={{ top: 'calc(var(--oben) + 60px)', opacity: .26 }} />
         <button type="button" className="sprachknopf sinkt" onClick={() => einstellen({ sprache: sprachCode(sprache) === 'de' ? 'en' : 'de' })}>
           <S n="welt" g={16} /><span>{sprachCode(sprache) === 'de' ? 'Deutsch' : 'English'}</span>
         </button>
         <div className="fuell" />
-        <div className="hero"><Praegung gross /></div>
+        <div className="hero"><Muenze /></div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-          <h1 className="gross-titel mittig">{t.willkommen.titel1}<br />{t.willkommen.titel2}</h1>
-          <p className="fliess mittig" style={{ maxWidth: 340 }}>{t.willkommen.kurz}</p>
+          <h1 className="gross-titel mittig">{t.willkommen.titel1}<span className="lt">{t.willkommen.titel2}</span></h1>
+          <p className="fliess mittig" style={{ maxWidth: 330 }}>{t.willkommen.kurz} {t.willkommen.fuss}</p>
         </div>
         <div className="fuell" />
         <div className="stapel">
-          <button type="button" className="knopf sinkt" onClick={() => setSchritt('wahl')}>{t.willkommen.los}</button>
-          <button type="button" className="knopf text sinkt" onClick={wiederStarten}>{t.willkommen.habe}</button>
+          <button type="button" className="knopf hell sinkt" onClick={() => setSchritt('wahl')}><span>{t.willkommen.los}</span><span className="pfeilkreis"><S n="weiter" g={14} w={2.6} /></span></button>
+          <button type="button" className="knopf zweit sinkt" onClick={wiederStarten}>{t.willkommen.habe}</button>
         </div>
-        <p className="fuss">{t.willkommen.fuss}</p>
+        <p className="fuss motto">proof, not promise</p>
         {schritt === 'wahl' && (
           <Blatt titel={t.willkommen.wahl} onZu={() => setSchritt('willkommen')}>
             <div className="stapel">
