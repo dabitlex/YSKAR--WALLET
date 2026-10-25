@@ -1,42 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
 import { useT } from '../i18n/index.ts';
 import { useDaten, useNav, useWallet } from '../zustand.tsx';
 import { einstellen, useEinstellungen } from '../wallet/einstellungen.ts';
 import { kurzAdresse } from '../wallet/adresse.ts';
-import { betragText } from '../wallet/betrag.ts';
 import { kopieren } from '../geraet/geraet.ts';
 import { useZahlungen } from '../ui/daten.ts';
 import { S, Kopf, Betrag, Zahlungszeile, useMeldung } from '../ui/teile.tsx';
 
-/** Das Guthaben zaehlt beim ersten Erscheinen hoch, danach springt es nicht mehr. */
-let gezaehlt = false;
-/** Nach dem naechsten Entsperren zaehlt das Guthaben wieder einmal hoch. */
-export const hochzaehlenNeu = (): void => { gezaehlt = false; };
-
-function useHochzaehlen(ziel: bigint | null): bigint | null {
-  const [wert, setWert] = useState<bigint | null>(null);
-  useEffect(() => {
-    if (ziel === null) return;
-    if (gezaehlt || ziel === 0n || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gezaehlt = true; setWert(ziel); return;
-    }
-    gezaehlt = true;
-    let bild = 0, t0 = 0;
-    const lauf = (t: number) => {
-      if (!t0) t0 = t;
-      const p = Math.min(1, (t - t0) / 800), e = 1 - (1 - p) ** 3;
-      setWert(p >= 1 ? ziel : (ziel * BigInt(Math.round(e * 10_000))) / 10_000n);
-      if (p < 1) bild = requestAnimationFrame(lauf);
-    };
-    bild = requestAnimationFrame(lauf);
-    return () => cancelAnimationFrame(bild);
-  }, [ziel]);
-  return wert;
-}
-
 /**
- * Start: das Guthaben in der Mitte, darunter die Bewegung des Tages und die
- * Adresse, dann die Aktionen und die letzten Zahlungen.
+ * Start: das Guthaben in der Mitte, darunter die Adresse, dann die Aktionen
+ * und die letzten Zahlungen.
  */
 export function Start() {
   const t = useT();
@@ -46,16 +18,8 @@ export function Start() {
   const { wartend, verlauf } = useZahlungen();
   const { verborgen } = useEinstellungen();
   const melde = useMeldung();
-  const stand = useHochzaehlen(konto ? BigInt(konto.balance) : null);
+  const stand = konto ? BigInt(konto.balance) : null;
   const liste = [...wartend, ...verlauf].slice(0, 6);
-
-  // Was heute dazukam oder wegging -- nur aus den Zahlungen, die schon in Bloecken stehen.
-  const heute = useMemo(() => {
-    const h = new Date(), anfang = new Date(h.getFullYear(), h.getMonth(), h.getDate()).getTime() / 1000;
-    let summe = 0n;
-    for (const z of verlauf) if (z.zeit !== null && z.zeit >= anfang) summe += z.art === 'aus' ? -(z.betrag + z.gebuehr) : z.betrag;
-    return summe;
-  }, [verlauf]);
 
   const rund = (label: string, symbol: Parameters<typeof S>[0]['n'], onTipp: () => void, blau = false) => (
     <button type="button" className={`rund sinkt ${blau ? 'blau' : ''}`} onClick={onTipp}><span className="kreis"><S n={symbol} g={24} w={2.2} /></span><span>{label}</span></button>
@@ -81,12 +45,7 @@ export function Start() {
           ? <div className="betrag"><div className="gross" aria-hidden="true">••••<i>••</i></div><div className="einheit">YSR</div></div>
           : stand === null
             ? <div style={{ color: 'var(--leise)', fontSize: 15, minHeight: 56, display: 'flex', alignItems: 'center' }}>{offline ? '–' : t.start.laedt}</div>
-            : <Betrag wert={stand} ziel={BigInt(konto?.balance ?? stand)} />}
-        <div className="unterzeile-start">
-          {!verborgen && heute !== 0n && (
-            <span className={`pille ${heute > 0n ? 'gruen' : 'blau'}`}><i />{heute > 0n ? '+' : '−'}{betragText(heute < 0n ? -heute : heute, t.code)} YSR {t.start.heute}</span>
-          )}
-        </div>
+            : <Betrag wert={stand} />}
         <div className="unterzeile-start">
           <button type="button" className="adress-pille sinkt" aria-label={t.start.adresseKopieren}
                   onClick={async () => { if (wallet.adresse && await kopieren(wallet.adresse)) melde(t.start.adresseKopiert); }}>

@@ -202,7 +202,7 @@ export const de = {
     sperreTitel: 'Automatisch sperren', sperreText: 'Wie lange die Wallet offen bleibt, wenn du die App verlässt.',
     allgemein: 'ALLGEMEIN', sprache: 'Sprache', system: 'Wie das Gerät',
     meldung: 'Benachrichtigung bei Eingang', meldungTitel: 'Benachrichtigung bei Eingang',
-    meldungText: 'Die App fragt im Hintergrund etwa alle 15 Minuten nach neuen Eingängen und meldet sie dir – auch wenn sie geschlossen ist. Gemeldet wird, was in einem Block steht. Kein Server erfährt dabei, welches Gerät zu deiner Adresse gehört.',
+    meldungText: 'Die App fragt im Hintergrund etwa alle 5 Minuten nach neuen Eingängen und meldet sie dir – auch wenn sie geschlossen ist. Gemeldet wird, was in einem Block steht. Kein Server erfährt dabei, welches Gerät zu deiner Adresse gehört.',
     meldungVerzoegert: 'Android fasst solche Abfragen zusammen; die Meldung kann ein paar Minuten nach dem Eingang kommen.',
     meldungVerweigert: 'Benachrichtigungen sind für diese App im System ausgeschaltet. Erlaube sie in den Android-Einstellungen, dann klappt es.',
     meldungAkku: 'Damit die Abfrage auch bei Energiesparen läuft, nimm die App von der Akku-Optimierung aus.',

@@ -30,8 +30,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * Benachrichtigung bei Eingang.
  *
- * Die App fragt im Hintergrund etwa alle 15 Minuten den Spiegel nach dem
- * Konto (WorkManager, auch wenn die App nicht laeuft). Steht ein neuer
+ * Die App fragt im Hintergrund etwa alle 5 Minuten den Spiegel nach dem
+ * Konto (WorkManager, auch wenn die App nicht laeuft): Jeder Lauf plant den
+ * naechsten in 5 Minuten; ein 15-Minuten-Takt faengt die Kette wieder ein,
+ * falls das System sie unterbricht. Steht ein neuer
  * Eingang in einem Block, meldet Android ihn als Benachrichtigung. Kein
  * Server kennt dafuer das Geraet: Die Abfrage geht vom Telefon aus, wie
  * jede andere Abfrage der Wallet auch.
@@ -85,6 +87,8 @@ public class EingangPlugin extends Plugin {
     @PluginMethod
     public void ausschalten(PluginCall call) {
         WorkManager.getInstance(getContext()).cancelUniqueWork(ARBEIT);
+        WorkManager.getInstance(getContext()).cancelUniqueWork("eingang-naechste");
+        WorkManager.getInstance(getContext()).cancelUniqueWork("eingang-jetzt");
         prefs().edit().clear().apply();
         call.resolve(stand());
     }

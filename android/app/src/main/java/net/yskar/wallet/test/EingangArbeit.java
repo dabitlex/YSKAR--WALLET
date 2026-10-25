@@ -12,6 +12,11 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.work.Constraints;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -25,6 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Der Hintergrundjob: Konto laden, mit der gemerkten Hoehe vergleichen,
@@ -46,6 +52,11 @@ public class EingangArbeit extends Worker {
         if (!prefs.getBoolean("an", false)) return Result.success();
         String adresse = prefs.getString("adresse", "");
         if (adresse == null || adresse.isEmpty()) return Result.success();
+        // Den naechsten Lauf in 5 Minuten anstossen -- Android plant periodische
+        // Arbeit erst ab 15 Minuten, einzelne Auftraege mit Verzoegerung aber kuerzer.
+        // Im Tiefschlaf (Doze) schiebt das System auch die hinaus; dann faengt der
+        // 15-Minuten-Takt aus dem Plugin sie wieder ein.
+        naechsten(ctx);
         try {
             JSONObject konto = laden(SPIEGEL + "/api/v2/account/" + adresse);
             JSONArray verlauf = konto.optJSONArray("history");
@@ -68,6 +79,12 @@ public class EingangArbeit extends Worker {
         } catch (Exception ex) {
             return Result.retry();
         }
+    }
+
+    static void naechsten(Context ctx) {
+        Constraints c = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+        WorkManager.getInstance(ctx).enqueueUniqueWork("eingang-naechste", ExistingWorkPolicy.REPLACE,
+            new OneTimeWorkRequest.Builder(EingangArbeit.class).setConstraints(c).setInitialDelay(5, TimeUnit.MINUTES).build());
     }
 
     private static JSONObject laden(String url) throws Exception {

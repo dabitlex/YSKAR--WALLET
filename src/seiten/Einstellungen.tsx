@@ -88,7 +88,6 @@ export function Einstellungen() {
       <div className="karte profilkarte">
         <span className="zeichen"><Zeichen g={26} /></span>
         <span className="worte"><b>{t.einst.hauptkette} · Mainnet</b><small>{kurzAdresse(wallet.adresse, '')}</small></span>
-        <span className={`pille ${daten.offline ? 'bern' : 'gruen'}`}><i />{daten.offline ? t.start.offline : 'LIVE'}</span>
       </div>
 
       <div className="rubrik">{t.einst.sicherheit}</div>

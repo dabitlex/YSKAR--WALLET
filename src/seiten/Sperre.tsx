@@ -3,7 +3,6 @@ import { useT } from '../i18n/index.ts';
 import { useWallet } from '../zustand.tsx';
 import { bioAktiv, bioPin } from '../wallet/biometrie.ts';
 import { Blatt, PinFeld, type PinAntwort } from '../ui/teile.tsx';
-import { hochzaehlenNeu } from './Start.tsx';
 
 /** Gesperrt: PIN oder Fingerabdruck. */
 export function Sperre() {
@@ -12,7 +11,6 @@ export function Sperre() {
   const [vergessen, setVergessen] = useState(false);
   const [sicher, setSicher] = useState(false);
   const gefragt = useRef(false);
-  useEffect(hochzaehlenNeu, []);
 
   const mitFinger = async () => {
     const pin = await bioPin(t.pin.bioOeffnen, t.allg.abbrechen);
