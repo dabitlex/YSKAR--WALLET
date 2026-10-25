@@ -62,7 +62,13 @@ function Lader({ onFertig }: { onFertig: () => void }) {
   const prozent = [30, 60, 85, 100][stufe];
   return (
     <div className={`lader-seite ${geht ? 'geht' : ''}`}>
-      <Muenze spielt />
+      <div className="schein" aria-hidden="true" style={{ top: '50%', transform: 'translate(-50%,-50%)', opacity: .18 }} />
+      {/* Die Marke: die Muenze rollt von rechts herein, stellt sich links auf, der Name blendet rechts ein. */}
+      <div className="marke" aria-label="YSKAR">
+        <Muenze groesse="mittel" spielt />
+        <span className="name" aria-hidden="true">YSKAR</span>
+      </div>
+      <div className="motto" aria-hidden="true">proof, not promise</div>
       <div className={`lader ${sichtbar ? 'sichtbar' : ''}`}>
         <div className="lader-text" aria-live="polite">{text}</div>
         <div className="rille" role="progressbar" aria-label={t.lader.fortschritt} aria-valuemin={0} aria-valuemax={100} aria-valuenow={prozent}>
