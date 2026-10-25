@@ -246,12 +246,13 @@ h1,h2,p{margin:0}
 
 /* ---------- Lader ---------- */
 .lader-seite{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--grund);z-index:50;transition:opacity .3s;overflow:hidden}
-.lader-seite .marke{display:flex;align-items:center;gap:18px;position:relative}
-.lader-seite .muenze{--d:120px}
-/* Der Name wartet, bis die Muenze steht, und kommt dann von rechts. */
-.lader-seite .name{font-size:44px;font-weight:600;letter-spacing:.14em;line-height:1;color:var(--text);animation:name-rein .5s 1.05s both}
+.lader-seite .marke{position:relative;width:240px;height:240px;animation:atmen 1.6s cubic-bezier(.2,.7,.2,1) both}
+.lader-seite .marke img{width:100%;height:100%;filter:drop-shadow(0 0 28px rgba(47,123,255,.45))}
+@keyframes atmen{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:none}}
+.lader-seite .schein{animation:schein-auf 1.6s ease-out both}
+@keyframes schein-auf{from{opacity:0}to{opacity:.18}}
 @keyframes name-rein{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
-.lader-seite .motto{position:absolute;left:0;right:0;bottom:calc(var(--unten) + 150px);text-align:center;font-family:var(--ziffern);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--leise);animation:name-rein .5s 1.2s both}
+.lader-seite .motto{position:absolute;left:0;right:0;bottom:calc(var(--unten) + 150px);text-align:center;font-family:var(--ziffern);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--leise);animation:schein-auf 1s .6s both;opacity:1}
 .lader-seite.geht{opacity:0;pointer-events:none}
 .lader{position:absolute;left:0;right:0;bottom:calc(var(--unten) + 72px);display:flex;flex-direction:column;align-items:center;gap:14px;opacity:0;transition:opacity .35s}
 .lader.sichtbar{opacity:1}
@@ -522,9 +523,6 @@ h1,h2,p{margin:0}
   box-shadow:inset 0 0 0 calc(var(--d)*.035) #2F7BFF,inset 0 0 0 calc(var(--d)*.05) #1B4FD1,inset 0 0 calc(var(--d)*.12) rgba(99,216,255,.18),0 24px 60px -20px rgba(47,123,255,.45)}
 .muenze img{position:absolute;left:22%;top:22%;width:56%;height:56%;filter:drop-shadow(0 0 calc(var(--d)*.05) rgba(47,123,255,.45))}
 .muenze.gross{--d:200px}.muenze.mittel{--d:140px}.muenze.klein{--d:96px}
-/* Beim Start rollt sie von rechts herein (zwei Umdrehungen), stellt sich auf und wackelt kurz nach. */
-.muenze.spielt{animation:muenze-rollt 1.5s cubic-bezier(.2,.8,.2,1) both}
-@keyframes muenze-rollt{0%{transform:translateX(420px) rotate(720deg)}72%{transform:translateX(0) rotate(0deg)}84%{transform:translateX(0) rotate(-7deg)}93%{transform:translateX(0) rotate(3deg)}100%{transform:translateX(0) rotate(0deg)}}
 .hero .muenze{margin:8px 0}
 .pinseite .logo-platz .muenze{--d:min(120px,100%);aspect-ratio:1;height:auto;margin:0}
 @container (max-height:64px){.pinseite .logo-platz .muenze{display:none}}

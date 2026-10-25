@@ -5,7 +5,7 @@ import { kopfLaden } from './netz/api.ts';
 import { zahlungAusCode } from './wallet/qr.ts';
 import { appSchliessen, beiLink, linkAbholen } from './geraet/geraet.ts';
 import { eingangGeoeffnet } from './geraet/eingang.ts';
-import { MeldungProvider, Nav, Muenze, useZurueck, zurueckTasteVerbinden } from './ui/teile.tsx';
+import { MeldungProvider, Nav, Zeichen, useZurueck, zurueckTasteVerbinden } from './ui/teile.tsx';
 import { TastaturRahmen } from './ui/tastatur.tsx';
 import { Einstieg } from './seiten/Einstieg.tsx';
 import { Sperre } from './seiten/Sperre.tsx';
@@ -64,11 +64,8 @@ function Lader({ onFertig }: { onFertig: () => void }) {
   return (
     <div className={`lader-seite ${geht ? 'geht' : ''}`}>
       <div className="schein" aria-hidden="true" style={{ top: '50%', transform: 'translate(-50%,-50%)', opacity: .18 }} />
-      {/* Die Marke: die Muenze rollt von rechts herein, stellt sich links auf, der Name blendet rechts ein. */}
-      <div className="marke" aria-label="YSKAR">
-        <Muenze groesse="mittel" spielt />
-        <span className="name" aria-hidden="true">YSKAR</span>
-      </div>
+      {/* Die Marke: nur das grosse Zeichen, es blendet weich ein und waechst dabei leicht. */}
+      <div className="marke" role="img" aria-label="YSKAR"><Zeichen g={240} /></div>
       <div className="motto" aria-hidden="true">proof, not promise</div>
       <div className={`lader ${sichtbar ? 'sichtbar' : ''}`}>
         <div className="lader-text" aria-live="polite">{text}</div>
