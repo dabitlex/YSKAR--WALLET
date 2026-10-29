@@ -53,6 +53,8 @@ const PFADE = {
   pool: <><path d="m12 3 9 5-9 5-9-5 9-5z" /><path d="m3 12.5 9 5 9-5" /><path d="m3 17 9 5 9-5" /></>,
   belohnung: <><path d="M7 3h10l4 6-9 12L3 9l4-6z" /><path d="M3 9h18" /><path d="m10 3 2 6 2-6" /><path d="m12 9-3 12" /><path d="m12 9 3 12" /></>,
   kurve: <path d="M3 17l5-6 4 3 4-6 5 4" />,
+  // Signatur pruefen: Schild mit Haken.
+  schild: <><path d="M12 3 5 6v5c0 4.5 3 8.2 7 10 4-1.8 7-5.5 7-10V6l-7-3z" /><path d="m9 12 2 2 4-4" /></>,
 };
 export type SymbolName = keyof typeof PFADE;
 

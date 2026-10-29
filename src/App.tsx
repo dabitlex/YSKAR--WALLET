@@ -16,6 +16,9 @@ import { Senden } from './seiten/Senden.tsx';
 import { Empfangen } from './seiten/Empfangen.tsx';
 import { Kontakte, Kontakt, KontaktBearbeiten } from './seiten/Kontakte.tsx';
 import { Einstellungen, PinAendern, WoerterZeigen } from './seiten/Einstellungen.tsx';
+import { Signieren, SignaturPruefen } from './seiten/Signieren.tsx';
+import { AnmeldenQr } from './seiten/AnmeldenQr.tsx';
+import { istAnmeldeCode } from './wallet/nachricht.ts';
 
 /**
  * Der Ladebildschirm: Das Logo wird ins Grau gedrueckt, darunter laeuft der
@@ -99,10 +102,12 @@ function Seiten() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Ueber einen yskar:-Link geoeffnet: Senden mit den Angaben aus dem Link.
+  // Ueber einen yskar:-Link geoeffnet: Anmeldung oder Senden mit den Angaben aus dem Link.
   useEffect(() => {
     const pruefen = () => {
       const url = linkAbholen();
+      // Anmeldung auf einer YSKAR-Seite auf demselben Handy: yskar:login?msg=…&cb=…
+      if (url && istAnmeldeCode(url)) { nav.gehe({ n: 'anmeldenQr', code: url }); return; }
       const z = url ? zahlungAusCode(url) : null;
       if (z) nav.gehe({ n: 'senden', an: z.adresse, betrag: z.betrag, notiz: z.notiz });
     };
@@ -124,6 +129,9 @@ function Seiten() {
     case 'kontaktBearbeiten': seite = <KontaktBearbeiten adresse={o.adresse} />; break;
     case 'pinAendern': seite = <PinAendern />; break;
     case 'woerterZeigen': seite = <WoerterZeigen />; break;
+    case 'signieren': seite = <Signieren />; break;
+    case 'signaturPruefen': seite = <SignaturPruefen />; break;
+    case 'anmeldenQr': seite = <AnmeldenQr code={o.code} />; break;
   }
   return (
     <>
