@@ -535,3 +535,18 @@ h1,h2,p{margin:0}
 .profilkarte .worte{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .profilkarte b{font-size:15px;font-weight:600}
 .profilkarte small{font-family:var(--ziffern);font-size:12px;color:var(--leise);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Nachricht signieren */
+.genau{background:var(--senke);border-radius:16px;padding:14px 16px;font-family:var(--ziffern);font-size:12px;line-height:1.65;color:var(--lesen);overflow-wrap:anywhere;flex-shrink:0}
+.genau .blass{color:var(--leise)}
+.mitte-block .domain{font-size:26px;font-weight:600;letter-spacing:-.02em;text-align:center;overflow-wrap:anywhere}
+.hexzeile{display:flex;gap:10px;align-items:flex-start}
+.hexzeile .hex{flex:1;min-width:0;font-size:12px;line-height:1.6;color:var(--lesen);overflow-wrap:anywhere}
+.knopf.mit-symbol{display:flex;gap:10px;align-items:center;justify-content:center}
+.kachel.rotkachel{background:var(--rot-flaeche);color:var(--rot)}
+.gutzeile.winzig{font-size:12px}
+.feld.nachrichtfeld{min-height:150px}
+.feld-huelle .tippfeld.ziffern{font-size:12px;line-height:1.6;overflow-wrap:anywhere;word-break:break-all}
+.feld-huelle .tippfeld.mehrzeilig{display:block;white-space:pre-wrap;word-break:normal}
+.kasten.gruen{background:var(--gruen-flaeche);color:#CFF7E4}
+.kasten.gruen svg{color:var(--gruen)}

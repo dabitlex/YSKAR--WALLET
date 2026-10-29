@@ -16,6 +16,7 @@ import { Senden } from './seiten/Senden.tsx';
 import { Empfangen } from './seiten/Empfangen.tsx';
 import { Kontakte, Kontakt, KontaktBearbeiten } from './seiten/Kontakte.tsx';
 import { Einstellungen, PinAendern, WoerterZeigen } from './seiten/Einstellungen.tsx';
+import { Signieren, SignaturPruefen } from './seiten/Signieren.tsx';
 
 /**
  * Der Ladebildschirm: Das Logo wird ins Grau gedrueckt, darunter laeuft der
@@ -124,6 +125,8 @@ function Seiten() {
     case 'kontaktBearbeiten': seite = <KontaktBearbeiten adresse={o.adresse} />; break;
     case 'pinAendern': seite = <PinAendern />; break;
     case 'woerterZeigen': seite = <WoerterZeigen />; break;
+    case 'signieren': seite = <Signieren />; break;
+    case 'signaturPruefen': seite = <SignaturPruefen />; break;
   }
   return (
     <>

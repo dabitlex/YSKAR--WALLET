@@ -101,6 +101,12 @@ export function Einstellungen() {
         <button type="button" className="einstellzeile" onClick={() => setBlatt('sperre')}>{kachel('uhr')}<span>{t.einst.sperre}</span><span className="rechts"><span>{sperrText(e.sperreNach)}</span>{pfeil}</span></button>
       </div>
 
+      <div className="rubrik">{t.sig.rubrik}</div>
+      <div className="karte innen" style={{ padding: '0 16px' }}>
+        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'signieren' })}>{kachel('stift')}<span>{t.sig.signieren}</span><span className="rechts">{pfeil}</span></button>
+        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'signaturPruefen' })}>{kachel('schild')}<span>{t.sig.pruefen}</span><span className="rechts">{pfeil}</span></button>
+      </div>
+
       <div className="rubrik">{t.einst.allgemein}</div>
       <div className="karte innen" style={{ padding: '0 16px' }}>
         <button type="button" className="einstellzeile" onClick={() => setBlatt('sprache')}>{kachel('welt')}<span>{t.einst.sprache}</span><span className="rechts"><span>{sprachText(e.sprache)}</span>{pfeil}</span></button>
