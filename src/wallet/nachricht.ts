@@ -57,7 +57,12 @@ export type Ablehnung =
   | 'adresse_fremd'      // Adresse ist nicht die dieser Wallet
   | 'abgelaufen'         // expires liegt in der Vergangenheit
   | 'zu_lange'           // expires liegt mehr als 15 Minuten in der Zukunft
-  | 'hex';               // Text sieht aus wie Hex-Daten
+  | 'hex'                // Text sieht aus wie Hex-Daten
+  // nur bei QR-Codes und yskar:-Links
+  | 'qr_format'          // kein lesbarer Anmelde-Code
+  | 'kein_login'         // Code enthaelt keine Anmeldung
+  | 'rueckruf_https'     // Rueckruf nicht ueber https, mit Port oder Benutzername
+  | 'rueckruf_host';     // Rueckruf geht nicht an die Domain der Nachricht
 
 export interface Anmeldung {
   domain: string;
@@ -209,4 +214,75 @@ export function pruefen(s: Signiert): PruefErgebnis {
   const schluessel = fromHex(pk);
   if (addressFor(schluessel) !== adr) return 'adresse_passt_nicht';
   return verifySignature(fromHex(sig), new TextEncoder().encode(s.message), schluessel) ? 'gueltig' : 'ungueltig';
+}
+
+/* -------------------------------------------------------- Anmelden per QR */
+
+/*
+  Die Plattform zeigt einen QR-Code (oder einen Link auf demselben Handy):
+
+    yskar:login?msg=<Nachricht base64url>&cb=<https-Rueckruf base64url>
+
+  Die Wallet signiert nur, wenn die Nachricht eine gueltige Anmeldung fuer
+  diese Wallet ist und der Rueckruf ueber https genau an die Domain der
+  Nachricht geht. Erst nach PIN oder Fingerabdruck geht die Antwort hinaus.
+*/
+
+export type QrPruefung =
+  | { ok: true; nachricht: string; anmeldung: Anmeldung; rueckruf: string }
+  | { ok: false; grund: Ablehnung; domain?: string; rueckrufHost?: string };
+
+/** Schnelle Erkennung, ohne zu pruefen: Ist das ein Anmelde-Code? */
+export function istAnmeldeCode(text: string): boolean {
+  return /^yskar:(\/\/)?login\?/i.test(text.trim());
+}
+
+/** base64url (ohne Auffuellung) streng lesen und als UTF-8 deuten. null bei Fehlern. */
+export function base64urlText(s: string): string | null {
+  if (!/^[A-Za-z0-9_-]*$/.test(s) || s.length % 4 === 1) return null;
+  try {
+    const b64 = s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (s.length % 4)) % 4);
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch { return null; }
+}
+
+/** Fuer Tests und die Plattform: Text als base64url ohne Auffuellung. */
+export function textBase64url(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let s = '';
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/** Darf an diese Adresse geantwortet werden? https, kein Port, kein Benutzername, erlaubter Host. */
+export function rueckrufErlaubt(url: string, domain: string): Ablehnung | null {
+  let u: URL;
+  try { u = new URL(url); } catch { return 'rueckruf_https'; }
+  if (u.protocol !== 'https:' || u.port !== '' || u.username !== '' || u.password !== '') return 'rueckruf_https';
+  if (u.hostname !== domain || !hostErlaubt(u.hostname)) return 'rueckruf_host';
+  return null;
+}
+
+export function anmeldungAusCode(text: string, eigeneAdresse: string, jetzt: number): QrPruefung {
+  const t = text.trim();
+  if (!istAnmeldeCode(t)) return { ok: false, grund: 'qr_format' };
+  let p: URLSearchParams;
+  try { p = new URLSearchParams(t.slice(t.indexOf('?') + 1)); } catch { return { ok: false, grund: 'qr_format' }; }
+  if (p.getAll('msg').length !== 1 || p.getAll('cb').length !== 1) return { ok: false, grund: 'qr_format' };
+  const nachricht = base64urlText(p.get('msg')!);
+  const rueckruf = base64urlText(p.get('cb')!);
+  if (nachricht === null || rueckruf === null) return { ok: false, grund: 'qr_format' };
+
+  const v = vorbereiten(nachricht, eigeneAdresse, jetzt, { qr: true });
+  if (!v.ok) return { ok: false, grund: v.grund };
+  if (v.art !== 'login') return { ok: false, grund: 'kein_login' };
+
+  const fehler = rueckrufErlaubt(rueckruf, v.anmeldung.domain);
+  if (fehler) {
+    let host: string | undefined;
+    try { host = new URL(rueckruf).host; } catch { host = undefined; }
+    return { ok: false, grund: fehler, domain: v.anmeldung.domain, rueckrufHost: host };
+  }
+  return { ok: true, nachricht: v.nachricht, anmeldung: v.anmeldung, rueckruf };
 }

@@ -22,7 +22,7 @@ import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 */
 
 /** Die Nachricht so zeigen, wie sie signiert wird: Zeile fuer Zeile, Feldnamen blass. */
-function Genau({ text, blassBis = 0 }: { text: string; blassBis?: number }) {
+export function Genau({ text, blassBis = 0 }: { text: string; blassBis?: number }) {
   return (
     <div className="genau waehlbar" aria-label={text}>
       {text.split('\n').map((z, i) => {
@@ -34,14 +34,14 @@ function Genau({ text, blassBis = 0 }: { text: string; blassBis?: number }) {
   );
 }
 
-function ablaufText(t: Woerterbuch, bis: Date, jetzt: number): string {
+export function ablaufText(t: Woerterbuch, bis: Date, jetzt: number): string {
   const ms = bis.getTime() - jetzt;
   if (ms <= 0) return t.sig.abgelaufen;
   return `${t.sig.inMin(Math.ceil(ms / 60000))} · ${bis.toISOString().slice(11, 16)} UTC`;
 }
 
 /** Laufende Uhr fuer die Ablaufzeit, ohne die Seite staendig neu zu zeichnen. */
-function useJetzt(aktiv: boolean): number {
+export function useJetzt(aktiv: boolean): number {
   const [jetzt, setJetzt] = useState(Date.now());
   useEffect(() => {
     if (!aktiv) return;

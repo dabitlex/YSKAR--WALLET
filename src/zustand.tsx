@@ -242,7 +242,7 @@ export type Ort =
   | { n: 'kontakt'; adresse: string }
   | { n: 'kontaktBearbeiten'; adresse?: string }
   | { n: 'pinAendern' } | { n: 'woerterZeigen' }
-  | { n: 'signieren' } | { n: 'signaturPruefen' };
+  | { n: 'signieren' } | { n: 'signaturPruefen' } | { n: 'anmeldenQr'; code?: string };
 
 export type Reiter = 'start' | 'kontakte' | 'verlauf' | 'einstellungen';
 export const REITER: Reiter[] = ['start', 'kontakte', 'verlauf', 'einstellungen'];

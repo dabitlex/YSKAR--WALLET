@@ -260,6 +260,10 @@ export const de = {
       abgelaufen: 'Die Anfrage ist abgelaufen. Lade die Seite neu und versuche es noch einmal.',
       zu_lange: 'Die Anfrage gilt zu lange (höchstens 15 Minuten).',
       hex: 'Das sieht aus wie Rohdaten. Solche Daten signiert die Wallet nicht.',
+      qr_format: 'Das ist kein gültiger Anmelde-Code.',
+      kein_login: 'Der Code enthält keine Anmeldung.',
+      rueckruf_https: 'Die Antwort-Adresse ist nicht sicher (nur https, ohne Port).',
+      rueckruf_host: 'Die Antwort-Adresse gehört nicht zur Seite in der Nachricht. Der Code wurde vielleicht verändert.',
     },
     pruefTitel: 'Signatur prüfen', jsonEinfuegen: 'Signatur einfügen (JSON)', keinJson: 'In der Zwischenablage ist keine Signatur im JSON-Format.',
     gueltig: 'Gültige Signatur.', gueltigText: 'Die Nachricht wurde mit dem Schlüssel dieser Adresse signiert und nicht verändert.',
@@ -267,6 +271,16 @@ export const de = {
     passtNicht: 'Schlüssel und Adresse passen nicht zusammen.', passtNichtText: 'Der öffentliche Schlüssel gehört zu einer anderen Adresse.',
     format: 'Noch nicht vollständig.', formatText: 'Es fehlen Felder, oder Schlüssel bzw. Signatur haben nicht die richtige Länge.',
     leeren: 'Leeren',
+  },
+  qr: {
+    eintrag: 'Mit QR-Code anmelden', eintragHinweis: 'Geht auch mit „Scannen“ auf dem Startbildschirm oder mit „Open in YSKAR Wallet“ auf demselben Handy.',
+    titel: 'Anmelden', frage: 'Anmelden bei', antwortAn: 'Antwort geht an', abbrechen: 'Abbrechen',
+    sendet: (d: string) => `Anmeldung bei ${d} …`, sendetHinweis: 'Signiert auf diesem Gerät. Gesendet wird nur die Signatur, nie dein Schlüssel.',
+    angemeldet: 'Angemeldet', angemeldetText: (d: string) => `Du bist bei ${d} angemeldet. Du kannst zurück in deinen Browser.`,
+    nichtAngenommen: (d: string) => `${d} hat die Anmeldung nicht angenommen`, zitat: (s: string) => `„${s}“`, vonSeite: 'Nachricht der Seite:',
+    keinText: 'Die Seite hat die Anmeldung abgelehnt.', weiterleitung: 'Die Seite wollte die Antwort an eine andere Adresse umleiten. Die Wallet folgt dem nicht.',
+    netz: 'Die Seite war nicht erreichbar. Prüfe die Verbindung.', neuerCode: 'Lade die Seite im Browser neu und scanne den neuen Code.',
+    abgelehnt: 'Dieser Code kann nicht verwendet werden', seite: 'Seite', scanHinweis: 'Halte den Anmelde-Code der Seite in den Rahmen.',
   },
 };
 

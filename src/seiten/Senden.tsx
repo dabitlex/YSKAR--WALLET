@@ -19,6 +19,7 @@ import { einfuegen, erfolgGefuehl, fehlerGefuehl } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { S, KopfZurueck, Betrag, Vierer, Kasten, Schieber, PinFeld, Bild, Stufenleiste, useMeldung, useZurueck, type PinAntwort } from '../ui/teile.tsx';
 import { Scanner } from '../ui/scanner.tsx';
+import { istAnmeldeCode } from '../wallet/nachricht.ts';
 import { Tippfeld, useTastatur, betragKlasse } from '../ui/tastatur.tsx';
 import type { Zahlung } from '../wallet/zahlungen.ts';
 
@@ -96,6 +97,8 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
     || daten.wartende.some(p => p.kind === 'out' && p.to === adresse);
 
   const uebernehmen = (text: string): boolean => {
+    // Ein Anmelde-Code einer YSKAR-Seite: weiter zur Anmeldung, nicht zum Senden.
+    if (istAnmeldeCode(text)) { nav.ersetze({ n: 'anmeldenQr', code: text.trim() }); return true; }
     const z = zahlungAusText(text, DECIMALS);
     if (!z) return false;
     setZiel(z.adresse);

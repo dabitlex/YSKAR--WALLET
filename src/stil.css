@@ -550,3 +550,6 @@ h1,h2,p{margin:0}
 .feld-huelle .tippfeld.mehrzeilig{display:block;white-space:pre-wrap;word-break:normal}
 .kasten.gruen{background:var(--gruen-flaeche);color:#CFF7E4}
 .kasten.gruen svg{color:var(--gruen)}
+.kachel.atmet{animation:atmen 1.4s ease-in-out infinite}
+@keyframes atmen{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.kachel.atmet{animation:none}}

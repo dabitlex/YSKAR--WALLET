@@ -105,7 +105,9 @@ export function Einstellungen() {
       <div className="karte innen" style={{ padding: '0 16px' }}>
         <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'signieren' })}>{kachel('stift')}<span>{t.sig.signieren}</span><span className="rechts">{pfeil}</span></button>
         <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'signaturPruefen' })}>{kachel('schild')}<span>{t.sig.pruefen}</span><span className="rechts">{pfeil}</span></button>
+        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'anmeldenQr' })}>{kachel('scan')}<span>{t.qr.eintrag}</span><span className="rechts">{pfeil}</span></button>
       </div>
+      <div className="hinweis"><S n="info" g={16} /><div>{t.qr.eintragHinweis}</div></div>
 
       <div className="rubrik">{t.einst.allgemein}</div>
       <div className="karte innen" style={{ padding: '0 16px' }}>
