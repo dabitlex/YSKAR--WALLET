@@ -19,7 +19,7 @@ import { istNativ } from '../geraet/plattform.ts';
 const SPIEGEL = ((import.meta.env.VITE_SPIEGEL as string | undefined) ?? '').replace(/\/+$/, '') || 'https://yskar.vercel.app';
 const KNOTEN_PROBE = ((import.meta.env.VITE_KNOTEN as string | undefined) ?? '').replace(/\/+$/, '');
 /** Gilt nur, wenn der Spiegel die Adresse des Knotens gerade nicht nennen kann. */
-const KNOTEN_VORGABE = 'https://yskar-main.dynv6.net';
+const KNOTEN_VORGABE = 'https://pool.yskar.app';
 
 export const EXPLORER = 'https://www.yskar.app/explorer';
 
