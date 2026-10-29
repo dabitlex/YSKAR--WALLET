@@ -13,7 +13,7 @@ import { adresseAusCode } from '../wallet/qr.ts';
 import { einfuegen } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { useZahlungen } from '../ui/daten.ts';
-import { S, Kopf, KopfZurueck, Bild, Kasten, Blatt, useMeldung, useZeit } from '../ui/teile.tsx';
+import { S, Kopf, KopfZurueck, Bild, Kasten, Blatt, useMeldung, useZeit, Stellen } from '../ui/teile.tsx';
 import { Scanner } from '../ui/scanner.tsx';
 import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
@@ -221,7 +221,7 @@ export function Kontakt({ adresse }: { adresse: string }) {
             return [marke,
               <button key={s.id} type="button" className="blase frage" onClick={() => setGewaehlt(s.id)}>
                 <span className="marke">{t.kontakte.angefordert}</span>
-                <span className="summe">{betragGenau(s.betrag, t.code, 8, 2)} <small>YSR</small></span>
+                <span className="summe"><Stellen text={betragGenau(s.betrag, t.code, 8, 2)} /> <small>YSR</small></span>
                 {s.notiz && <span className="text">{s.notiz}</span>}
                 <span className="zeit">{zeit.uhr(s.zeit)} · {s.bezahlt ? t.kontakte.bezahlt : t.kontakte.offen}</span>
               </button>];
@@ -229,7 +229,7 @@ export function Kontakt({ adresse }: { adresse: string }) {
           const z = s.z, ein = z.art !== 'aus', wartet = z.hoehe === null;
           return [marke,
             <button key={z.txid} type="button" className={`blase ${ein ? 'l' : 'r'}`} onClick={() => nav.gehe({ n: 'detail', zahlung: z })}>
-              <span className="summe">{ein ? '+' : '−'}{betragText(z.betrag, t.code)} <small>YSR</small></span>
+              <span className="summe">{ein ? '+' : '−'}<Stellen text={betragText(z.betrag, t.code)} /> <small>YSR</small></span>
               {z.notiz && <span className="text">{z.notiz}</span>}
               <span className={`zeit ${wartet ? 'wartet' : ''}`}>{z.zeit ? `${zeit.uhr(z.zeit)} · ` : ''}{wartet ? t.zahlung.wartet : t.zahlung.bestaetigt}</span>
             </button>];

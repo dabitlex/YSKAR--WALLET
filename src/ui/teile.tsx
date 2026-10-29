@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import { createPortal } from 'react-dom';
 import QRCode from 'qrcode';
 import { useT } from '../i18n/index.ts';
-import { betragText, betragZahl, dezimalZeichen } from '../wallet/betrag.ts';
+import { betragText, betragStellen, dezimalZeichen } from '../wallet/betrag.ts';
 import { vierer, kurzAdresse } from '../wallet/adresse.ts';
 import { kuerzel, useKontakte } from '../wallet/kontakte.ts';
 import type { Zahlung } from '../wallet/zahlungen.ts';
@@ -131,7 +131,7 @@ export function Betrag({ wert, vz, klasse, ziel }: { wert: bigint; vz?: '+' | '�
     if (mass === null || wert === ziel) return betragText(wert, t.code);
     const i = mass.lastIndexOf(z);
     const stellen = i < 0 ? 0 : mass.length - i - 1;
-    return new Intl.NumberFormat(t.code, { minimumFractionDigits: stellen, maximumFractionDigits: stellen }).format(betragZahl(wert));
+    return betragStellen(wert, t.code, stellen);
   }, [wert, ziel, mass, z, t.code]);
   const huelle = useRef<HTMLDivElement>(null);
   const gross = useRef<HTMLDivElement>(null);
@@ -316,10 +316,17 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
         <small>{wartet ? <><span>{wann}</span><span className="pille bern"><i />{t.zahlung.wartetKurz}</span></> : zusatz}</small>
       </div>
       <span className="rechts">
-        <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}{betragText(z.betrag, t.code)}</span>
+        <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}<Stellen text={betragText(z.betrag, t.code)} /></span>
       </span>
     </button>
   );
+}
+
+/** Betrag in einer Zeile: die Nachkommastellen blasser, damit der ganze Teil sofort ins Auge faellt. */
+export function Stellen({ text }: { text: string }) {
+  const t = useT();
+  const i = text.lastIndexOf(dezimalZeichen(t.code));
+  return i < 0 ? <>{text}</> : <>{text.slice(0, i + 1)}<i className="nk">{text.slice(i + 1)}</i></>;
 }
 
 /* ------------------------------------------------------------- Navigation */

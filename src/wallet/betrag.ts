@@ -1,13 +1,13 @@
 /**
  * Betraege fuer die Anzeige in der Wallet.
  *
- * Zwei bis vier Nachkommastellen, in der Schreibweise der gewaehlten
- * Sprache: "5,00", "1,2857", "1.284,5512". Vorher stand im Verlauf
- * "-5.0000" mit Punkt neben einem Guthaben mit Komma.
+ * EXAKT bis zur letzten Stelle der Kette (8 Nachkommastellen), in der
+ * Schreibweise der gewaehlten Sprache. Nullen am Ende fallen weg, mindestens
+ * zwei Stellen bleiben: "5,00", "0,87512345", "800.000,000045".
+ * Vorher waren es hoechstens vier Stellen -- 800.000,000045 YSR erschienen
+ * als "800.000,00", und Pool-Anteile in der 5. bis 8. Stelle fehlten.
  *
- * ABGESCHNITTEN, nie gerundet: Die Anzeige darf nicht mehr versprechen,
- * als da ist. 0,99999 YSR sind "0,9999", nicht "1,00". Gerechnet wird in
- * ganzen Einheiten (BigInt), erst die fertige Zahl geht an Intl.
+ * Gerechnet wird in ganzen Einheiten (BigInt), nie ueber Gleitkomma.
  */
 
 function einheiten(wert: bigint | string | number | null | undefined): bigint {
@@ -24,19 +24,25 @@ export function betragZahl(wert: bigint | string | number | null | undefined, de
   return e < 0n ? -n : n;
 }
 
-/**
- * Betrag als Text, ohne Vorzeichen und ohne Einheit.
- *
- * Ein Betrag, der groesser als null ist, aber kleiner als die kleinste
- * gezeigte Stelle, erscheint als "< 0,0001" -- nicht als "0,00".
- */
+/** Betrag als Text, ohne Vorzeichen und ohne Einheit -- exakt, mindestens zwei Nachkommastellen. */
 export function betragText(wert: bigint | string | number | null | undefined, locale: string,
                            decimals = 8): string {
+  return betragGenau(wert, locale, decimals, 2);
+}
+
+/**
+ * Betrag mit genau `stellen` Nachkommastellen, abgeschnitten -- fuer das
+ * Hochzaehlen des Guthabens: Unterwegs hat die Zahl so viele Stellen wie der
+ * Endwert, damit die Breite nicht wackelt.
+ */
+export function betragStellen(wert: bigint | string | number | null | undefined, locale: string,
+                              stellen: number, decimals = 8): string {
   const e = einheiten(wert);
-  const n = Math.abs(betragZahl(e, decimals));
-  const f = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
-  if (n === 0 && e !== 0n) return `< ${f.format(0.0001)}`;
-  return f.format(n);
+  const abs = e < 0n ? -e : e;
+  const basis = 10n ** BigInt(decimals);
+  const bruch = (abs % basis).toString().padStart(decimals, '0').slice(0, Math.max(0, Math.min(stellen, decimals)));
+  const ganz = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(abs / basis);
+  return bruch ? `${ganz}${dezimalZeichen(locale)}${bruch}` : ganz;
 }
 
 /**

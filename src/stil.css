@@ -535,3 +535,7 @@ h1,h2,p{margin:0}
 .profilkarte .worte{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .profilkarte b{font-size:15px;font-weight:600}
 .profilkarte small{font-family:var(--ziffern);font-size:12px;color:var(--leise);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Nachkommastellen: im Guthaben halb so gross, in Zeilen nur blasser */
+.betrag .gross i{font-size:.5em;letter-spacing:-.02em}
+i.nk{font-style:normal;opacity:.6}

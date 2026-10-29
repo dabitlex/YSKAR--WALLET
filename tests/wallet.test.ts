@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { betragText, betragGenau, eingabeEinheiten, einheitenEingabe } from '../src/wallet/betrag.ts';
+import { betragText, betragStellen, betragGenau, eingabeEinheiten, einheitenEingabe } from '../src/wallet/betrag.ts';
 import { notizBytes, notizKuerzen, notizAusHex } from '../src/wallet/notiz.ts';
 import { zahlungsCode, zahlungAusCode, zahlungAusText, adresseAusCode } from '../src/wallet/qr.ts';
 import { ausEintrag, ausWartend, bestaetigungen, nachTagen } from '../src/wallet/zahlungen.ts';
@@ -12,8 +12,19 @@ const B = 'ysr1lfn8dw6st25jxv653vypcp929xs9lzg44954zz';
 
 test('Betraege: abgeschnitten, nie gerundet; Eingabe exakt', () => {
   assert.equal(betragText(128450000000n, 'de-DE'), '1.284,50');
-  assert.equal(betragText(99999999n, 'de-DE'), '0,9999');
-  assert.equal(betragText(1n, 'de-DE'), '< 0,0001');
+  // Exakt bis zur 8. Stelle, Nullen am Ende weg, mindestens zwei Stellen.
+  assert.equal(betragText(99999999n, 'de-DE'), '0,99999999');
+  assert.equal(betragText(1n, 'de-DE'), '0,00000001');
+  assert.equal(betragText(80000000004500n, 'de-DE'), '800.000,000045');
+  assert.equal(betragText(80000000004500n, 'en-GB'), '800,000.000045');
+  assert.equal(betragText(87500000000n, 'de-DE'), '875,00');
+  assert.equal(betragText(2099999999999999n, 'de-DE'), '20.999.999,99999999');
+  assert.equal(betragText(0n, 'de-DE'), '0,00');
+  assert.equal(betragText(-87512345n, 'de-DE'), '0,87512345', 'ohne Vorzeichen');
+  // Hochzaehlen: feste Stellenzahl, abgeschnitten, nie gerundet.
+  assert.equal(betragStellen(99999999n, 'de-DE', 6), '0,999999');
+  assert.equal(betragStellen(80000000004500n, 'de-DE', 6), '800.000,000045');
+  assert.equal(betragStellen(123n, 'de-DE', 0), '0');
   assert.equal(betragGenau(2500001740n, 'de-DE', 8, 4), '25,0000174');
   assert.equal(eingabeEinheiten('25,5'), 2550000000n);
   assert.equal(eingabeEinheiten('0.1') + eingabeEinheiten('0.2'), eingabeEinheiten('0.3'));
