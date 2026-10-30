@@ -12,11 +12,15 @@ interface Detektor { detect(q: CanvasImageSource): Promise<{ rawValue: string }[
  * BarcodeDetector-Funktion der Webansicht, sonst mit jsQR. `onText` sagt,
  * ob der gelesene Text brauchbar war; sonst sucht der Scanner weiter.
  */
+/** Ein durchsichtiges Bild von 1x1 Pixel. */
+const LEER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 export function Scanner({ onText, onZu }: { onText: (text: string) => boolean; onZu: () => void }) {
   const t = useT();
   const video = useRef<HTMLVideoElement>(null);
   const [fehler, setFehler] = useState('');
   const [hinweis, setHinweis] = useState('');
+  const [laeuft, setLaeuft] = useState(false);
   const rueckruf = useRef(onText);
   rueckruf.current = onText;
   useZurueck(onZu);
@@ -77,7 +81,10 @@ export function Scanner({ onText, onZu }: { onText: (text: string) => boolean; o
 
   return obenauflegen(
     <div className="scanner" role="dialog" aria-modal="true" aria-label={t.scan.titel}>
-      <video ref={video} playsInline muted />
+      {/* Ohne eigenes Vorschaubild zeigt die Android-Webansicht ein graues Feld mit Play-Symbol,
+          bis das erste Kamerabild da ist. Deshalb: leeres Vorschaubild, sichtbar erst ab dem ersten Bild. */}
+      <video ref={video} playsInline muted poster={LEER} className={laeuft ? 'laeuft' : undefined}
+             onPlaying={() => setLaeuft(true)} />
       {!fehler && <div className="rahmen" aria-hidden="true" />}
       <div className="oben">
         <button type="button" className="klein sinkt" aria-label={t.allg.schliessen} onClick={onZu}><S n="kreuz" /></button>
