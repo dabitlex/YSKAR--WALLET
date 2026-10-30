@@ -198,7 +198,12 @@ export const en: Woerterbuch = {
     anforderungEntfernen: 'Remove request',
   },
   einst: {
-    titel: 'Settings', kurz: 'More', sicherheit: 'SECURITY', pinAendern: 'Change PIN', finger: 'Fingerprint',
+    sicherheitZeile: 'Security', meldungKurz: 'Notifications', systemKurz: 'System',
+    min1Kurz: '1 min', min5Kurz: '5 min',
+    fingerText: 'Use your fingerprint to unlock the wallet and to confirm payments and signatures. Your PIN stays the fallback.',
+    anleitungen: 'Guides', community: 'Community', news: 'YSKAR News', recht: 'Legal',
+    datenschutz: 'Privacy policy', impressum: 'Legal notice', lizenz: 'Licence',
+    titel: 'Settings', kurz: 'Settings', sicherheit: 'SECURITY', pinAendern: 'Change PIN', finger: 'Fingerprint',
     woerter: 'Show 12 words', sperre: 'Auto-lock',
     sofort: 'immediately', min1: 'after 1 minute', min5: 'after 5 minutes',
     sperreTitel: 'Auto-lock', sperreText: 'How long the wallet stays open after you leave the app.',

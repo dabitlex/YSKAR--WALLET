@@ -9,7 +9,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const WURZEL = new URL('../dist/', import.meta.url).pathname;
-const ERLAUBT = new Set(['yskar.vercel.app', 'pool.yskar.app', 'www.yskar.app', 'react.dev', 'www.w3.org']);
+const ERLAUBT = new Set(['yskar.vercel.app', 'pool.yskar.app', 'www.yskar.app', 't.me', 'react.dev', 'www.w3.org']);
 const VERBOTEN = [/regtest/i, /testnet/i, /localhost/i, /127\.0\.0\.1/, /VITE_SPIEGEL/, /VITE_KNOTEN/];
 
 const dateien = [];

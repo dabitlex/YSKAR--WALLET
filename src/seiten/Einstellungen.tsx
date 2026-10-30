@@ -1,16 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useT, sprachCode } from '../i18n/index.ts';
 import { useDaten, useNav, useWallet } from '../zustand.tsx';
 import { einstellen, useEinstellungen, type Sprache } from '../wallet/einstellungen.ts';
 import { bioAktiv, bioAusschalten, bioEinschalten, bioStand } from '../wallet/biometrie.ts';
-import { kopieren, sichtschutz } from '../geraet/geraet.ts';
+import { kopieren, sichtschutz, imBrowserOeffnen } from '../geraet/geraet.ts';
 import { istNativ, letzteFehler } from '../geraet/plattform.ts';
 import { eingangMoeglich, eingangStand, eingangEinschalten, eingangAusschalten, eingangAkku, type EingangStand } from '../geraet/eingang.ts';
 import { S, Kopf, KopfZurueck, Blatt, Kasten, PinFeld, Zeichen, useMeldung, type PinAntwort } from '../ui/teile.tsx';
-import { kurzAdresse } from '../wallet/adresse.ts';
 import { Wortkarte } from './Einstieg.tsx';
 
 declare const __VERSION__: string;
+
+/* Links der Gruppe "Hilfe": nur Seiten, die es gibt. */
+const LINKS = {
+  anleitungen: 'https://www.yskar.app/anleitungen',
+  community: 'https://t.me/+GxAmtTMeG1w1M2Yy',
+  news: 'https://t.me/yskar_official',
+  datenschutz: 'https://www.yskar.app/datenschutz',
+  impressum: 'https://www.yskar.app/impressum',
+};
+
+type SymbolName = Parameters<typeof S>[0]['n'];
+
+/** Eine Zeile der Einstellungen: Bezeichnung links, rechts Wert oder Symbol. */
+function Zeile({ text, symbol, wert, rot, onTipp, rechts }: {
+  text: string; symbol?: SymbolName; wert?: string; rot?: boolean; onTipp?: () => void; rechts?: ReactNode;
+}) {
+  const inhalt = <>
+    <span className="ez-text">{text}</span>
+    {rechts ?? (wert !== undefined ? <span className="ez-wert">{wert}</span> : symbol && <span className="ez-symbol"><S n={symbol} g={21} /></span>)}
+  </>;
+  return onTipp
+    ? <button type="button" className={`ez sinkt ${rot ? 'rot' : ''}`} onClick={onTipp}>{inhalt}</button>
+    : <div className={`ez ${rot ? 'rot' : ''}`}>{inhalt}</div>;
+}
 
 export function Einstellungen() {
   const t = useT();
@@ -19,9 +42,10 @@ export function Einstellungen() {
   const daten = useDaten();
   const melde = useMeldung();
   const e = useEinstellungen();
-  const [bio, setBio] = useState(bioAktiv());
-  const [blatt, setBlatt] = useState<null | 'sperre' | 'sprache' | 'meldung' | 'entfernen'>(null);
+  const [blatt, setBlatt] = useState<null | 'sprache' | 'meldung' | 'recht' | 'entfernen'>(null);
   const [meldung, setMeldung] = useState<EingangStand | null>(null);
+  const [entfernenPin, setEntfernenPin] = useState(false);
+  const tipps = useRef<{ n: number; zeit: number }>({ n: 0, zeit: 0 });
   useEffect(() => { if (eingangMoeglich()) eingangStand().then(setMeldung); }, []);
   // Nach dem Rueckweg aus den Android-Einstellungen den Stand neu lesen.
   useEffect(() => {
@@ -39,128 +63,96 @@ export function Einstellungen() {
     setMeldung(r);
     if (r.an && r.berechtigung !== 'granted') melde(t.einst.meldungVerweigert);
   };
-  const [pinFuer, setPinFuer] = useState<null | 'bio' | 'entfernen'>(null);
 
-  const sperrText = (s: number) => (s === 0 ? t.einst.sofort : s === 60 ? t.einst.min1 : t.einst.min5);
-  const sprachText = (s: Sprache) => (s === 'system' ? t.einst.system : s === 'de' ? 'Deutsch' : 'English');
+  const sprachText = (s: Sprache) => (s === 'system' ? t.einst.systemKurz : s === 'de' ? 'Deutsch' : 'English');
 
-  const fingerUmschalten = async () => {
-    if (bio) { await bioAusschalten(); setBio(false); return; }
-    const stand = await bioStand();
-    if (!stand.da) { melde(t.bio.fehlt(stand.grund)); return; }
-    setPinFuer('bio');
-  };
-
-  const diagnose = async () => {
+  /** Fuer Tester: fuenfmal schnell auf die Version tippen kopiert die Diagnose. */
+  const versionTipp = async () => {
+    const jetzt = Date.now();
+    const t0 = tipps.current;
+    tipps.current = jetzt - t0.zeit < 1500 ? { n: t0.n + 1, zeit: jetzt } : { n: 1, zeit: jetzt };
+    if (tipps.current.n < 5) return;
+    tipps.current = { n: 0, zeit: 0 };
     const text = [
       `YSKAR Wallet ${__VERSION__}`, `App: ${istNativ() ? 'Android' : 'Browser'}`, `Sprache: ${sprachCode(e.sprache)}`,
       `Netz: ${daten.offline ? 'keine Verbindung' : 'verbunden'}, Hoehe ${daten.spitze ?? '?'}`,
-      `Wartende vom Knoten: ${daten.konto?.pendingSource ?? '?'}`, `Fingerabdruck: ${bio ? 'an' : 'aus'}`,
+      `Wartende vom Knoten: ${daten.konto?.pendingSource ?? '?'}`, `Fingerabdruck: ${bioAktiv() ? 'an' : 'aus'}`,
       '', ...letzteFehler(),
     ].join('\n');
     if (await kopieren(text)) melde(t.einst.diagnoseKopiert);
   };
 
-  if (pinFuer) {
-    return <PinFeld titel={t.pin.eingeben} unter={pinFuer === 'bio' ? t.einst.bioPin : t.einst.entfernenPin} zurueck={() => setPinFuer(null)}
+  if (entfernenPin) {
+    return <PinFeld titel={t.pin.eingeben} unter={t.einst.entfernenPin} zurueck={() => setEntfernenPin(false)}
       onPin={async (pin): Promise<PinAntwort> => {
         const r = await wallet.pinPruefen(pin);
         if (!r.ok) return r.grund;
-        if (pinFuer === 'bio') {
-          const ok = await bioEinschalten(pin, t.bio.grund, t.allg.abbrechen);
-          setBio(ok); if (!ok) melde(t.bio.nichtGeklappt);
-          setPinFuer(null);
-        } else {
-          if (eingangMoeglich()) await eingangAusschalten();
-          await wallet.vergessen();
-        }
+        if (eingangMoeglich()) await eingangAusschalten();
+        await wallet.vergessen();
         return 'ok';
       }} />;
   }
 
-  const pfeil = <S n="weiter" g={18} w={2.2} />;
-  const kachel = (n: Parameters<typeof S>[0]['n'], rot = false) => <span className={`kachel klein-kachel ${rot ? 'rot' : ''}`}><S n={n} g={18} /></span>;
+  const meldungAn = !!meldung?.an && meldung.berechtigung === 'granted';
   return (
     <div className="seite mit-nav eng">
       <Kopf titel={t.einst.titel} />
 
-      {/* Die Kopfkarte: Zeichen, Netz, Adresse -- und dass die Kette lebt. */}
-      <div className="karte profilkarte">
-        <span className="zeichen"><Zeichen g={26} /></span>
-        <span className="worte"><b>{t.einst.hauptkette} · Mainnet</b><small>{kurzAdresse(wallet.adresse, '')}</small></span>
+      <div className="ez-gruppe">
+        <Zeile text={t.einst.sicherheitZeile} symbol="schloss" onTipp={() => nav.gehe({ n: 'sicherheit' })} />
+        <Zeile text={t.einst.woerter} symbol="schluessel" onTipp={() => nav.gehe({ n: 'woerterZeigen' })} />
+        {eingangMoeglich() && <Zeile text={t.einst.meldungKurz} wert={meldungAn ? t.allg.an : t.allg.aus} onTipp={() => setBlatt('meldung')} />}
+        <Zeile text={t.einst.sprache} wert={sprachText(e.sprache)} onTipp={() => setBlatt('sprache')} />
       </div>
 
-      <div className="rubrik">{t.einst.sicherheit}</div>
-      <div className="karte innen" style={{ padding: '0 16px' }}>
-        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'pinAendern' })}>{kachel('schloss')}<span>{t.einst.pinAendern}</span><span className="rechts">{pfeil}</span></button>
-        <div className="einstellzeile">
-          {kachel('finger')}<span id="l-finger">{t.einst.finger}</span>
-          <button type="button" role="switch" className="schalter" aria-checked={bio} aria-labelledby="l-finger" onClick={fingerUmschalten}><span /></button>
-        </div>
-        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'woerterZeigen' })}>{kachel('auge')}<span>{t.einst.woerter}</span><span className="rechts">{pfeil}</span></button>
-        <button type="button" className="einstellzeile" onClick={() => setBlatt('sperre')}>{kachel('uhr')}<span>{t.einst.sperre}</span><span className="rechts"><span>{sperrText(e.sperreNach)}</span>{pfeil}</span></button>
+      <div className="ez-gruppe">
+        <Zeile text={t.sig.signieren} symbol="stift" onTipp={() => nav.gehe({ n: 'signieren' })} />
+        <Zeile text={t.sig.pruefen} symbol="schild" onTipp={() => nav.gehe({ n: 'signaturPruefen' })} />
+        <Zeile text={t.qr.eintrag} symbol="scan" onTipp={() => nav.gehe({ n: 'anmeldenQr' })} />
       </div>
 
-      <div className="rubrik">{t.sig.rubrik}</div>
-      <div className="karte innen" style={{ padding: '0 16px' }}>
-        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'signieren' })}>{kachel('stift')}<span>{t.sig.signieren}</span><span className="rechts">{pfeil}</span></button>
-        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'signaturPruefen' })}>{kachel('schild')}<span>{t.sig.pruefen}</span><span className="rechts">{pfeil}</span></button>
-        <button type="button" className="einstellzeile" onClick={() => nav.gehe({ n: 'anmeldenQr' })}>{kachel('scan')}<span>{t.qr.eintrag}</span><span className="rechts">{pfeil}</span></button>
-      </div>
-      <div className="hinweis"><S n="info" g={16} /><div>{t.qr.eintragHinweis}</div></div>
-
-      <div className="rubrik">{t.einst.allgemein}</div>
-      <div className="karte innen" style={{ padding: '0 16px' }}>
-        <button type="button" className="einstellzeile" onClick={() => setBlatt('sprache')}>{kachel('welt')}<span>{t.einst.sprache}</span><span className="rechts"><span>{sprachText(e.sprache)}</span>{pfeil}</span></button>
-        {eingangMoeglich() && (
-          <button type="button" className="einstellzeile" onClick={() => setBlatt('meldung')}>{kachel('glocke')}<span>{t.einst.meldung}</span>
-            <span className="rechts"><span className={`pille ${meldung?.an && meldung.berechtigung === 'granted' ? 'gruen' : ''}`} style={meldung?.an ? undefined : { color: 'var(--leise)', borderColor: 'var(--rand-hell)' }}>{meldung?.an ? t.allg.an : t.allg.aus}</span>{pfeil}</span>
-          </button>
-        )}
+      <div className="ez-gruppe">
+        <Zeile text={t.einst.anleitungen} symbol="buch" onTipp={() => imBrowserOeffnen(LINKS.anleitungen)} />
+        <Zeile text={t.einst.community} symbol="blase" onTipp={() => imBrowserOeffnen(LINKS.community)} />
+        <Zeile text={t.einst.news} symbol="flieger" onTipp={() => imBrowserOeffnen(LINKS.news)} />
+        <Zeile text={t.einst.recht} symbol="dokument" onTipp={() => setBlatt('recht')} />
       </div>
 
-      <div className="rubrik">{t.einst.ueber}</div>
-      <div className="karte innen" style={{ padding: '0 16px' }}>
-        <div className="einstellzeile">{kachel('info')}<span>{t.einst.version}</span><span className="rechts ziffern" style={{ fontSize: 14 }}>{__VERSION__}</span></div>
-        <button type="button" className="einstellzeile" onClick={diagnose}>{kachel('kopie')}<span>{t.einst.diagnose}</span><span className="rechts"><S n="kopie" g={18} /></span></button>
+      <div className="ez-gruppe">
+        <Zeile text={t.einst.entfernen} symbol="weg" rot onTipp={() => setBlatt('entfernen')} />
       </div>
 
-      <div className="rubrik">{t.einst.wallet}</div>
-      <div className="karte innen" style={{ padding: '0 16px' }}>
-        <button type="button" className="einstellzeile rot" onClick={() => setBlatt('entfernen')}>{kachel('weg', true)}<span>{t.einst.entfernen}</span></button>
-      </div>
+      <button type="button" className="ez-fuss" onClick={versionTipp} aria-label={`${t.einst.version} ${__VERSION__}`}>
+        <Zeichen g={34} />
+        <b>YSKAR Wallet</b>
+        <span>{t.einst.version} {__VERSION__}</span>
+      </button>
 
-      {blatt === 'sperre' && (
-        <Blatt titel={t.einst.sperreTitel} onZu={() => setBlatt(null)}>
-          <p>{t.einst.sperreText}</p>
-          <div className="karte innen" style={{ padding: '0 16px' }}>
-            {[0, 60, 300].map(s => (
-              <button key={s} type="button" className="einstellzeile" aria-pressed={e.sperreNach === s} onClick={() => { einstellen({ sperreNach: s }); setBlatt(null); }}>
-                <span>{sperrText(s)}</span>{e.sperreNach === s && <span className="rechts" style={{ color: 'var(--blau-hell)' }}><S n="haken" g={18} w={2.6} /></span>}
-              </button>
+      {blatt === 'sprache' && (
+        <Blatt titel={t.einst.sprache} onZu={() => setBlatt(null)}>
+          <div className="ez-gruppe">
+            {(['system', 'de', 'en'] as Sprache[]).map(s => (
+              <Zeile key={s} text={s === 'system' ? t.einst.system : sprachText(s)} onTipp={() => { einstellen({ sprache: s }); setBlatt(null); }}
+                     rechts={e.sprache === s ? <span className="ez-symbol"><S n="haken" g={20} w={2.6} /></span> : <span />} />
             ))}
           </div>
         </Blatt>
       )}
-      {blatt === 'sprache' && (
-        <Blatt titel={t.einst.sprache} onZu={() => setBlatt(null)}>
-          <div className="karte innen" style={{ padding: '0 16px' }}>
-            {(['system', 'de', 'en'] as Sprache[]).map(s => (
-              <button key={s} type="button" className="einstellzeile" aria-pressed={e.sprache === s} onClick={() => { einstellen({ sprache: s }); setBlatt(null); }}>
-                <span>{sprachText(s)}</span>{e.sprache === s && <span className="rechts" style={{ color: 'var(--blau-hell)' }}><S n="haken" g={18} w={2.6} /></span>}
-              </button>
-            ))}
+      {blatt === 'recht' && (
+        <Blatt titel={t.einst.recht} onZu={() => setBlatt(null)}>
+          <div className="ez-gruppe">
+            <Zeile text={t.einst.datenschutz} symbol="extern" onTipp={() => imBrowserOeffnen(LINKS.datenschutz)} />
+            <Zeile text={t.einst.impressum} symbol="extern" onTipp={() => imBrowserOeffnen(LINKS.impressum)} />
+            <Zeile text={t.einst.lizenz} wert="MIT" />
           </div>
         </Blatt>
       )}
       {blatt === 'meldung' && (
         <Blatt titel={t.einst.meldungTitel} onZu={() => setBlatt(null)}>
           <p>{t.einst.meldungText}</p>
-          <div className="karte innen" style={{ padding: '0 16px' }}>
-            <div className="einstellzeile">
-              {kachel('glocke')}<span id="l-meldung">{meldung?.an ? t.einst.meldungAn : t.einst.meldungAus}</span>
-              <button type="button" role="switch" className="schalter" aria-checked={!!meldung?.an} aria-labelledby="l-meldung" onClick={meldungUmschalten}><span /></button>
-            </div>
+          <div className="ez-gruppe">
+            <Zeile text={meldung?.an ? t.einst.meldungAn : t.einst.meldungAus}
+                   rechts={<button type="button" role="switch" className="schalter" aria-checked={!!meldung?.an} aria-label={t.einst.meldungKurz} onClick={meldungUmschalten}><span /></button>} />
           </div>
           {meldung?.an && meldung.berechtigung !== 'granted' && <Kasten art="warn" symbol="warnung">{t.einst.meldungVerweigert}</Kasten>}
           {meldung?.an && meldung.berechtigung === 'granted' && (
@@ -177,8 +169,66 @@ export function Einstellungen() {
         <Blatt titel={t.einst.entfernenTitel} onZu={() => setBlatt(null)}>
           <Kasten art="rot" symbol="warnung">{t.einst.entfernenText}</Kasten>
           <div className="stapel">
-            <button type="button" className="knopf gefahr sinkt" onClick={() => { setBlatt(null); setPinFuer('entfernen'); }}>{t.einst.entfernenJa}</button>
+            <button type="button" className="knopf gefahr sinkt" onClick={() => { setBlatt(null); setEntfernenPin(true); }}>{t.einst.entfernenJa}</button>
             <button type="button" className="knopf zweit sinkt" onClick={() => setBlatt(null)}>{t.allg.abbrechen}</button>
+          </div>
+        </Blatt>
+      )}
+    </div>
+  );
+}
+
+/** Sicherheit: PIN, Fingerabdruck, automatisch sperren. */
+export function Sicherheit() {
+  const t = useT();
+  const nav = useNav();
+  const wallet = useWallet();
+  const melde = useMeldung();
+  const e = useEinstellungen();
+  const [bio, setBio] = useState(bioAktiv());
+  const [blatt, setBlatt] = useState(false);
+  const [pinFuerBio, setPinFuerBio] = useState(false);
+  const sperrText = (s: number) => (s === 0 ? t.einst.sofort : s === 60 ? t.einst.min1 : t.einst.min5);
+  const sperrKurz = (s: number) => (s === 0 ? t.einst.sofort : s === 60 ? t.einst.min1Kurz : t.einst.min5Kurz);
+
+  const fingerUmschalten = async () => {
+    if (bio) { await bioAusschalten(); setBio(false); return; }
+    const stand = await bioStand();
+    if (!stand.da) { melde(t.bio.fehlt(stand.grund)); return; }
+    setPinFuerBio(true);
+  };
+
+  if (pinFuerBio) {
+    return <PinFeld titel={t.pin.eingeben} unter={t.einst.bioPin} zurueck={() => setPinFuerBio(false)}
+      onPin={async (pin): Promise<PinAntwort> => {
+        const r = await wallet.pinPruefen(pin);
+        if (!r.ok) return r.grund;
+        const ok = await bioEinschalten(pin, t.bio.grund, t.allg.abbrechen);
+        setBio(ok); if (!ok) melde(t.bio.nichtGeklappt);
+        setPinFuerBio(false);
+        return 'ok';
+      }} />;
+  }
+
+  return (
+    <div className="seite eng">
+      <KopfZurueck titel={t.einst.sicherheitZeile} zurueck={() => nav.zurueck()} />
+      <div className="ez-gruppe">
+        <Zeile text={t.einst.pinAendern} symbol="schloss" onTipp={() => nav.gehe({ n: 'pinAendern' })} />
+        <Zeile text={t.einst.finger}
+               rechts={<button type="button" role="switch" className="schalter" aria-checked={bio} aria-label={t.einst.finger} onClick={fingerUmschalten}><span /></button>} />
+        <Zeile text={t.einst.sperre} wert={sperrKurz(e.sperreNach)} onTipp={() => setBlatt(true)} />
+      </div>
+      <p className="ez-hinweis">{t.einst.fingerText}</p>
+
+      {blatt && (
+        <Blatt titel={t.einst.sperreTitel} onZu={() => setBlatt(false)}>
+          <p>{t.einst.sperreText}</p>
+          <div className="ez-gruppe">
+            {[0, 60, 300].map(s => (
+              <Zeile key={s} text={sperrText(s)} onTipp={() => { einstellen({ sperreNach: s }); setBlatt(false); }}
+                     rechts={e.sperreNach === s ? <span className="ez-symbol"><S n="haken" g={20} w={2.6} /></span> : <span />} />
+            ))}
           </div>
         </Blatt>
       )}

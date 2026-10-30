@@ -53,6 +53,12 @@ const PFADE = {
   pool: <><path d="m12 3 9 5-9 5-9-5 9-5z" /><path d="m3 12.5 9 5 9-5" /><path d="m3 17 9 5 9-5" /></>,
   belohnung: <><path d="M7 3h10l4 6-9 12L3 9l4-6z" /><path d="M3 9h18" /><path d="m10 3 2 6 2-6" /><path d="m12 9-3 12" /><path d="m12 9 3 12" /></>,
   kurve: <path d="M3 17l5-6 4 3 4-6 5 4" />,
+  // Einstellungen
+  schluessel: <><circle cx="8" cy="15" r="4" /><path d="m11 12 9-9" /><path d="m16 7 3 3" /><path d="m14 9 2 2" /></>,
+  buch: <><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5z" /><path d="M4 19a2 2 0 0 1 2-2h13" /></>,
+  blase: <><path d="M4 5h16v11H9l-5 4V5z" /><path d="M8 9.5h8" /><path d="M8 12.5h5" /></>,
+  flieger: <><path d="M21 3 3 10.5l7 2.5 2.5 7L21 3z" /><path d="m10 13 4.5-4.5" /></>,
+  dokument: <><path d="M6 3h8l4 4v14H6V3z" /><path d="M14 3v4h4" /><path d="M9 12h6" /><path d="M9 16h4" /></>,
   // Signatur pruefen: Schild mit Haken.
   schild: <><path d="M12 3 5 6v5c0 4.5 3 8.2 7 10 4-1.8 7-5.5 7-10V6l-7-3z" /><path d="m9 12 2 2 4-4" /></>,
 };

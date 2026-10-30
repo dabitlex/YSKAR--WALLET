@@ -196,7 +196,12 @@ export const de = {
     anforderungEntfernen: 'Anforderung entfernen',
   },
   einst: {
-    titel: 'Einstellungen', kurz: 'Mehr', sicherheit: 'SICHERHEIT', pinAendern: 'PIN ändern', finger: 'Fingerabdruck',
+    sicherheitZeile: 'Sicherheit', meldungKurz: 'Benachrichtigungen', systemKurz: 'System',
+    min1Kurz: '1 Min.', min5Kurz: '5 Min.',
+    fingerText: 'Mit dem Fingerabdruck entsperrst du die Wallet und bestätigst Zahlungen und Signaturen. Die PIN bleibt der Ersatz.',
+    anleitungen: 'Anleitungen', community: 'Community', news: 'YSKAR News', recht: 'Rechtliches',
+    datenschutz: 'Datenschutz', impressum: 'Impressum', lizenz: 'Lizenz',
+    titel: 'Einstellungen', kurz: 'Einstellungen', sicherheit: 'SICHERHEIT', pinAendern: 'PIN ändern', finger: 'Fingerabdruck',
     woerter: '12 Wörter anzeigen', sperre: 'Automatisch sperren',
     sofort: 'sofort', min1: 'nach 1 Minute', min5: 'nach 5 Minuten',
     sperreTitel: 'Automatisch sperren', sperreText: 'Wie lange die Wallet offen bleibt, wenn du die App verlässt.',

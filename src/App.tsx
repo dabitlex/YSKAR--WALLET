@@ -15,7 +15,7 @@ import { Detail } from './seiten/Detail.tsx';
 import { Senden } from './seiten/Senden.tsx';
 import { Empfangen } from './seiten/Empfangen.tsx';
 import { Kontakte, Kontakt, KontaktBearbeiten } from './seiten/Kontakte.tsx';
-import { Einstellungen, PinAendern, WoerterZeigen } from './seiten/Einstellungen.tsx';
+import { Einstellungen, Sicherheit, PinAendern, WoerterZeigen } from './seiten/Einstellungen.tsx';
 import { Signieren, SignaturPruefen } from './seiten/Signieren.tsx';
 import { AnmeldenQr } from './seiten/AnmeldenQr.tsx';
 import { istAnmeldeCode } from './wallet/nachricht.ts';
@@ -127,6 +127,7 @@ function Seiten() {
     case 'detail': seite = <Detail zahlung={o.zahlung} />; break;
     case 'kontakt': seite = <Kontakt adresse={o.adresse} />; break;
     case 'kontaktBearbeiten': seite = <KontaktBearbeiten adresse={o.adresse} />; break;
+    case 'sicherheit': seite = <Sicherheit />; break;
     case 'pinAendern': seite = <PinAendern />; break;
     case 'woerterZeigen': seite = <WoerterZeigen />; break;
     case 'signieren': seite = <Signieren />; break;

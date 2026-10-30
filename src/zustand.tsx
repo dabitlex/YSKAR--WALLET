@@ -241,7 +241,7 @@ export type Ort =
   | { n: 'detail'; zahlung: Zahlung }
   | { n: 'kontakt'; adresse: string }
   | { n: 'kontaktBearbeiten'; adresse?: string }
-  | { n: 'pinAendern' } | { n: 'woerterZeigen' }
+  | { n: 'pinAendern' } | { n: 'woerterZeigen' } | { n: 'sicherheit' }
   | { n: 'signieren' } | { n: 'signaturPruefen' } | { n: 'anmeldenQr'; code?: string };
 
 export type Reiter = 'start' | 'kontakte' | 'verlauf' | 'einstellungen';
