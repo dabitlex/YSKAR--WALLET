@@ -15,6 +15,7 @@ GitHub baut bei jedem Push auf `main` und bei jedem Start von Hand (**Actions �
    ```bash
    git tag v1.0.1 && git push origin v1.0.1
    ```
+   Oder ohne Tag von Hand: **Actions → App bauen → Run workflow**, Zweig `main`, im Feld „veroeffentlichen“ die Version eintragen (`1.0.1`). Der Tag wird dann beim Veröffentlichen angelegt.
 3. GitHub baut die APK und legt unter **Releases** ein Release an: `yskar-wallet-1.0.1.apk`, ihre Prüfsumme und den Fingerabdruck der Signatur, auf Englisch und Deutsch.
 
 Passt der Tag nicht zur Version in `package.json`, bricht der Lauf ab. Der **versionCode** ist `1000 + Laufnummer` und steigt mit jedem Lauf; Android installiert eine neue Fassung nur über eine ältere.

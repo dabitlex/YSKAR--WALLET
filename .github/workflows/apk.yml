@@ -6,6 +6,8 @@ name: App bauen
 #   von Hand (Actions) -> wie ein Push
 #   Tag v1.2.3         -> zusaetzlich ein GitHub-Release mit der APK, ihrer
 #                         Pruefsumme und dem Fingerabdruck der Signatur
+#   von Hand auf main mit "veroeffentlichen" = Version aus package.json
+#                      -> dasselbe Release; der Tag v1.2.3 wird dabei angelegt
 #
 # Versionsname: aus package.json ("version"). Ein Tag muss dazu passen
 # (Tag v1.0.1 nur, wenn package.json 1.0.1 sagt), sonst bricht der Lauf ab.
@@ -40,6 +42,11 @@ on:
     tags: ['v*']
     paths-ignore: ['**.md']
   workflow_dispatch:
+    inputs:
+      veroeffentlichen:
+        description: 'Als Release veroeffentlichen: hier die Version aus package.json eintragen (z. B. 1.0.0). Leer = nur bauen.'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -91,6 +98,17 @@ jobs:
             echo "::error title=Version::Tag ${GITHUB_REF#refs/tags/} passt nicht zu package.json ($NAME)."
             exit 1
           fi
+          WUNSCH="${{ github.event.inputs.veroeffentlichen }}"
+          RELEASE=false
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then RELEASE=true; fi
+          if [ -n "$WUNSCH" ]; then
+            if [ "${GITHUB_REF}" != "refs/heads/main" ] || [ "$WUNSCH" != "$NAME" ]; then
+              echo "::error title=Veröffentlichen::Nur von main und nur mit der Version aus package.json ($NAME), eingegeben: $WUNSCH."
+              exit 1
+            fi
+            RELEASE=true
+          fi
+          echo "release=${RELEASE}" >> "$GITHUB_OUTPUT"
           # versionCode muss streng steigen: die Laufnummer genuegt dafuer.
           echo "name=${NAME}" >> "$GITHUB_OUTPUT"
           echo "code=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_OUTPUT"
@@ -170,7 +188,7 @@ jobs:
             echo "signiert=false" >> "$GITHUB_OUTPUT"
           else
             SRC=$(ls android/app/build/outputs/apk/release/*.apk | head -1)
-            if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            if [ "${{ steps.version.outputs.release }}" = "true" ]; then
               OUT="yskar-wallet-${{ steps.version.outputs.name }}.apk"
             else
               OUT="yskar-wallet-${{ steps.version.outputs.name }}-${{ steps.version.outputs.code }}.apk"
@@ -208,7 +226,7 @@ jobs:
           retention-days: 30
 
       - name: Release-Text
-        if: startsWith(github.ref, 'refs/tags/v') && steps.apk.outputs.signiert == 'true'
+        if: steps.version.outputs.release == 'true' && steps.apk.outputs.signiert == 'true'
         run: |
           OUT="${{ steps.apk.outputs.datei }}"
           SHA=$(cut -d' ' -f1 "$OUT.sha256")
@@ -233,10 +251,12 @@ jobs:
           } > release.md
 
       - name: Release
-        if: startsWith(github.ref, 'refs/tags/v') && steps.apk.outputs.signiert == 'true'
+        if: steps.version.outputs.release == 'true' && steps.apk.outputs.signiert == 'true'
         uses: softprops/action-gh-release@v2
         with:
           name: YSKAR Wallet ${{ steps.version.outputs.name }}
+          tag_name: v${{ steps.version.outputs.name }}
+          target_commitish: ${{ github.sha }}
           body_path: release.md
           files: |
             ${{ steps.apk.outputs.datei }}
