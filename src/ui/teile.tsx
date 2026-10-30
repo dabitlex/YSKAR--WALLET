@@ -2,7 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import { createPortal } from 'react-dom';
 import QRCode from 'qrcode';
 import { useT } from '../i18n/index.ts';
-import { betragText, betragStellen, dezimalZeichen } from '../wallet/betrag.ts';
+import { betragStellen, betragAnzeige, dezimalZeichen } from '../wallet/betrag.ts';
+import { useEinstellungen } from '../wallet/einstellungen.ts';
 import { vierer, kurzAdresse } from '../wallet/adresse.ts';
 import { kuerzel, useKontakte } from '../wallet/kontakte.ts';
 import type { Zahlung } from '../wallet/zahlungen.ts';
@@ -130,17 +131,20 @@ export function MeldungProvider({ children }: { children: ReactNode }) {
  * Platz von Anfang an nach diesem Endwert. Sonst spraenge beim Zaehlen die
  * Schriftgroesse, und alles darunter rutschte, sobald die Zahl laenger wird.
  */
-export function Betrag({ wert, vz, klasse, ziel }: { wert: bigint; vz?: '+' | '−' | ''; klasse?: string; ziel?: bigint }) {
+export function Betrag({ wert, vz, klasse, ziel, uebersicht }: { wert: bigint; vz?: '+' | '−' | ''; klasse?: string; ziel?: bigint; uebersicht?: boolean }) {
   const t = useT();
   const z = dezimalZeichen(t.code);
-  const mass = ziel === undefined ? null : betragText(ziel, t.code);
+  // `uebersicht`: Nachkommastellen wie eingestellt (Guthaben). Sonst exakt (Senden, Details).
+  const { stellen: eingestellt } = useEinstellungen();
+  const stellenWahl = uebersicht ? eingestellt : 8;
+  const mass = ziel === undefined ? null : betragAnzeige(ziel, t.code, stellenWahl);
   // Unterwegs zum Endwert: so viele Nachkommastellen wie der Endwert, sonst wackelt die Breite beim Zaehlen.
   const text = useMemo(() => {
-    if (mass === null || wert === ziel) return betragText(wert, t.code);
+    if (mass === null || wert === ziel) return betragAnzeige(wert, t.code, stellenWahl);
     const i = mass.lastIndexOf(z);
     const stellen = i < 0 ? 0 : mass.length - i - 1;
     return betragStellen(wert, t.code, stellen);
-  }, [wert, ziel, mass, z, t.code]);
+  }, [wert, ziel, mass, z, t.code, stellenWahl]);
   const huelle = useRef<HTMLDivElement>(null);
   const gross = useRef<HTMLDivElement>(null);
   const teile = (x: string) => { const i = x.lastIndexOf(z); return i < 0 ? x : <>{x.slice(0, i)}<i>{x.slice(i)}</i></>; };
@@ -306,6 +310,7 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
   const ein = z.art !== 'aus';
   const belohnung = z.art === 'belohnung' || z.art === 'pool';
   const kontakt = z.gegen ? name(z.gegen) : null;
+  const anzeige = useAnzeige();
   const titel = z.art === 'belohnung' ? t.zahlung.belohnung : z.art === 'pool' ? t.zahlung.pool
     : kontakt ?? kurzAdresse(z.gegen, '?');
   const wartet = z.hoehe === null;
@@ -324,13 +329,20 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
         <small>{wartet ? <><span>{wann}</span><span className="pille bern"><i />{t.zahlung.wartetKurz}</span></> : zusatz}</small>
       </div>
       <span className="rechts">
-        <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}<Stellen text={betragText(z.betrag, t.code)} /></span>
+        <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}<Stellen text={anzeige(z.betrag)} /></span>
       </span>
     </button>
   );
 }
 
 /** Betrag in einer Zeile: die Nachkommastellen blasser, damit der ganze Teil sofort ins Auge faellt. */
+/** Betrag fuer die Uebersicht mit den eingestellten Nachkommastellen (abgeschnitten). */
+export function useAnzeige(): (wert: bigint) => string {
+  const t = useT();
+  const { stellen } = useEinstellungen();
+  return (wert: bigint) => betragAnzeige(wert, t.code, stellen);
+}
+
 export function Stellen({ text }: { text: string }) {
   const t = useT();
   const i = text.lastIndexOf(dezimalZeichen(t.code));

@@ -3,6 +3,9 @@ import type { Waehrung } from './kurs.ts';
 
 export type Sprache = 'system' | 'de' | 'en';
 
+/** Nachkommastellen in der Uebersicht: 8 = exakt (wie die Kette), 4 oder 2 = abgeschnitten. */
+export type AnzeigeStellen = 8 | 4 | 2;
+
 export interface Einstellungen {
   sprache: Sprache;
   /** Sekunden im Hintergrund, nach denen die Wallet sperrt. 0 = sofort. */
@@ -13,9 +16,11 @@ export interface Einstellungen {
   waehrung: Waehrung;
   /** Die Einfuehrung wurde geoeffnet oder ihre Karte auf dem Startbildschirm geschlossen. */
   einfuehrungGesehen: boolean;
+  /** Nachkommastellen fuer Guthaben, Verlauf und Kontakte. Senden und Details bleiben immer exakt. */
+  stellen: AnzeigeStellen;
 }
 
-const VORGABE: Einstellungen = { sprache: 'system', sperreNach: 60, verborgen: false, waehrung: 'eur', einfuehrungGesehen: false };
+const VORGABE: Einstellungen = { sprache: 'system', sperreNach: 60, verborgen: false, waehrung: 'eur', einfuehrungGesehen: false, stellen: 8 };
 
 export const einstellungenLager = lager<Einstellungen>('yskar.einstellungen', VORGABE, roh => {
   const r = (roh && typeof roh === 'object' ? roh : {}) as Partial<Einstellungen>;
@@ -25,6 +30,7 @@ export const einstellungenLager = lager<Einstellungen>('yskar.einstellungen', VO
     verborgen: r.verborgen === true,
     waehrung: r.waehrung === 'usd' ? 'usd' : 'eur',
     einfuehrungGesehen: r.einfuehrungGesehen === true,
+    stellen: r.stellen === 4 || r.stellen === 2 ? r.stellen : 8,
   };
 });
 

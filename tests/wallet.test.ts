@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { betragText, betragStellen, betragGenau, eingabeEinheiten, einheitenEingabe } from '../src/wallet/betrag.ts';
+import { betragText, betragStellen, betragGenau, betragAnzeige, eingabeEinheiten, einheitenEingabe } from '../src/wallet/betrag.ts';
 import { notizBytes, notizKuerzen, notizAusHex } from '../src/wallet/notiz.ts';
 import { zahlungsCode, zahlungAusCode, zahlungAusText, adresseAusCode } from '../src/wallet/qr.ts';
 import { ausEintrag, ausWartend, bestaetigungen, nachTagen } from '../src/wallet/zahlungen.ts';
@@ -84,4 +84,17 @@ test('beide Sprachen haben dieselben Texte', () => {
   const form = (o: unknown, pfad = ''): string[] => Object.entries(o as Record<string, unknown>).flatMap(([k, v]) =>
     v && typeof v === 'object' ? form(v, `${pfad}${k}.`) : [`${pfad}${k}:${typeof v}`]);
   assert.deepEqual(form(en).sort(), form(de).sort());
+});
+
+test('Anzeige mit eingestellten Nachkommastellen: exakt, 4 oder 2 -- abgeschnitten, nie gerundet', () => {
+  const w = 121875432100n; // 1.218,754321 YSR
+  assert.equal(betragAnzeige(w, 'de-DE', 8), '1.218,754321');
+  assert.equal(betragAnzeige(w, 'de-DE', 4), '1.218,7543');
+  assert.equal(betragAnzeige(w, 'de-DE', 2), '1.218,75');
+  assert.equal(betragAnzeige(w, 'en-US', 2), '1,218.75');
+  assert.equal(betragAnzeige(99999999n, 'de-DE', 2), '0,99', '0,99999999 wird nicht zu 1,00');
+  assert.equal(betragAnzeige(99999999n, 'de-DE', 4), '0,9999');
+  assert.equal(betragAnzeige(500000000n, 'de-DE', 4), '5,0000', 'feste Stellenzahl');
+  assert.equal(betragAnzeige(500000000n, 'de-DE', 8), '5,00', 'exakt wie bisher');
+  assert.equal(betragAnzeige(1n, 'de-DE', 2), '0,00');
 });

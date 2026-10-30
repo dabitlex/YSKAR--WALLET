@@ -64,6 +64,17 @@ export function betragGenau(wert: bigint | string | number | null | undefined, l
   return bruch ? `${ganz}${dezimalZeichen(locale)}${bruch}` : ganz;
 }
 
+/**
+ * Betrag fuer die Uebersicht (Guthaben, Verlauf, Kontakte), wie der Nutzer
+ * es eingestellt hat: 8 = exakt wie betragText, 4 oder 2 = genau so viele
+ * Stellen, ABGESCHNITTEN. Nie gerundet: Aufrunden zeigte mehr, als da ist
+ * (0,999 YSR waeren "1,00").
+ */
+export function betragAnzeige(wert: bigint | string | number | null | undefined, locale: string,
+                              stellen: number, decimals = 8): string {
+  return stellen >= decimals ? betragText(wert, locale, decimals) : betragStellen(wert, locale, stellen, decimals);
+}
+
 /** Dezimaltrennzeichen der Sprache -- fuer das Ziffernfeld beim Senden. */
 export function dezimalZeichen(locale: string): string {
   return new Intl.NumberFormat(locale).formatToParts(1.5).find(p => p.type === 'decimal')?.value ?? '.';

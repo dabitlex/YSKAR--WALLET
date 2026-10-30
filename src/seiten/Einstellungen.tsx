@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useT, sprachCode } from '../i18n/index.ts';
 import { useDaten, useNav, useWallet } from '../zustand.tsx';
-import { einstellen, useEinstellungen, type Sprache } from '../wallet/einstellungen.ts';
+import { einstellen, useEinstellungen, type Sprache, type AnzeigeStellen } from '../wallet/einstellungen.ts';
 import { bioAktiv, bioAusschalten, bioEinschalten, bioStand } from '../wallet/biometrie.ts';
 import { kopieren, sichtschutz, imBrowserOeffnen } from '../geraet/geraet.ts';
 import { istNativ, letzteFehler } from '../geraet/plattform.ts';
@@ -42,7 +42,7 @@ export function Einstellungen() {
   const daten = useDaten();
   const melde = useMeldung();
   const e = useEinstellungen();
-  const [blatt, setBlatt] = useState<null | 'sprache' | 'meldung' | 'recht' | 'entfernen'>(null);
+  const [blatt, setBlatt] = useState<null | 'sprache' | 'stellen' | 'meldung' | 'recht' | 'entfernen'>(null);
   const [meldung, setMeldung] = useState<EingangStand | null>(null);
   const [entfernenPin, setEntfernenPin] = useState(false);
   const tipps = useRef<{ n: number; zeit: number }>({ n: 0, zeit: 0 });
@@ -64,6 +64,7 @@ export function Einstellungen() {
     if (r.an && r.berechtigung !== 'granted') melde(t.einst.meldungVerweigert);
   };
 
+  const stellenKurz = (s: AnzeigeStellen) => (s === 8 ? t.einst.stellenExaktKurz : s === 4 ? t.einst.stellen4 : t.einst.stellen2);
   const sprachText = (s: Sprache) => (s === 'system' ? t.einst.systemKurz : s === 'de' ? 'Deutsch' : 'English');
 
   /** Fuer Tester: fuenfmal schnell auf die Version tippen kopiert die Diagnose. */
@@ -103,6 +104,7 @@ export function Einstellungen() {
         <Zeile text={t.einst.woerter} symbol="schluessel" onTipp={() => nav.gehe({ n: 'woerterZeigen' })} />
         {eingangMoeglich() && <Zeile text={t.einst.meldungKurz} wert={meldungAn ? t.allg.an : t.allg.aus} onTipp={() => setBlatt('meldung')} />}
         <Zeile text={t.einst.sprache} wert={sprachText(e.sprache)} onTipp={() => setBlatt('sprache')} />
+        <Zeile text={t.einst.stellen} wert={stellenKurz(e.stellen)} onTipp={() => setBlatt('stellen')} />
       </div>
 
       <div className="ez-gruppe">
@@ -135,6 +137,18 @@ export function Einstellungen() {
             {(['system', 'de', 'en'] as Sprache[]).map(s => (
               <Zeile key={s} text={s === 'system' ? t.einst.system : sprachText(s)} onTipp={() => { einstellen({ sprache: s }); setBlatt(null); }}
                      rechts={e.sprache === s ? <span className="ez-symbol"><S n="haken" g={20} w={2.6} /></span> : <span />} />
+            ))}
+          </div>
+        </Blatt>
+      )}
+      {blatt === 'stellen' && (
+        <Blatt titel={t.einst.stellenTitel} onZu={() => setBlatt(null)}>
+          <p>{t.einst.stellenText}</p>
+          <div className="ez-gruppe">
+            {([8, 4, 2] as AnzeigeStellen[]).map(s => (
+              <Zeile key={s} text={s === 8 ? t.einst.stellenExakt : s === 4 ? t.einst.stellen4 : t.einst.stellen2}
+                     onTipp={() => { einstellen({ stellen: s }); setBlatt(null); }}
+                     rechts={e.stellen === s ? <span className="ez-symbol"><S n="haken" g={20} w={2.6} /></span> : <span />} />
             ))}
           </div>
         </Blatt>

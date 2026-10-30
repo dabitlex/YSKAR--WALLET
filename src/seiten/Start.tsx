@@ -46,7 +46,7 @@ export function Start() {
           ? <div className="betrag"><div className="gross" aria-hidden="true">••••<i>••</i></div><div className="einheit">YSR</div></div>
           : stand === null
             ? <div style={{ color: 'var(--leise)', fontSize: 15, minHeight: 56, display: 'flex', alignItems: 'center' }}>{offline ? '–' : t.start.laedt}</div>
-            : <Betrag wert={stand} />}
+            : <Betrag wert={stand} uebersicht />}
         <div className="unterzeile-start">
           <button type="button" className="adress-pille sinkt" aria-label={t.start.adresseKopieren}
                   onClick={async () => { if (wallet.adresse && await kopieren(wallet.adresse)) melde(t.start.adresseKopiert); }}>

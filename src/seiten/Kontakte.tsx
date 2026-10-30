@@ -6,14 +6,14 @@ import { verlaufLaden } from '../netz/api.ts';
 import { kontaktSetzen, useKontakte, NAME_MAX } from '../wallet/kontakte.ts';
 import { anforderungEntfernen, useAnforderungen } from '../wallet/anforderungen.ts';
 import { ausEintrag, type Zahlung } from '../wallet/zahlungen.ts';
-import { betragText, betragGenau } from '../wallet/betrag.ts';
+import { betragGenau } from '../wallet/betrag.ts';
 import { kurzAdresse, vierer } from '../wallet/adresse.ts';
 import { tippeAdresse, tippeText } from '../wallet/tasten.ts';
 import { adresseAusCode } from '../wallet/qr.ts';
 import { einfuegen } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { useZahlungen } from '../ui/daten.ts';
-import { S, Kopf, KopfZurueck, Bild, Kasten, Blatt, useMeldung, useZeit, Stellen } from '../ui/teile.tsx';
+import { S, Kopf, KopfZurueck, Bild, Kasten, Blatt, useMeldung, useZeit, Stellen, useAnzeige } from '../ui/teile.tsx';
 import { Scanner } from '../ui/scanner.tsx';
 import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
@@ -21,6 +21,7 @@ import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
 export function Kontakte() {
   const t = useT();
+  const anzeige = useAnzeige();
   const nav = useNav();
   const zeit = useZeit();
   const { kontakte } = useKontakte();
@@ -60,7 +61,7 @@ export function Kontakte() {
                   <Bild name={n} />
                   <div className="mitte">
                     <b>{n}</b>
-                    <small>{z ? `${z.art === 'aus' ? '−' : '+'}${betragText(z.betrag, t.code)} YSR · ${z.zeit ? zeit.kurz(z.zeit) : t.zahlung.wartet}` : kurzAdresse(a, '')}</small>
+                    <small>{z ? `${z.art === 'aus' ? '−' : '+'}${anzeige(z.betrag)} YSR · ${z.zeit ? zeit.kurz(z.zeit) : t.zahlung.wartet}` : kurzAdresse(a, '')}</small>
                   </div>
                   <S n="weiter" g={18} w={2.2} klasse="pfeil" />
                 </button>
@@ -155,6 +156,7 @@ type Stueck = { art: 'zahlung'; z: Zahlung; zeit: number } | { art: 'anforderung
 
 export function Kontakt({ adresse }: { adresse: string }) {
   const t = useT();
+  const anzeige = useAnzeige();
   const nav = useNav();
   const zeit = useZeit();
   const wallet = useWallet();
@@ -229,7 +231,7 @@ export function Kontakt({ adresse }: { adresse: string }) {
           const z = s.z, ein = z.art !== 'aus', wartet = z.hoehe === null;
           return [marke,
             <button key={z.txid} type="button" className={`blase ${ein ? 'l' : 'r'}`} onClick={() => nav.gehe({ n: 'detail', zahlung: z })}>
-              <span className="summe">{ein ? '+' : '−'}<Stellen text={betragText(z.betrag, t.code)} /> <small>YSR</small></span>
+              <span className="summe">{ein ? '+' : '−'}<Stellen text={anzeige(z.betrag)} /> <small>YSR</small></span>
               {z.notiz && <span className="text">{z.notiz}</span>}
               <span className={`zeit ${wartet ? 'wartet' : ''}`}>{z.zeit ? `${zeit.uhr(z.zeit)} · ` : ''}{wartet ? t.zahlung.wartet : t.zahlung.bestaetigt}</span>
             </button>];
