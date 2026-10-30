@@ -1,100 +1,132 @@
-# YSKAR Wallet
+<p align="center">
+  <img src="store/grafik/icon-512.png" width="96" alt="YSKAR Wallet">
+</p>
 
-Die Wallet für Android: senden, empfangen, Verlauf, Kontakte. Kein Mining.
+<h1 align="center">YSKAR Wallet</h1>
 
-Die App läuft auf der Hauptkette (`yskar-main-1`) und wird über GitHub-Releases verteilt.
+<p align="center">
+  The Android wallet for YSR, the currency of the YSKAR blockchain.<br>
+  Send, receive and sign – your key stays on your device.
+</p>
 
-## App bauen und veröffentlichen
+<p align="center">
+  <a href="https://github.com/dabitlex/Wallet-/releases/latest"><b>Download the latest APK</b></a> ·
+  <a href="https://www.yskar.app">yskar.app</a> ·
+  <a href="https://t.me/yskar_official">Telegram channel</a> ·
+  <a href="https://t.me/+GxAmtTMeG1w1M2Yy">Community</a>
+</p>
 
-Die App-ID ist `app.yskar.wallet`. Sie ist endgültig: Eine App mit anderer ID wäre für Android eine andere App.
+<p align="center">
+  <img src="store/screenshots/en-US/1.png" width="19%" alt="Wallet">
+  <img src="store/screenshots/en-US/2.png" width="19%" alt="Receive">
+  <img src="store/screenshots/en-US/4.png" width="19%" alt="Contact">
+  <img src="store/screenshots/en-US/5.png" width="19%" alt="History">
+  <img src="store/screenshots/en-US/7.png" width="19%" alt="Introduction">
+</p>
 
-GitHub baut bei jedem Push auf `main` und bei jedem Start von Hand (**Actions → App bauen → Run workflow**) eine signierte APK. Sie liegt im Lauf ganz unten unter **Artifacts** (als ZIP-Datei) und ist zum eigenen Testen gedacht.
+[Deutsch weiter unten](#deutsch)
 
-**Veröffentlichen** – eine neue Fassung auf GitHub:
+## Features
 
-1. In `package.json` die Version erhöhen, z. B. `"version": "1.0.1"`, und auf `main` bringen.
-2. Einen Tag mit genau dieser Version setzen und hochladen:
-   ```bash
-   git tag v1.0.1 && git push origin v1.0.1
-   ```
-3. GitHub baut die APK und legt unter **Releases** ein Release an: `yskar-wallet-1.0.1.apk`, ihre Prüfsumme und den Fingerabdruck der Signatur, auf Englisch und Deutsch.
+**Your key stays with you**
+- Your wallet is created on your phone. Nobody at YSKAR has access to your key.
+- 12 recovery words restore your wallet on any device.
+- The words are stored encrypted with your PIN in Android's protected storage and never go into cloud backups.
 
-Passt der Tag nicht zur Version in `package.json`, bricht der Lauf ab. Der **versionCode** ist `1000 + Laufnummer` und steigt mit jedem Lauf; Android installiert eine neue Fassung nur über eine ältere.
+**Send and receive**
+- Enter an address, pick a contact or scan a QR code.
+- Before sending you see recipient, amount and network fee once more – then slide to confirm.
+- Receive with your QR code or address, optionally requesting a specific amount.
+- Amounts exact to the 8th decimal place; the overview can show 4 or 2 places if you prefer.
 
-Damit andere das Release herunterladen können, muss das Repo öffentlich sein.
+**Contacts and history**
+- Contacts with names – all payments with one person in a single, chat-like history.
+- Pending payments and confirmations at a glance.
+- Optional notification for every incoming payment that is in a block.
 
-Nur wenn die Secrets fehlen, entsteht ein **Debug-Bau** zum eigenen Testen. Er wird nie veröffentlicht. Sein Schlüssel liegt im Cache von GitHub Actions, nicht im Repo; GitHub löscht ihn, wenn ihn 7 Tage niemand liest.
+**Security**
+- PIN and fingerprint, auto-lock after a time you choose.
+- No screenshots while the 12 words are on screen.
+- The app's own keyboard: no input goes through your phone's keyboard app.
 
-## Signierschlüssel
+**Sign and sign in**
+- Prove with a signed message that an address is yours, and verify other people's signatures.
+- Sign in to YSKAR sites with a QR code. A signature cannot move YSR.
 
-Jede Fassung ist mit demselben Schlüssel signiert. Nur so lässt sich ein Update über die installierte App legen, und nur so erkennen Nutzer am Fingerabdruck, dass die Datei echt ist.
+**Easy to learn** – an 8-step introduction explains every feature. English and German.
 
-**Geht der Schlüssel verloren, gibt es keine Updates mehr:** Nutzer müssten die App deinstallieren und ihre Wallet mit den 12 Wörtern neu einrichten. Die `.jks`-Datei und das Passwort deshalb zusätzlich offline aufbewahren. Der Schlüssel darf nie ins Repo und nie in einen Chat.
+No ads, no tracking, no account with us.
 
-Er liegt als Secret im Repo (**Settings → Secrets and variables → Actions**):
+## Install
 
-| Name | Inhalt |
-|---|---|
-| `YSKAR_KEYSTORE_BASE64` | die `.jks`-Datei als Base64-Text |
-| `YSKAR_KEYSTORE_PASSWORD` | das Passwort des Keystores |
-| `YSKAR_KEY_ALIAS` | der Alias des Schlüssels |
-| `YSKAR_KEY_PASSWORD` | das Passwort des Schlüssels |
+1. Open the [latest release](https://github.com/dabitlex/Wallet-/releases/latest) on your Android phone (Android 7 or newer).
+2. Download `yskar-wallet-<version>.apk` and open it.
+3. Allow installing from this source when Android asks.
 
-Den Base64-Text einer `.jks`-Datei erzeugen:
+Updates install over the previous version – your wallet stays on the device.
 
-```bash
-# Linux, Raspberry Pi, macOS
-base64 -w0 schluessel.jks 2>/dev/null || base64 -i schluessel.jks
+**Check that the file is genuine.** Every release is signed with the same key. Its certificate fingerprint (SHA-256) is:
+
+```
+00:58:4F:99:42:4A:20:F5:AF:82:7B:8C:EE:47:B5:85:8D:10:47:60:80:EF:4D:3C:CA:D7:57:4A:87:B3:05:5F
 ```
 
-```powershell
-# Windows PowerShell: legt den Text in die Zwischenablage
-[Convert]::ToBase64String([IO.File]::ReadAllBytes((Resolve-Path "schluessel.jks"))) | Set-Clipboard
-```
+Each release also lists the SHA-256 checksum of its APK. If the fingerprint differs, do not install the file.
 
-## Texte und Bilder
+## How it works
 
-Unter `store/` liegen Beschreibung (Deutsch und Englisch), App-Symbol, Titelgrafik und Screenshots – für die Release-Seite, die Website und spätere App-Verzeichnisse. `store/datenschutz-wallet.md` ist der Entwurf für den Wallet-Abschnitt der Datenschutzerklärung auf www.yskar.app.
+- **Keys:** the 12 words (BIP39) are generated on the device; every transfer is built and signed on the device. Only the finished, signed transfer is sent to a YSKAR node.
+- **Reading:** balance, history and network fees come from the public YSKAR server `yskar.vercel.app`, which is queried with your public address.
+- **Confirmed** means the payment is in a block.
+- **No code from the internet:** the whole interface ships inside the APK.
+- **Privacy:** see the [privacy policy](https://www.yskar.app/datenschutz). Addresses and transfers on the blockchain are public.
 
-## Was die App tut und was nicht
+Never share your 12 words. Nobody from YSKAR will ever ask for them.
 
-- **Schlüssel:** Die 12 Wörter entstehen auf dem Gerät und verlassen es nie. Sie liegen mit der PIN verschlüsselt im geschützten Speicher von Android (Keystore).
-- **Senden:** Jede Überweisung wird auf dem Gerät gebaut und signiert. An den Full Node gehen nur fertige Bytes.
-- **Lesen:** Guthaben, Verlauf und Gebührenlage kommen vom Spiegel `yskar.vercel.app`.
-- **Bestätigt** ist eine Zahlung ab dem ersten Block.
-- **Kontakte und Anforderungen** liegen nur auf dem Gerät. Die 12 Wörter stellen sie nicht wieder her.
-- **Anfordern** erzeugt einen Code `yskar:<adresse>?amount=…&memo=…` als QR und als Text zum Teilen. Wallets schicken sich untereinander nichts.
-- **Kein Nachladen:** Die Oberfläche steckt fest in der APK.
-- **Sichtschutz:** Solange die 12 Wörter zu sehen oder einzugeben sind, sperrt Android Bildschirmfotos.
-- **Eigene Tastatur:** Kein Eingabefeld öffnet die Tastatur des Telefons. Betrag, Adresse, die 12 Wörter, Notiz, Name und Suche werden über die Tastatur der App getippt (`src/ui/tastatur.tsx`). Eine fremde Tastatur-App bekommt davon nichts mit. Grenzen: Geschrieben wird am Ende des Feldes, gelöscht von hinten. Emojis, Wischen und andere Schriften als die lateinische gibt es nicht.
+## For developers
 
-Nicht enthalten: Mitteilungen bei Zahlungseingang, weitere Sprachen außer Deutsch und Englisch.
-
-## Aufbau
-
-| Ordner | Inhalt |
-|---|---|
-| `src/kern/` | Schlüssel, Adressen, Überweisungen. **Unverändert** aus `dabitlex/YSKAR` (`src/lib/core`), siehe `HERKUNFT.json`. Nicht von Hand ändern. |
-| `src/wallet/` | Tresor, Biometrie, Kontakte, Anforderungen, Beträge, Notizen, QR-Codes |
-| `src/netz/` | Verbindung zu Spiegel und Full Node |
-| `src/geraet/` | Android-Funktionen: Speicher, Teilen, Vibrieren, Sichtschutz |
-| `src/seiten/`, `src/ui/` | die Bildschirme und ihre Bausteine |
-| `src/i18n/` | Deutsch und Englisch |
-| `android/` | die Android-Hülle (Capacitor) |
-| `tests/` | Tests, laufen vor jedem Bau |
-
-## Prüfen und bauen
+React + TypeScript (Vite) in a Capacitor shell for Android. Keys, addresses and transfers come unchanged from the YSKAR core in [dabitlex/YSKAR](https://github.com/dabitlex/YSKAR); tests make sure the same 12 words give the same address and every transfer is byte-for-byte the same.
 
 ```bash
 npm ci
-npm test                             # Kern, Tresor, Beträge, Anforderungen
-npm run build                        # Typprüfung und Oberfläche nach dist/
-node werkzeug/buendel-pruefen.mjs    # nur Hauptkette, nur bekannte Gegenstellen
-npm run dev                          # Oberfläche im Browser, zum Entwickeln
+npm test
+npm run build
 ```
 
-Die Tests in `tests/kern.test.ts` stellen sicher, dass dieselben 12 Wörter dieselbe Adresse ergeben wie in der bisherigen App und dass eine Überweisung Byte für Byte dieselbe ist. Schlagen sie fehl, baut GitHub keine APK.
+Building, signing and releasing: [docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md) (German).
 
-## Den Kern aktualisieren
+## License
 
-Ändert sich `src/lib/core` im Hauptrepo, die sechs Dateien neu kopieren, `HERKUNFT.json` (Commit und Prüfsummen) und `tests/vergleichswerte.json` mit dem Code des Hauptrepos neu erzeugen. Die Vergleichswerte nie mit dem Code dieses Repos erzeugen: Dann prüft der Test nichts mehr.
+[MIT](LICENSE). YSKAR is an open community project.
+
+---
+
+<a id="deutsch"></a>
+
+## Deutsch
+
+Die YSKAR Wallet ist die Android-Wallet für YSR, die Währung der YSKAR-Blockchain. Senden, empfangen und signieren – dein Schlüssel bleibt auf deinem Gerät.
+
+**Funktionen**
+- Deine Wallet entsteht auf deinem Handy. Niemand bei YSKAR hat Zugriff auf deinen Schlüssel. Mit 12 Wörtern stellst du sie auf jedem Gerät wieder her; die Wörter liegen mit deiner PIN verschlüsselt im geschützten Speicher von Android und wandern nicht in Cloud-Sicherungen.
+- Senden per Adresse, Kontakt oder QR-Code. Vor dem Senden siehst du Empfänger, Betrag und Netzgebühr noch einmal – dann schieben und bestätigen.
+- Empfangen per QR-Code oder Adresse, auf Wunsch mit einem bestimmten Betrag. Beträge exakt bis zur 8. Nachkommastelle; in der Übersicht auf Wunsch mit 4 oder 2 Stellen.
+- Kontakte mit Namen und allen Zahlungen in einem Verlauf wie in einem Chat. Wartende Zahlungen und Bestätigungen auf einen Blick, auf Wunsch eine Benachrichtigung bei jedem Eingang.
+- PIN, Fingerabdruck und automatische Sperre. Keine Bildschirmfotos, solange die 12 Wörter zu sehen sind. Eigene Tastatur der App – keine Eingabe läuft über die Tastatur-App des Handys.
+- Nachrichten signieren und Signaturen prüfen, Anmelden per QR-Code auf YSKAR-Seiten. Eine Signatur kann keine YSR bewegen.
+- Eine Einführung in 8 Schritten erklärt alle Funktionen. Deutsch und Englisch.
+
+Keine Werbung, kein Tracking, kein Konto bei uns.
+
+**Installieren**
+1. Das [neueste Release](https://github.com/dabitlex/Wallet-/releases/latest) auf dem Android-Handy öffnen (ab Android 7).
+2. `yskar-wallet-<version>.apk` herunterladen und öffnen.
+3. Die Installation aus dieser Quelle erlauben, wenn Android fragt.
+
+Updates lassen sich über die vorige Fassung installieren, die Wallet bleibt erhalten.
+
+**Echtheit prüfen:** Jedes Release ist mit demselben Schlüssel signiert. Der Fingerabdruck des Zertifikats (SHA-256) steht oben im englischen Teil, die Prüfsumme der APK auf jeder Release-Seite. Weicht der Fingerabdruck ab, die Datei nicht installieren.
+
+Gib deine 12 Wörter niemals weiter. Niemand von YSKAR wird jemals danach fragen.
+
+Lizenz: [MIT](LICENSE). YSKAR ist ein offenes Community-Projekt.
