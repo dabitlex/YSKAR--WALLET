@@ -17,10 +17,10 @@ def debugKeystore = System.getenv('YSKAR_DEBUG_KEYSTORE')
 def hatDebugSchluessel = debugKeystore != null && file(debugKeystore).exists()
 
 android {
-    namespace = "net.yskar.wallet.test"
+    namespace = "app.yskar.wallet"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "net.yskar.wallet.test"
+        applicationId "app.yskar.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode versionCodeWert

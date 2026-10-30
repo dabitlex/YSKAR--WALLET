@@ -1,4 +1,4 @@
-package net.yskar.wallet.test;
+package app.yskar.wallet;
 
 import android.app.Notification;
 import android.app.NotificationChannel;

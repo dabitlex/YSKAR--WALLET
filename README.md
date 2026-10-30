@@ -2,65 +2,59 @@
 
 Die Wallet für Android: senden, empfangen, Verlauf, Kontakte. Kein Mining.
 
-Dieses Repo ist privat. Die App läuft auf der Hauptkette (`yskar-main-1`).
+Die App läuft auf der Hauptkette (`yskar-main-1`) und wird über GitHub-Releases verteilt.
 
-## APK bekommen
+## App bauen und veröffentlichen
 
-GitHub baut bei jedem Push auf `main` eine APK.
+Die App-ID ist `app.yskar.wallet`. Sie ist endgültig: Eine App mit anderer ID wäre für Android eine andere App.
 
-1. Im Repo auf **Actions** gehen und den obersten Lauf „APK bauen“ öffnen.
-2. Ganz unten unter **Artifacts** die Datei herunterladen. Es ist eine ZIP-Datei, darin liegt die APK.
-3. Die APK an die Tester geben, zum Beispiel über Telegram.
+GitHub baut bei jedem Push auf `main` und bei jedem Start von Hand (**Actions → App bauen → Run workflow**) eine signierte APK. Sie liegt im Lauf ganz unten unter **Artifacts** (als ZIP-Datei) und ist zum eigenen Testen gedacht.
 
-Ein Tag `v0.1.0` erzeugt zusätzlich ein Release, an dem die APK direkt hängt.
+**Veröffentlichen** – eine neue Fassung auf GitHub:
 
-Der Test-Schlüssel ist als Secret hinterlegt: Jeder Lauf erzeugt eine signierte APK (`yskar-wallet-test-<version>.apk`), die sich über die vorige installieren lässt.
+1. In `package.json` die Version erhöhen, z. B. `"version": "1.0.1"`, und auf `main` bringen.
+2. Einen Tag mit genau dieser Version setzen und hochladen:
+   ```bash
+   git tag v1.0.1 && git push origin v1.0.1
+   ```
+3. GitHub baut die APK und legt unter **Releases** ein Release an: `yskar-wallet-1.0.1.apk`, ihre Prüfsumme und den Fingerabdruck der Signatur, auf Englisch und Deutsch.
 
-Nur wenn die Secrets fehlen, entsteht ein **Debug-Bau** zum eigenen Testen. Sein Schlüssel wird einmal auf dem Runner erzeugt und liegt danach im Cache von GitHub Actions. Jede neue Debug-Fassung ist damit gleich signiert und lässt sich über die vorige installieren, die Wallet auf dem Gerät bleibt erhalten.
+Passt der Tag nicht zur Version in `package.json`, bricht der Lauf ab. Der **versionCode** ist `1000 + Laufnummer` und steigt mit jedem Lauf; Android installiert eine neue Fassung nur über eine ältere.
 
-- Der Debug-Schlüssel steht nicht im Repo.
-- GitHub löscht Cache-Einträge, die 7 Tage lang niemand gelesen hat. Liegt zwischen zwei Debug-Bauten mehr Zeit, legt der nächste Bau einen neuen Schlüssel an und meldet das mit einer Warnung. Dann muss die App einmal deinstalliert werden.
-- Ob zwei Fassungen zusammenpassen, zeigt der Fingerabdruck der Signatur in der Zusammenfassung des Laufs: Er muss derselbe sein.
-- Zum Verteilen an Tester ist der Debug-Bau nicht gedacht. Dafür den Test-Schlüssel hinterlegen (nächster Abschnitt). Der erste signierte Bau lässt sich nicht über einen Debug-Bau installieren.
+Damit andere das Release herunterladen können, muss das Repo öffentlich sein.
 
-## Test-Schlüssel zum Signieren anlegen
+Nur wenn die Secrets fehlen, entsteht ein **Debug-Bau** zum eigenen Testen. Er wird nie veröffentlicht. Sein Schlüssel liegt im Cache von GitHub Actions, nicht im Repo; GitHub löscht ihn, wenn ihn 7 Tage niemand liest.
 
-Einmalig. Der Schlüssel darf nie ins Repo und nie in einen Chat. Es sollte **nicht** der Schlüssel der bisherigen App sein.
+## Signierschlüssel
 
-Auf einem Rechner mit Java (`keytool` gehört zu jedem JDK und zu Android Studio):
+Jede Fassung ist mit demselben Schlüssel signiert. Nur so lässt sich ein Update über die installierte App legen, und nur so erkennen Nutzer am Fingerabdruck, dass die Datei echt ist.
 
-```bash
-keytool -genkeypair -v -keystore yskar-wallet-test.jks -alias yskar-wallet-test \
-  -keyalg RSA -keysize 4096 -validity 10000 \
-  -dname "CN=YSKAR Wallet Test"
-```
+**Geht der Schlüssel verloren, gibt es keine Updates mehr:** Nutzer müssten die App deinstallieren und ihre Wallet mit den 12 Wörtern neu einrichten. Die `.jks`-Datei und das Passwort deshalb zusätzlich offline aufbewahren. Der Schlüssel darf nie ins Repo und nie in einen Chat.
 
-`keytool` fragt nach einem Passwort. Dasselbe Passwort gilt für Keystore und Schlüssel.
+Er liegt als Secret im Repo (**Settings → Secrets and variables → Actions**):
 
-Dann die Datei als Text ausgeben:
+| Name | Inhalt |
+|---|---|
+| `YSKAR_KEYSTORE_BASE64` | die `.jks`-Datei als Base64-Text |
+| `YSKAR_KEYSTORE_PASSWORD` | das Passwort des Keystores |
+| `YSKAR_KEY_ALIAS` | der Alias des Schlüssels |
+| `YSKAR_KEY_PASSWORD` | das Passwort des Schlüssels |
+
+Den Base64-Text einer `.jks`-Datei erzeugen:
 
 ```bash
 # Linux, Raspberry Pi, macOS
-base64 -w0 yskar-wallet-test.jks 2>/dev/null || base64 -i yskar-wallet-test.jks
+base64 -w0 schluessel.jks 2>/dev/null || base64 -i schluessel.jks
 ```
 
 ```powershell
 # Windows PowerShell: legt den Text in die Zwischenablage
-[Convert]::ToBase64String([IO.File]::ReadAllBytes((Resolve-Path "yskar-wallet-test.jks"))) | Set-Clipboard
+[Convert]::ToBase64String([IO.File]::ReadAllBytes((Resolve-Path "schluessel.jks"))) | Set-Clipboard
 ```
 
-Im Repo unter **Settings → Secrets and variables → Actions → New repository secret** vier Secrets anlegen:
+## Texte und Bilder
 
-| Name | Inhalt |
-|---|---|
-| `YSKAR_KEYSTORE_BASE64` | der lange Text aus dem Befehl oben |
-| `YSKAR_KEYSTORE_PASSWORD` | das Passwort |
-| `YSKAR_KEY_ALIAS` | `yskar-wallet-test` |
-| `YSKAR_KEY_PASSWORD` | dasselbe Passwort |
-
-Danach unter **Actions → APK bauen → Run workflow** einen Lauf starten. Die APK heißt dann ohne `-debug`.
-
-**Die Datei `yskar-wallet-test.jks` und das Passwort sicher aufbewahren.** Geht der Schlüssel verloren, lässt sich keine neue Fassung mehr über eine installierte legen. Die Tester müssten deinstallieren und ihre Wallet mit den 12 Wörtern neu einrichten.
+Unter `store/` liegen Beschreibung (Deutsch und Englisch), App-Symbol, Titelgrafik und Screenshots – für die Release-Seite, die Website und spätere App-Verzeichnisse. `store/datenschutz-wallet.md` ist der Entwurf für den Wallet-Abschnitt der Datenschutzerklärung auf www.yskar.app.
 
 ## Was die App tut und was nicht
 

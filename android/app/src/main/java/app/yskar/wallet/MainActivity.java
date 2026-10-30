@@ -1,4 +1,4 @@
-package net.yskar.wallet.test;
+package app.yskar.wallet;
 
 import android.content.Intent;
 import android.os.Bundle;

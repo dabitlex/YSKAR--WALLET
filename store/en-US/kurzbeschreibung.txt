@@ -1,0 +1,1 @@
+Send, receive and sign YSR. Your key stays on your device.

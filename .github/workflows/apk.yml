@@ -1,13 +1,19 @@
-name: APK bauen
+name: App bauen
 
-# Baut die YSKAR Wallet (Android) und stellt die APK bereit.
+# Baut die YSKAR Wallet (Android) und veroeffentlicht sie auf GitHub.
 #
-#   Push auf main      -> APK als Artefakt am Lauf (Actions -> Lauf -> Artifacts)
-#   Tag v1.2.3         -> zusaetzlich ein Release mit der APK
+#   Push auf main      -> signierte APK als Artefakt am Lauf (Actions -> Lauf -> Artifacts)
 #   von Hand (Actions) -> wie ein Push
+#   Tag v1.2.3         -> zusaetzlich ein GitHub-Release mit der APK, ihrer
+#                         Pruefsumme und dem Fingerabdruck der Signatur
+#
+# Versionsname: aus package.json ("version"). Ein Tag muss dazu passen
+# (Tag v1.0.1 nur, wenn package.json 1.0.1 sagt), sonst bricht der Lauf ab.
+# versionCode: 1000 + Laufnummer, steigt mit jedem Lauf. Android installiert
+# eine neue Fassung nur ueber eine alte, wenn ihr versionCode groesser ist.
 #
 # Secrets (Settings -> Secrets and variables -> Actions):
-#   YSKAR_KEYSTORE_BASE64    der Test-Keystore als Base64
+#   YSKAR_KEYSTORE_BASE64    der Release-Keystore als Base64
 #   YSKAR_KEYSTORE_PASSWORD  Passwort des Keystores
 #   YSKAR_KEY_ALIAS          Alias des Schluessels
 #   YSKAR_KEY_PASSWORD       Passwort des Schluessels
@@ -22,11 +28,11 @@ name: APK bauen
 #     Liegt zwischen zwei Debug-Bauten mehr Zeit, entsteht ein neuer
 #     Schluessel, und die naechste Fassung braucht einmal "deinstallieren".
 #     Der Lauf meldet das mit einer Warnung.
-#   - Zum Verteilen an Tester ist er NICHT gedacht: Dafuer den Test-Schluessel
-#     als Secret hinterlegen (siehe README).
+#   - Ein Debug-Bau wird nie als Release veroeffentlicht.
 #
-# Der Keystore darf nie ins Repo. Geht er verloren, kann kein Update mehr
-# ueber eine bestehende Installation gelegt werden.
+# Der Keystore darf nie ins Repo. Geht er verloren, laesst sich keine neue
+# Fassung mehr ueber eine installierte legen: Nutzer muessten deinstallieren
+# und ihre Wallet mit den 12 Woertern neu einrichten.
 
 on:
   push:
@@ -80,10 +86,10 @@ jobs:
       - name: Version
         id: version
         run: |
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            NAME="${GITHUB_REF#refs/tags/v}"
-          else
-            NAME="0.1.${GITHUB_RUN_NUMBER}-test"
+          NAME=$(node -p "require('./package.json').version")
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]] && [ "${GITHUB_REF#refs/tags/v}" != "$NAME" ]; then
+            echo "::error title=Version::Tag ${GITHUB_REF#refs/tags/} passt nicht zu package.json ($NAME)."
+            exit 1
           fi
           # versionCode muss streng steigen: die Laufnummer genuegt dafuer.
           echo "name=${NAME}" >> "$GITHUB_OUTPUT"
@@ -138,7 +144,7 @@ jobs:
           test -s "$HOME/.yskar-wallet/debug.keystore"
           echo "YSKAR_DEBUG_KEYSTORE=$HOME/.yskar-wallet/debug.keystore" >> "$GITHUB_ENV"
 
-      - name: APK bauen
+      - name: App bauen
         working-directory: android
         env:
           YSKAR_KEYSTORE_PASSWORD: ${{ secrets.YSKAR_KEYSTORE_PASSWORD }}
@@ -148,23 +154,27 @@ jobs:
           chmod +x gradlew
           if [ -n "${YSKAR_KEYSTORE_FILE:-}" ]; then ZIEL=assembleRelease; else ZIEL=assembleDebug; fi
           echo "Baue $ZIEL"
-          ./gradlew --no-daemon "$ZIEL" \
+          ./gradlew --no-daemon $ZIEL \
             -PversionName="${{ steps.version.outputs.name }}" \
             -PversionCode="${{ steps.version.outputs.code }}"
 
-      - name: APK benennen und prüfen
+      - name: Dateien benennen und prüfen
         id: apk
         run: |
           set -e
           APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
           if [ -z "${YSKAR_KEYSTORE_FILE:-}" ]; then
             SRC=$(ls android/app/build/outputs/apk/debug/*.apk | head -1)
-            OUT="yskar-wallet-test-${{ steps.version.outputs.name }}-debug.apk"
+            OUT="yskar-wallet-${{ steps.version.outputs.name }}-debug.apk"
             cp "$SRC" "$OUT"
             echo "signiert=false" >> "$GITHUB_OUTPUT"
           else
             SRC=$(ls android/app/build/outputs/apk/release/*.apk | head -1)
-            OUT="yskar-wallet-test-${{ steps.version.outputs.name }}.apk"
+            if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+              OUT="yskar-wallet-${{ steps.version.outputs.name }}.apk"
+            else
+              OUT="yskar-wallet-${{ steps.version.outputs.name }}-${{ steps.version.outputs.code }}.apk"
+            fi
             cp "$SRC" "$OUT"
             echo "signiert=true" >> "$GITHUB_OUTPUT"
           fi
@@ -175,15 +185,15 @@ jobs:
           sha256sum "$OUT" | tee "$OUT.sha256"
           echo "datei=$OUT" >> "$GITHUB_OUTPUT"
           {
-            echo "## YSKAR Wallet Test ${{ steps.version.outputs.name }}"
+            echo "## YSKAR Wallet ${{ steps.version.outputs.name }} (Code ${{ steps.version.outputs.code }})"
             echo ""
             if [ -z "${YSKAR_KEYSTORE_FILE:-}" ]; then
-              echo "**Debug-Bau zum eigenen Testen.** Signiert mit dem Debug-Schlüssel aus dem Cache; lässt sich über die vorige Debug-Fassung installieren, solange der Fingerabdruck unten derselbe ist. Für Tester den Test-Schlüssel hinterlegen."
+              echo "**Debug-Bau zum eigenen Testen.** Wird nie als Release veröffentlicht."
             else
-              echo "Signiert mit dem hinterlegten Test-Schlüssel. Diese Datei kann an Tester gehen."
+              echo "Signiert mit dem Release-Schlüssel."
             fi
             echo ""
-            echo "- Datei: \`$OUT\` (unten unter *Artifacts*)"
+            echo "- APK: \`$OUT\` (unten unter *Artifacts*)"
             echo "- versionCode: ${{ steps.version.outputs.code }}"
             echo "- SHA-256: \`$(cut -d' ' -f1 "$OUT.sha256")\`"
             echo "- $(sed -n 2p zertifikat.txt)"
@@ -197,13 +207,37 @@ jobs:
             ${{ steps.apk.outputs.datei }}.sha256
           retention-days: 30
 
+      - name: Release-Text
+        if: startsWith(github.ref, 'refs/tags/v') && steps.apk.outputs.signiert == 'true'
+        run: |
+          OUT="${{ steps.apk.outputs.datei }}"
+          SHA=$(cut -d' ' -f1 "$OUT.sha256")
+          ZERT=$(sed -n 2p zertifikat.txt | sed 's/^.*SHA-256 digest: //')
+          {
+            echo "**YSKAR Wallet ${{ steps.version.outputs.name }}** – send, receive and sign YSR. Your key stays on your device."
+            echo ""
+            echo "### Install"
+            echo "1. Download \`$OUT\` below on your Android phone (Android 7 or newer)."
+            echo "2. Open it and allow installing from this source when Android asks."
+            echo "3. Updates install over the previous version – your wallet stays on the device."
+            echo ""
+            echo "### Verify"
+            echo "- SHA-256 of the APK: \`$SHA\`"
+            echo "- Signing certificate (SHA-256): \`$ZERT\`"
+            echo ""
+            echo "Every release is signed with the same key. If the certificate fingerprint differs, do not install the file."
+            echo ""
+            echo "---"
+            echo ""
+            echo "**Deutsch:** APK unten auf dem Android-Handy herunterladen, öffnen und die Installation aus dieser Quelle erlauben. Updates lassen sich über die vorige Fassung installieren, die Wallet bleibt erhalten. Prüfsumme und Fingerabdruck stehen oben – weicht der Fingerabdruck ab, die Datei nicht installieren."
+          } > release.md
+
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v') && steps.apk.outputs.signiert == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          name: YSKAR Wallet Test ${{ steps.version.outputs.name }}
-          prerelease: true
-          generate_release_notes: true
+          name: YSKAR Wallet ${{ steps.version.outputs.name }}
+          body_path: release.md
           files: |
             ${{ steps.apk.outputs.datei }}
             ${{ steps.apk.outputs.datei }}.sha256

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--
       allowBackup="false" und die Regeln in data_extraction_rules: Der Tresor
@@ -55,6 +56,16 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!--
+          Die Eingangspruefung laeuft als normale WorkManager-Arbeit, nie als
+          Vordergrunddienst. Den Dienst und seine Berechtigung bringt die
+          Bibliothek trotzdem mit; beides entfernt, damit die App nur die
+          Berechtigungen hat, die sie wirklich braucht.
+        -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            tools:node="remove" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -65,4 +76,5 @@
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" tools:node="remove" />
 </manifest>

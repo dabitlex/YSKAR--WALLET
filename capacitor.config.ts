@@ -7,11 +7,11 @@ import type { CapacitorConfig } from '@capacitor/cli';
  * keinen Programmcode von einem Server nach: Was getestet wurde, ist das,
  * was laeuft, und niemand kann es nachtraeglich austauschen.
  *
- * Kennung und Name tragen "test", solange die App nur an Tester geht. So
- * laesst sie sich neben der bisherigen App (net.yskar.wallet) installieren.
+ * Die Kennung app.yskar.wallet (umgedrehte Domain yskar.app) ist
+ * endgueltig: Mit einer anderen Kennung waere es fuer Android eine andere App.
  */
 const config: CapacitorConfig = {
-  appId: 'net.yskar.wallet.test',
+  appId: 'app.yskar.wallet',
   appName: 'YSKAR Wallet',
   webDir: 'dist',
   android: {

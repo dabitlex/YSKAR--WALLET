@@ -1,0 +1,35 @@
+Die YSKAR Wallet ist die Wallet für YSR, die Währung der YSKAR-Blockchain. Senden, empfangen, Kontakte und Verlauf – klar aufgebaut und ohne Umwege.
+
+DEIN SCHLÜSSEL BLEIBT BEI DIR
+• Deine Wallet entsteht auf diesem Gerät. Niemand bei YSKAR hat Zugriff auf deinen Schlüssel.
+• 12 Wörter zur Wiederherstellung – damit stellst du deine Wallet auf jedem Gerät wieder her.
+• Die Wörter liegen verschlüsselt im geschützten Speicher von Android und wandern nicht in Cloud-Sicherungen.
+
+SENDEN UND EMPFANGEN
+• Adresse eingeben, Kontakt wählen oder QR-Code scannen.
+• Vor dem Senden siehst du Empfänger, Betrag und Netzgebühr noch einmal – dann schieben und bestätigen.
+• Empfangen per QR-Code oder Adresse, auf Wunsch mit einem bestimmten Betrag.
+• Beträge exakt bis zur 8. Nachkommastelle.
+
+KONTAKTE UND VERLAUF
+• Kontakte mit Namen – alle Zahlungen mit einer Person übersichtlich in einem Verlauf.
+• Wartende Zahlungen und Bestätigungen auf einen Blick.
+• Auf Wunsch eine Benachrichtigung bei jedem Eingang.
+• Kontakte bleiben auf deinem Gerät.
+
+SICHERHEIT
+• PIN und Fingerabdruck.
+• Automatische Sperre nach einer wählbaren Zeit.
+• Keine Bildschirmfotos, solange die 12 Wörter zu sehen sind.
+
+SIGNIEREN UND ANMELDEN
+• Beweise mit einer signierten Nachricht, dass dir eine Adresse gehört, und prüfe Signaturen anderer.
+• Melde dich per QR-Code auf YSKAR-Seiten an. Eine Signatur kann keine YSR bewegen.
+
+EINFACH ZU LERNEN
+• Eine kurze Einführung in 8 Schritten erklärt alle Funktionen.
+• Deutsch und Englisch.
+
+Keine Werbung, kein Tracking, kein Konto bei uns.
+
+YSKAR ist ein offenes Community-Projekt. Neuigkeiten gibt es im YSKAR-Kanal auf Telegram und auf www.yskar.app.
