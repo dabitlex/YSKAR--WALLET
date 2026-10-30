@@ -574,3 +574,60 @@ div.ez:active{background:transparent}
 .ez-fuss img{margin-bottom:6px}
 .ez-fuss b{color:var(--text);font-size:15px;font-weight:600}
 .blatt .ez-gruppe{background:var(--flaeche)}
+
+/* Einfuehrung: Karten im Story-Stil */
+.ef{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;color:#fff;background:linear-gradient(180deg,#03060F 0%,#0B1A44 45%,#1B4FD1 100%);user-select:none;-webkit-user-select:none}
+.ef-balken{display:flex;gap:6px;padding:calc(var(--oben) + 14px) 16px 0}
+.ef-balken i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.25);overflow:hidden}
+.ef-balken b{display:block;height:100%;background:#fff}
+.ef-zu{position:absolute;right:16px;top:calc(var(--oben) + 30px);width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:#03060F;display:flex;align-items:center;justify-content:center;z-index:2}
+.ef-flaeche{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px 0;touch-action:manipulation;min-height:0}
+.ef-bild{animation:ef-rein .35s ease both;display:flex;justify-content:center}
+.ef-text{padding:0 26px calc(var(--unten) + 28px);display:flex;flex-direction:column;gap:12px;animation:ef-rein .35s ease both}
+.ef-text h2{font-size:30px;line-height:1.12;font-weight:600;letter-spacing:-.02em}
+.ef-text p{font-size:16px;line-height:1.5;color:#C9D6F5}
+.ef-unten{display:flex;align-items:center;gap:10px;margin-top:4px}
+.ef-aktion{margin-right:auto;height:50px;padding:0 24px;border-radius:99px;border:0;background:#fff;color:#03060F;font:inherit;font-weight:600;font-size:16px}
+.ef-pfeil{width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center}
+.ef-pfeil:disabled{opacity:.3}
+@keyframes ef-rein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ef-bild,.ef-text{animation:none}}
+.ef-muenze{width:270px;height:280px}
+.ef-mini{width:260px;background:var(--grund);border-radius:28px;padding:18px 16px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:12px;border:1px solid rgba(140,170,255,.18);color:var(--text)}
+.ef-k{font-size:13px;color:var(--leise);text-align:center}
+.ef-t{font-size:14px;font-weight:600;text-align:center}.ef-t.links{text-align:left}.ef-t.gross{font-size:20px}
+.ef-b{font-size:34px;font-weight:300;letter-spacing:-.03em;text-align:center}.ef-b i{font-style:normal;font-size:.5em;color:var(--blass)}.ef-b u{text-decoration:none;font-size:13px;color:var(--leise);margin-left:4px}
+.ef-p{background:var(--karte);border-radius:14px;padding:4px 12px}
+.ef-p > div{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 0;color:var(--leise)}
+.ef-p > div + div{border-top:1px solid var(--linie)}
+.ef-p b{color:var(--text);font-weight:500;font-family:var(--ziffern);font-size:11px}.ef-p b.blau{color:var(--blau-hell);font-family:var(--schrift)}
+.ef-sch{height:44px;border-radius:99px;background:var(--karte);display:flex;align-items:center;gap:10px;padding:4px;font-size:12px;color:var(--leise)}
+.ef-sch span{width:36px;height:36px;border-radius:50%;background:var(--blau);display:flex;align-items:center;justify-content:center;color:#fff}
+.ef-qr{align-self:center;width:160px}.ef-qr .qrplatte{width:160px}
+.ef-chip{align-self:center;background:var(--karte);border-radius:99px;padding:6px 12px;font-family:var(--ziffern);font-size:11px;color:var(--lesen)}
+.ef-woerter{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px;font-family:var(--ziffern);font-size:19px;color:#E3EBFF}
+.ef-woerter b{color:#8EA6DA;font-weight:400;margin-right:8px}.ef-woerter .zu{color:#8EA6DA;opacity:.7}
+.ef-stapel{display:flex;flex-direction:column;align-items:center}
+.ef-note{background:#E9EEFA;color:#03060F;border-radius:16px;padding:10px 12px;display:flex;gap:10px;align-items:center;font-size:11.5px;width:250px;margin-bottom:14px;box-shadow:0 20px 40px -18px rgba(0,0,0,.6)}
+.ef-note img{width:26px;height:26px;background:#03060F;border-radius:8px;padding:4px}.ef-note b{display:block;font-size:12px}
+.ef-zl{gap:10px}.ef-zl .ef-m{flex:1;display:flex;flex-direction:column}
+.ef-zl .ef-m b{font-family:var(--schrift);font-size:12px}.ef-zl .ef-m em{font-style:normal;font-size:9.5px;padding:1px 6px;border-radius:99px;background:var(--bern-flaeche);color:var(--bern);margin-left:4px}
+.ef-zl .ef-m small{font-size:10.5px}
+.ef-i{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ef-i.bern{background:var(--bern-flaeche);color:var(--bern)}.ef-i.gruen{background:rgba(59,229,154,.12);color:var(--gruen)}
+.ef-w{font-weight:500;color:var(--text)}.ef-w.gruen{color:var(--gruen)}
+.ef-finger{display:flex;justify-content:center;color:var(--blau-hell);padding-top:6px}
+.ef-punkte{display:flex;gap:12px;justify-content:center}.ef-punkte i{width:12px;height:12px;border-radius:50%;background:var(--blau)}.ef-punkte i.l{background:transparent;border:1.5px solid var(--leise)}
+.ef-sw{width:34px;height:20px;border-radius:99px;background:var(--blau);position:relative}.ef-sw::after{content:"";position:absolute;right:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff}
+.ef-welt{display:flex;justify-content:center}.ef-welt svg{box-sizing:content-box;padding:11px;border-radius:50%;background:rgba(47,123,255,.14);color:var(--blau-hell)}
+.ef-knopf{height:38px;border-radius:99px;background:var(--blau);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff}
+.ef-tg{width:280px;display:flex;flex-direction:column;gap:10px}
+.ef-tg > div{display:flex;align-items:center;gap:12px;background:var(--karte);border-radius:16px;padding:12px;color:var(--text)}
+.ef-tg .a{width:40px;height:40px;border-radius:50%;background:var(--grund);display:flex;align-items:center;justify-content:center}.ef-tg .a img{width:22px}
+.ef-tg b{display:block;font-size:13px;font-weight:600}.ef-tg small{font-size:11px;color:var(--leise)}.ef-tg .o{margin-left:auto;color:var(--blau-hell);display:flex}
+/* Karte auf dem Startbildschirm */
+.ef-karte{position:relative;flex-shrink:0}
+.ef-karte-los{width:100%;border:0;background:linear-gradient(110deg,var(--karte) 55%,var(--blau-flaeche));border-radius:20px;padding:16px 18px;display:flex;gap:14px;align-items:center;text-align:left;color:var(--text);font:inherit}
+.ef-karte-text{flex:1;display:flex;flex-direction:column;gap:4px}.ef-karte-text b{font-size:16px;font-weight:600}.ef-karte-text span{font-size:14px;color:var(--blau-hell)}
+.ef-karte-bild{width:60px;height:60px;border-radius:18px;background:var(--grund);display:flex;align-items:center;justify-content:center;margin-right:18px}.ef-karte-bild img{width:32px}
+.ef-karte-zu{position:absolute;right:6px;top:6px;width:32px;height:32px;border:0;background:transparent;color:var(--leise);display:flex;align-items:center;justify-content:center}

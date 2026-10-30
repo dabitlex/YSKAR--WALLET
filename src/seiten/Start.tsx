@@ -5,6 +5,7 @@ import { kurzAdresse } from '../wallet/adresse.ts';
 import { kopieren } from '../geraet/geraet.ts';
 import { useZahlungen } from '../ui/daten.ts';
 import { S, Kopf, Betrag, Zahlungszeile, useMeldung } from '../ui/teile.tsx';
+import { EinfuehrungKarte } from './Einfuehrung.tsx';
 
 /**
  * Start: das Guthaben in der Mitte, darunter die Adresse, dann die Aktionen
@@ -16,7 +17,7 @@ export function Start() {
   const wallet = useWallet();
   const { konto, offline } = useDaten();
   const { wartend, verlauf } = useZahlungen();
-  const { verborgen } = useEinstellungen();
+  const { verborgen, einfuehrungGesehen } = useEinstellungen();
   const melde = useMeldung();
   const stand = konto ? BigInt(konto.balance) : null;
   const liste = [...wartend, ...verlauf].slice(0, 6);
@@ -59,6 +60,8 @@ export function Start() {
         {rund(t.start.empfangen, 'runter', () => nav.gehe({ n: 'empfangen' }))}
         {rund(t.start.scannen, 'scan', () => nav.gehe({ n: 'senden', scan: true }))}
       </div>
+
+      {!einfuehrungGesehen && <EinfuehrungKarte />}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} className="auf">
         <div className="ueber">

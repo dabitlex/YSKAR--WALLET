@@ -11,9 +11,11 @@ export interface Einstellungen {
   verborgen: boolean;
   /** In dieser Waehrung wird der Wert des Guthabens gezeigt. */
   waehrung: Waehrung;
+  /** Die Einfuehrung wurde geoeffnet oder ihre Karte auf dem Startbildschirm geschlossen. */
+  einfuehrungGesehen: boolean;
 }
 
-const VORGABE: Einstellungen = { sprache: 'system', sperreNach: 60, verborgen: false, waehrung: 'eur' };
+const VORGABE: Einstellungen = { sprache: 'system', sperreNach: 60, verborgen: false, waehrung: 'eur', einfuehrungGesehen: false };
 
 export const einstellungenLager = lager<Einstellungen>('yskar.einstellungen', VORGABE, roh => {
   const r = (roh && typeof roh === 'object' ? roh : {}) as Partial<Einstellungen>;
@@ -22,6 +24,7 @@ export const einstellungenLager = lager<Einstellungen>('yskar.einstellungen', VO
     sperreNach: [0, 60, 300].includes(Number(r.sperreNach)) ? Number(r.sperreNach) : 60,
     verborgen: r.verborgen === true,
     waehrung: r.waehrung === 'usd' ? 'usd' : 'eur',
+    einfuehrungGesehen: r.einfuehrungGesehen === true,
   };
 });
 

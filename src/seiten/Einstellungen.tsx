@@ -112,6 +112,7 @@ export function Einstellungen() {
       </div>
 
       <div className="ez-gruppe">
+        <Zeile text={t.einf.titel} symbol="info" onTipp={() => nav.gehe({ n: 'einfuehrung' })} />
         <Zeile text={t.einst.anleitungen} symbol="buch" onTipp={() => imBrowserOeffnen(LINKS.anleitungen)} />
         <Zeile text={t.einst.community} symbol="blase" onTipp={() => imBrowserOeffnen(LINKS.community)} />
         <Zeile text={t.einst.news} symbol="flieger" onTipp={() => imBrowserOeffnen(LINKS.news)} />
