@@ -53,7 +53,7 @@ base64 -w0 schluessel.jks 2>/dev/null || base64 -i schluessel.jks
 
 ## Texte und Bilder
 
-Unter `store/` liegen Beschreibung (Deutsch und Englisch), App-Symbol, Titelgrafik und Screenshots – für die Release-Seite, die Website und spätere App-Verzeichnisse. `store/datenschutz-wallet.md` ist der Entwurf für den Wallet-Abschnitt der Datenschutzerklärung auf www.yskar.app.
+Unter `store/` liegen Beschreibung (Deutsch und Englisch), App-Symbol, Titelgrafik und Screenshots – für die Release-Seite, die Website und spätere App-Verzeichnisse.
 
 ## Was die App tut und was nicht
 

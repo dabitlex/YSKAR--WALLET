@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/dabitlex/Wallet-/releases/latest"><b>Download the latest APK</b></a> ·
+  <a href="https://github.com/dabitlex/YSKAR--WALLET/releases/latest"><b>Download the latest APK</b></a> ·
   <a href="https://www.yskar.app">yskar.app</a> ·
   <a href="https://t.me/yskar_official">Telegram channel</a> ·
   <a href="https://t.me/+GxAmtTMeG1w1M2Yy">Community</a>
@@ -59,7 +59,7 @@ No ads, no tracking, no account with us.
 
 ## Install
 
-1. Open the [latest release](https://github.com/dabitlex/Wallet-/releases/latest) on your Android phone (Android 7 or newer).
+1. Open the [latest release](https://github.com/dabitlex/YSKAR--WALLET/releases/latest) on your Android phone (Android 7 or newer).
 2. Download `yskar-wallet-<version>.apk` and open it.
 3. Allow installing from this source when Android asks.
 
@@ -119,7 +119,7 @@ Die YSKAR Wallet ist die Android-Wallet für YSR, die Währung der YSKAR-Blockch
 Keine Werbung, kein Tracking, kein Konto bei uns.
 
 **Installieren**
-1. Das [neueste Release](https://github.com/dabitlex/Wallet-/releases/latest) auf dem Android-Handy öffnen (ab Android 7).
+1. Das [neueste Release](https://github.com/dabitlex/YSKAR--WALLET/releases/latest) auf dem Android-Handy öffnen (ab Android 7).
 2. `yskar-wallet-<version>.apk` herunterladen und öffnen.
 3. Die Installation aus dieser Quelle erlauben, wenn Android fragt.
 
