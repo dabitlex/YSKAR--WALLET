@@ -44,7 +44,7 @@ export const MIN_FEE = 100_000n;               // 0,001 YSR -- Konsens bis FEE_V
  * Gebuehren je Byte -- Konsensfassung 3.
  *
  * Bis FEE_V3_HEIGHT gilt die feste Untergrenze MIN_FEE. Ab dieser Hoehe
- * gilt fee >= bytes * MIN_FEE_RATE, wie bei Bitcoin: Der Konsens verlangt
+ * gilt fee >= bytes * MIN_FEE_RATE: Der Konsens verlangt
  * fast nichts (eine Ueberweisung ohne Notiz kostet 168 Einheiten, also
  * 0,00000168 YSR), den Preis macht der Markt. Wer groessere Transaktionen
  * einfuehrt (Kanaele), zahlt automatisch mehr -- ohne neue Regel.
@@ -68,8 +68,8 @@ export function minFeeAt(height: number, bytes: number, feeV3Height = FEE_V3_HEI
 
 /*
  * Weiterleitungs-Satz -- KEIN Konsens. Was ein Knoten mindestens je Byte
- * verlangt, um eine Transaktion in seinen Mempool zu nehmen (Bitcoins
- * minrelaytxfee). Spam-Schutz, ohne Fork nachjustierbar.
+ * verlangt, um eine Transaktion in seinen Mempool zu nehmen. Spam-Schutz,
+ * ohne Fork nachjustierbar.
  */
 export const RELAY_FEE_RATE = 10n;             // Einheiten je Byte, Policy
 
@@ -182,8 +182,8 @@ export function bytesToBig(b: Uint8Array): bigint {
 
 /**
  * Blockreward an einer Hoehe. Reine Bitverschiebung -- keine Potenzfunktion,
- * kein Runden. Wie bei Bitcoin laesst die Abrundung die reale Gesamtmenge
- * knapp unter MAX_SUPPLY landen.
+ * kein Runden. Die Abrundung laesst die reale Gesamtmenge knapp unter
+ * MAX_SUPPLY landen.
  */
 export function rewardAt(height: number): bigint {
   const era = Math.floor(height / EPOCH_BLOCKS);
@@ -218,3 +218,79 @@ export const MAX_COINBASE_OUTPUTS = 64;
 
 /** Fassung einer Coinbase mit mehreren Empfaengern. */
 export const COINBASE_V2 = 2;
+
+/*
+ * Konsensfassung 5 -- ein Soft Fork: Ab V5_HEIGHT gelten vier Regeln mehr,
+ * und jede davon verbietet nur etwas, was bisher erlaubt war. Was ein Knoten
+ * mit diesen Regeln annimmt, nimmt auch ein Knoten ohne sie an.
+ *
+ *   1. Ein Zeitstempel liegt nicht vor dem seines Vorgaengers (gleich ist
+ *      erlaubt). Damit misst die Difficulty-Anpassung und die Notfallregel
+ *      die Zeit so, wie sie wirklich vergangen ist.
+ *   2. Ein Block ist genau so kodiert, wie serializeBlock() ihn schreibt --
+ *      keine Bytes hinter der letzten Transaktion oder in einem zu langen
+ *      Rahmen -- und hoechstens MAX_BLOCK_BYTES gross (Issue #10).
+ *   3. Eine Coinbase hat Fassung 1 oder 2, und ihr `extra` hoechstens
+ *      MAX_COINBASE_EXTRA Byte (Issue #10).
+ *   4. Jede Ausgabe einer Coinbase der Fassung 2 betraegt mindestens
+ *      DUST_LIMIT. Fassung 1 nicht: Ab Hoehe 360.000 ist die Belohnung
+ *      selbst kleiner, und ein Block ohne Gebuehren muss gueltig bleiben.
+ *
+ * Bloecke darunter bleiben byteweise gueltig. Die Hoehe gilt fuer das
+ * Mainnet; Regtest prueft die Regeln von Anfang an (networks.ts).
+ * Beschlossen bei Hoehe 4.111 am 09.10.2026, siehe docs/CONSENSUS_V5.md.
+ */
+export const V5_HEIGHT = 7_000;
+export const MAX_BLOCK_BYTES = 1_048_576;
+export const MAX_COINBASE_EXTRA = 32;
+
+/*
+ * Konsensfassung 6 -- ein Hard Fork (docs/CONSENSUS_V6.md).
+ *
+ * Ab V6_HEIGHT: Blockversion 6 statt 1, Fork-Kennung in jeder Signatur,
+ * Adressen mit Version, Bedingungsskripte (Typ 2), Sammelzahlungen (Typ 3),
+ * Ueberweisung in Fassung 2, Zustandsbaum als Sparse-Merkle-Baum, hoehere
+ * Grenzen. Darunter gilt alles wie bisher, byteweise.
+ *
+ * Beschlossen am 25.10.2026 per Abstimmung in der Community: Block 10.000,
+ * geschaetzt um den 20.11.2026.
+ *
+ * V6_HEIGHT_UNSET ist der Wert "keine Hoehe", den kein Block erreicht. Ihn
+ * verwenden REGTEST (bleibt bei Fassung 5) und Knoten, deren Ablage keine
+ * Hoehe kennt.
+ */
+export const V6_HEIGHT_UNSET = 0xffff_ffff;
+export const V6_HEIGHT: number = 10_000;
+/** Geschaetzter Zeitpunkt der Aktivierung (Unixsekunden), 20.11.2026 00:00
+ *  UTC -- nur fuer die Zeitregel der Update-Hinweise alter Knoten
+ *  (CONSENSUS_V6.md 11.1: 180 bzw. 365 Tage danach). Kein Konsenswert. */
+export const V6_TIMESTAMP = 1_795_132_800n;
+
+/** Fork-Kennung, zweites Feld jedes Sighash ab Fassung 6: Eine Signatur
+ *  der einen Fassung ist in der anderen nie gueltig. */
+export const FORK_ID_V6 = 6;
+/** Blockversion ab Fassung 6; darunter 1. */
+export const BLOCK_VERSION_V6 = 6;
+
+export const MAX_TXS_PER_BLOCK_V6 = 5_000;
+export const MAX_COINBASE_OUTPUTS_V6 = 255;
+export const MAX_BATCH_OUTPUTS = 1_000;
+export const MAX_SCRIPT_BYTES = 1_024;
+export const MAX_SCRIPT_KEYS = 16;
+export const MAX_SCRIPT_DEPTH = 3;
+export const MAX_THRESH_ARITY = 16;
+/** Gemessen und bestaetigt, auch auf einem alten Laptop (CONSENSUS_V6.md 7.7). */
+export const MAX_BLOCK_SIGOPS = 8_000;
+
+/** Die Blockversion, die an einer Hoehe genau verlangt wird (6, Abschnitt 2.2). */
+export function blockVersionAt(height: number, v6Height = V6_HEIGHT): number {
+  return height >= v6Height ? BLOCK_VERSION_V6 : 1;
+}
+
+export function maxTxsAt(height: number, v6Height = V6_HEIGHT): number {
+  return height >= v6Height ? MAX_TXS_PER_BLOCK_V6 : MAX_TXS_PER_BLOCK;
+}
+
+export function maxCoinbaseOutputsAt(height: number, v6Height = V6_HEIGHT): number {
+  return height >= v6Height ? MAX_COINBASE_OUTPUTS_V6 : MAX_COINBASE_OUTPUTS;
+}

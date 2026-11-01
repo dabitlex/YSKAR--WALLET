@@ -1,4 +1,5 @@
 import { wordlist } from '@scure/bip39/wordlists/english.js';
+import { isValidAddress } from '../kern/address.ts';
 
 /**
  * Was eine Taste der eigenen Tastatur mit einer Eingabe macht.
@@ -12,7 +13,9 @@ export const LOESCHEN = '⌫';
 /** Zeichen einer YSKAR-Adresse nach dem Anfang "ysr1" (bech32: ohne 1, b, i, o). */
 export const ADRESS_ZEICHEN = '023456789acdefghjklmnpqrstuvwxyz';
 const ANFANG = 'ysr1';
-const ADRESSE_LAENGE = 42;
+/** Version 0 hat 42 Zeichen, Version 1 (ysr1p…, ab Fassung 6) 63. */
+const ADRESSE_V0 = 42;
+export const ADRESSE_LAENGE = 63;
 
 /** Betrag: hoechstens zwoelf Stellen vor und `stellen` nach dem Trennzeichen. */
 export function tippeBetrag(alt: string, taste: string, zeichen: string, stellen = 8): string {
@@ -33,6 +36,8 @@ export function tippeAdresse(alt: string, taste: string): string {
   }
   if (!ADRESS_ZEICHEN.includes(taste)) return alt;
   if (alt === '') return ANFANG + taste;
+  // Eine fertige Adresse der Version 0 waechst nicht weiter; laenger geht es nur fuer ysr1p….
+  if (alt.length === ADRESSE_V0 && isValidAddress(alt)) return alt;
   return alt.length < ADRESSE_LAENGE ? alt + taste : alt;
 }
 

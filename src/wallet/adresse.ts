@@ -1,7 +1,7 @@
 /**
  * Adressen fuer die Anzeige.
  *
- * Eine Adresse hat 42 Zeichen. Niemand vergleicht 42 Zeichen am Stueck --
+ * Eine Adresse hat 42 Zeichen (ysr1p…: 63). Niemand vergleicht das am Stueck --
  * in Vierergruppen geht es. Genau deshalb zeigt die Wallet die volle
  * Adresse so, und nicht nur Anfang und Ende: Eine gekuerzte Adresse laesst
  * sich faelschen, indem man Anfang und Ende trifft ("Address Poisoning").

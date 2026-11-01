@@ -4,9 +4,10 @@ import { hmac } from '@noble/hashes/hmac.js';
 import * as bip39 from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english.js';
 import { addressFor, addressFromPublicKey } from './address.ts';
+import { verifySignature as pruefeSignatur } from './sigcheck.ts';
 
 /**
- * Wallet -- wiederherstellbar wie bei Bitcoin.
+ * Wallet -- aus zwoelf oder vierundzwanzig Woertern wiederherstellbar.
  *
  * Merkwoerter (BIP39) -> Seed -> Schluessel (SLIP-0010 fuer ed25519).
  *
@@ -120,9 +121,13 @@ export function sign(message: Uint8Array, privateKey: Uint8Array): Uint8Array {
   return ed25519.sign(message, privateKey);
 }
 
+/**
+ * Signatur pruefen -- nach der Regel aus 7.8, ueber den Pruefer in sigcheck.ts
+ * (docs/CONSENSUS_V6.md 7.8). Hier nur weitergereicht, damit bestehende
+ * Aufrufer unveraendert bleiben.
+ */
 export function verifySignature(
   signature: Uint8Array, message: Uint8Array, publicKey: Uint8Array,
 ): boolean {
-  try { return ed25519.verify(signature, message, publicKey); }
-  catch { return false; }
+  return pruefeSignatur(signature, message, publicKey);
 }

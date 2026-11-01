@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useT, type Woerterbuch } from '../i18n/index.ts';
 import { useDaten, useNav, useWallet } from '../zustand.tsx';
 import { isValidAddress, decodeAddress } from '../kern/address.ts';
-import { buildTransfer, serializeTx, txidHex, transferBytes, checkTransfer } from '../kern/tx.ts';
+import { buildTransfer, serializeTx, txidHex, checkTransfer } from '../kern/tx.ts';
+import { sendeStand, empfaengerBytes, empfaengerErlaubt, ueberweisungBytes, gebuehrFuer } from '../wallet/fassung.ts';
 import { keypairFromMnemonic } from '../kern/wallet.ts';
 import { toHex } from '../kern/codec.ts';
-import { MIN_FEE, DUST_LIMIT, DECIMALS } from '../kern/params.ts';
+import { DUST_LIMIT, DECIMALS } from '../kern/params.ts';
 import { marktLaden, senden, NetzFehler, type Markt } from '../netz/api.ts';
 import { betragGenau, betragText, dezimalZeichen, eingabeEinheiten, einheitenEingabe } from '../wallet/betrag.ts';
 import { NOTIZ_BYTES, notizBytes, notizKuerzen } from '../wallet/notiz.ts';
@@ -60,21 +61,32 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
   const [versuch, setVersuch] = useState(0);
   const [ergebnis, setErgebnis] = useState<Zahlung | null>(null);
 
-  useEffect(() => { marktLaden().then(setMarkt).catch(e => fehlerMerken('gebuehren', e)); }, []);
+  // Die Auskunft nennt Gebuehren, Fassung und Sendepause des naechsten Blocks: einmal je Minute,
+  // nach einem Fehler alle 15 s, damit eine alte Auskunft die Sendepause nicht verpasst.
+  useEffect(() => {
+    let lebt = true;
+    let wieder: ReturnType<typeof setTimeout> | undefined;
+    const holen = () => {
+      marktLaden().then(m => { if (lebt) setMarkt(m); })
+        .catch(e => { fehlerMerken('gebuehren', e); if (lebt) { setMarkt(null); wieder = setTimeout(holen, 15_000); } });
+    };
+    holen();
+    const takt = setInterval(holen, 60_000);
+    return () => { lebt = false; clearInterval(takt); if (wieder) clearTimeout(wieder); };
+  }, []);
 
   const adresse = ziel.trim().toLowerCase();
   const zielGueltig = isValidAddress(adresse);
   const eigene = zielGueltig && adresse === wallet.adresse;
   const zielName = zielGueltig ? name(adresse) : null;
 
-  // Ohne Auskunft vom Knoten gilt die alte Mindestgebuehr: Sie deckt jede Regel.
-  // Mit Auskunft: Stufe "normal", aber nie unter dem Satz je Byte fuer diese Groesse.
-  const gebuehr = useMemo(() => {
-    if (!markt) return MIN_FEE;
-    const boden = markt.mindestJeByte ? BigInt(markt.mindestJeByte) * BigInt(transferBytes(notizBytes(notiz))) : 0n;
-    const stufe = BigInt(markt.stufen.normal.fee);
-    return stufe > boden ? stufe : boden;
-  }, [markt, notiz]);
+  // Fassung 6: welche Ueberweisung der naechste Block verlangt (wallet/fassung.ts).
+  const stand = sendeStand(markt, daten.spitze);
+  const zielBytes = zielGueltig ? empfaengerBytes(adresse) : null;
+  const zuFrueh = zielBytes !== null && !empfaengerErlaubt(zielBytes, stand.fassung);
+  const gebuehr = useMemo(
+    () => gebuehrFuer(markt, 'normal', ueberweisungBytes(stand, markt, notizBytes(notiz), zielBytes ?? undefined)),
+    [markt, notiz, stand.fassung, zielBytes]);
 
   const guthaben = daten.verfuegbar;
   const einheiten = useMemo(() => eingabeEinheiten(betrag, DECIMALS), [betrag]);
@@ -89,7 +101,8 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
   const staub = !!markt?.mindestJeByte && einheiten > 0n && einheiten < DUST_LIMIT;
   const summe = einheiten + gebuehr;
   const reicht = einheiten > 0n && summe <= guthaben;
-  const bereit = zielGueltig && !eigene && reicht && !staub && daten.konto !== null;
+  const gesperrt = stand.pause || stand.unbekannt;
+  const bereit = zielGueltig && !eigene && !zuFrueh && !gesperrt && reicht && !staub && daten.konto !== null;
   const genau = (v: bigint) => betragGenau(v, t.code, DECIMALS, 4);
 
   // An diese Adresse schon einmal gesendet? Nur ein Hinweis, kein Urteil.
@@ -128,6 +141,7 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
         from: kp.addressRaw, to: decodeAddress(adresse), amount: einheiten, fee: gebuehr, nonce: daten.naechsteNonce,
         memo: notiz ? new TextEncoder().encode(notizKuerzen(notiz)) : undefined,
         publicKey: kp.publicKey, privateKey: kp.privateKey,
+        version: stand.fassung,
       });
       // Dieselbe Pruefung, die der Knoten macht -- vor dem Senden, auf dem Geraet.
       // Ohne bekannte Hoehe waere die Gebuehrenregel geraten -- dann prueft nur der Knoten.
@@ -226,8 +240,8 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
           : <div className="hinweis bern"><S n="info" g={18} /><div><strong style={{ color: 'var(--lesen)' }}>{t.senden.warnung}</strong>{!bekannt && <> {t.senden.neueAdresse}</>}</div></div>}
         <div className="fuell" />
         <div className="stapel">
-          <Schieber key={versuch} text={arbeitet ? t.senden.sendet : t.senden.schieben} label={t.senden.schiebenLabel} onFertig={geschoben} gesperrt={arbeitet || !reicht} />
-          <div className="unterzeile">{!reicht ? t.senden.zuViel : bioAktiv() ? t.senden.danach : t.senden.danachPin}</div>
+          <Schieber key={versuch} text={arbeitet ? t.senden.sendet : t.senden.schieben} label={t.senden.schiebenLabel} onFertig={geschoben} gesperrt={arbeitet || !reicht || gesperrt} />
+          <div className="unterzeile">{gesperrt ? (stand.pause ? t.senden.sendepause : t.senden.fassungUnbekannt) : !reicht ? t.senden.zuViel : bioAktiv() ? t.senden.danach : t.senden.danachPin}</div>
         </div>
       </div>
     );
@@ -261,9 +275,10 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
         </div>
         {adresse === '' ? null
           : eigene ? <div className="gutzeile rot"><S n="warnung" g={15} />{t.senden.eigene}</div>
+          : zuFrueh ? <div className="gutzeile rot"><S n="warnung" g={15} />{t.senden.adresseAbV6}</div>
           : zielGueltig ? (zielName ? null : <div className="gutzeile"><S n="haken" g={15} w={2.6} />{t.senden.gueltig}</div>)
           // Solange noch getippt wird, ist eine halbe Adresse kein Fehler.
-          : tast.aktiv === 'an' && adresse.length < 42 ? <div className="gutzeile leise">{t.senden.zeichen(adresse.length)}</div>
+          : tast.aktiv === 'an' && (adresse.length < 42 || (adresse.startsWith('ysr1p') && adresse.length < 63)) ? <div className="gutzeile leise">{t.senden.zeichen(adresse.length)}</div>
           : <div className="gutzeile rot"><S n="warnung" g={15} />{t.senden.ungueltig}</div>}
       </div>
 
@@ -303,6 +318,7 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
 
       <div className="fuell" />
 
+      {gesperrt && <Kasten art="warn" symbol="warnung">{stand.pause ? t.senden.sendepause : t.senden.fassungUnbekannt}</Kasten>}
       <div className="gebuehrzeile"><span>{t.senden.netzgebuehr}</span><b>{genau(gebuehr)} YSR</b><span>· {t.senden.gebuehrText}</span></div>
       <button type="button" className="knopf sinkt" disabled={!bereit} onClick={() => { setFehler(''); setSchritt('pruefen'); }}>{t.allg.weiter}</button>
 

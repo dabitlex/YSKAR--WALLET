@@ -30,7 +30,8 @@ export interface VerlaufEintrag {
   amount: string; fee: string; memo: string | null;
 }
 export interface Wartend {
-  txid: string; kind: 'in' | 'out'; from: string; to: string;
+  /** `to` fehlt bei einer Sammelzahlung (Typ 3, ab Fassung 6). */
+  txid: string; kind: 'in' | 'out'; from: string; to: string | null;
   amount: string; fee: string; nonce: string; memo: string | null;
 }
 export interface Konto {
@@ -39,9 +40,18 @@ export interface Konto {
   history: VerlaufEintrag[]; historyWeiter: string | null;
 }
 export interface VerlaufSeite { eintraege: VerlaufEintrag[]; weiter: string | null }
+export type Stufe = 'langsam' | 'normal' | 'schnell';
 export interface Markt {
   minFee: string; mindestJeByte?: string | null; wartend: number; andrang: boolean;
-  stufen: Record<'langsam' | 'normal' | 'schnell', { fee: string; block: number }>;
+  stufen: Record<Stufe, { fee: string; block: number; jeByte?: string | null }>;
+  /** Hoehe des naechsten Blocks. */
+  hoehe?: number;
+  /** Fassung der Ueberweisung fuer den naechsten Block: 1, ab Konsensfassung 6 2. Aeltere Knoten nennen sie nicht. */
+  fassung?: number;
+  /** Groesse einer Ueberweisung ohne Notiz an diesem Block (Byte). */
+  basisBytes?: number;
+  /** Die drei Bloecke vor der Aktivierung von Fassung 6: nichts einreichen. */
+  sendepause?: boolean;
 }
 export interface Kopf { height: number | null; mempool: number }
 
