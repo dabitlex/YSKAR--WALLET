@@ -220,7 +220,7 @@ export const en: Woerterbuch = {
   },
   kontakte: {
     titel: 'Contacts', suche: 'Name or address', sucheLabel: 'Search contacts',
-    anzahl: n => (n === 1 ? '1 CONTACT' : `${n} CONTACTS`),
+    alle: n => `All · ${n}`,
     leer: 'No contacts yet. Use the plus to add the first one.',
     nichts: 'No contact matches the search.',
     hinweis: 'Contacts stay on this device. Nobody else sees the names.',

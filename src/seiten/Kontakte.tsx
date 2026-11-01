@@ -5,7 +5,7 @@ import { isValidAddress } from '../kern/address.ts';
 import { verlaufLaden } from '../netz/api.ts';
 import { kontaktSetzen, useKontakte, NAME_MAX } from '../wallet/kontakte.ts';
 import { anforderungEntfernen, useAnforderungen } from '../wallet/anforderungen.ts';
-import { ausEintrag, type Zahlung } from '../wallet/zahlungen.ts';
+import { ausEintrag, bestaetigungen, type Zahlung } from '../wallet/zahlungen.ts';
 import { betragGenau } from '../wallet/betrag.ts';
 import { kurzAdresse, vierer } from '../wallet/adresse.ts';
 import { tippeAdresse, tippeText } from '../wallet/tasten.ts';
@@ -13,7 +13,7 @@ import { adresseAusCode } from '../wallet/qr.ts';
 import { einfuegen } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { useZahlungen } from '../ui/daten.ts';
-import { S, Kopf, KopfZurueck, Bild, Kasten, Blatt, useMeldung, useZeit, Stellen, useAnzeige } from '../ui/teile.tsx';
+import { S, Kopf, Bild, Kasten, Blatt, useMeldung, useZeit, Stellen, useAnzeige } from '../ui/teile.tsx';
 import { Scanner } from '../ui/scanner.tsx';
 import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
@@ -21,7 +21,6 @@ import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
 export function Kontakte() {
   const t = useT();
-  const anzeige = useAnzeige();
   const nav = useNav();
   const zeit = useZeit();
   const { kontakte } = useKontakte();
@@ -39,37 +38,42 @@ export function Kontakte() {
     return m;
   }, [wartend, verlauf]);
 
+  const unter = (a: string) => {
+    const z = zuletzt.get(a);
+    if (!z) return <span className="mono">{kurzAdresse(a, '')}</span>;
+    if (z.hoehe === null) return <span className="wartet">{t.zahlung.wartetBlock}</span>;
+    const wann = z.zeit ? zeit.kurz(z.zeit) : '';
+    return z.art === 'aus' ? t.senden.zuletztGesendet(wann) : t.senden.zuletztEmpfangen(wann);
+  };
+
   return (
-    <div className="seite mit-nav eng">
+    <div className="seite mit-nav st">
       <Kopf titel={t.kontakte.titel} rechts={
-        <button type="button" className="klein sinkt" aria-label={t.kontakte.neu} onClick={() => nav.gehe({ n: 'kontaktBearbeiten' })}><S n="plus" /></button>} />
+        <button type="button" className="klein sinkt" aria-label={t.kontakte.neu} onClick={() => nav.gehe({ n: 'kontaktBearbeiten' })}><S n="plus" g={19} w={1.6} /></button>} />
       {alle.length > 0 && (
-        <div className="suche">
+        <div className="suche kt-suche">
           <S n="lupe" />
           <Tippfeld id="ksuche" art="text" label={t.kontakte.sucheLabel} platz={t.kontakte.suche} wert={suche}
                     onTaste={z => setSuche(x => tippeText(x, z))}
                     leiste={suche !== '' && <button type="button" className="tknopf" onClick={() => setSuche('')}>{t.tast.leeren}</button>} />
         </div>
       )}
-      {alle.length > 0 && <div className="rubrik">{t.kontakte.anzahl(alle.length)}</div>}
+      {alle.length > 0 && <div className="sf-abschnitt st-abschnitt kt-abschnitt"><span className="sf-lab">{t.kontakte.alle(alle.length)}</span></div>}
       {liste.length > 0
-        ? <div className="karte">
-            {liste.map(([a, n]) => {
-              const z = zuletzt.get(a);
-              return (
-                <button key={a} type="button" className="zeile" onClick={() => nav.gehe({ n: 'kontakt', adresse: a })}>
-                  <Bild name={n} />
-                  <div className="mitte">
-                    <b>{n}</b>
-                    <small>{z ? `${z.art === 'aus' ? '−' : '+'}${anzeige(z.betrag)} YSR · ${z.zeit ? zeit.kurz(z.zeit) : t.zahlung.wartet}` : kurzAdresse(a, '')}</small>
-                  </div>
-                  <S n="weiter" g={18} w={2.2} klasse="pfeil" />
-                </button>
-              );
-            })}
+        ? <div className="liste">
+            {liste.map(([a, n]) => (
+              <button key={a} type="button" className="zeile" onClick={() => nav.gehe({ n: 'kontakt', adresse: a })}>
+                <Bild name={n} g={40} />
+                <div className="mitte">
+                  <b>{n}</b>
+                  <small>{unter(a)}</small>
+                </div>
+                <S n="weiter" g={18} w={1.6} klasse="pfeil" />
+              </button>
+            ))}
           </div>
         : <div className="leerstand">{alle.length === 0 ? t.kontakte.leer : t.kontakte.nichts}</div>}
-      <div className="hinweis"><S n="info" g={18} /><div>{t.kontakte.hinweis}</div></div>
+      <p className="sf-xs kt-hinweis">{t.kontakte.hinweis}</p>
     </div>
   );
 }
@@ -104,8 +108,12 @@ export function KontaktBearbeiten({ adresse: vor }: { adresse?: string }) {
   };
 
   return (
-    <div className="seite">
-      <KopfZurueck titel={bestehend ? t.kontakte.bearbeiten : t.kontakte.neu} zurueck={nav.zurueck} />
+    <div className="seite sf kt-form">
+      <div className="sf-kopf">
+        <button type="button" className="klein sinkt" aria-label={t.allg.zurueck} onClick={nav.zurueck}><S n="zurueck" w={2.2} /></button>
+        <div className="sf-mitte"><span className="sf-titel">{bestehend ? t.kontakte.bearbeiten : t.kontakte.neu}</span></div>
+        <span className="sf-platz" />
+      </div>
       <div className="feldgruppe">
         <span className="feldname">{t.kontakte.name}</span>
         <Tippfeld id="kname" art="text" klasse="feld" gross="woerter" label={t.kontakte.name} wert={name} auto={!bestehend}
@@ -115,7 +123,7 @@ export function KontaktBearbeiten({ adresse: vor }: { adresse?: string }) {
       <div className="feldgruppe">
         <span className="feldname">{t.kontakte.adresse}</span>
         <div className={`feld-huelle ${tast.aktiv === 'kadresse' ? 'aktiv' : ''}`}>
-          <Tippfeld id="kadresse" art="adresse" klasse="ziffern" label={t.kontakte.adresse} wert={ziel} platz={t.senden.platz}
+          <Tippfeld id="kadresse" art="adresse" klasse="ziffern mono" label={t.kontakte.adresse} wert={ziel} platz={t.senden.platz}
                     zeige={vierer(ziel).map((g, i) => <span key={i}>{g}</span>)}
                     onTaste={z => setZiel(x => tippeAdresse(x, z))}
                     leiste={ziel !== '' && <button type="button" className="tknopf" onClick={() => setZiel('')}>{t.tast.leeren}</button>} />
@@ -136,7 +144,8 @@ export function KontaktBearbeiten({ adresse: vor }: { adresse?: string }) {
         <button type="button" className="knopf sinkt" disabled={!bereit} onClick={speichern}>{t.kontakte.speichern}</button>
         {bestehend && <button type="button" className="knopf text sinkt" style={{ color: 'var(--rot)' }} onClick={() => setFragt(true)}>{t.kontakte.loeschen}</button>}
       </div>
-      {scannt && <Scanner onZu={() => setScannt(false)} onText={x => { if (!uebernehmen(x)) return false; setScannt(false); return true; }} />}
+      {scannt && <Scanner onZu={() => setScannt(false)} onText={x => { if (!uebernehmen(x)) return false; setScannt(false); return true; }}
+                          einfuegen={async () => { const x = await einfuegen(); setScannt(false); if (!uebernehmen(x)) melde(t.senden.keinCode); }} />}
       {fragt && vor && (
         <Blatt titel={t.kontakte.loeschenFrage} onZu={() => setFragt(false)}>
           <p>{t.kontakte.loeschenText}</p>
@@ -160,7 +169,7 @@ export function Kontakt({ adresse }: { adresse: string }) {
   const nav = useNav();
   const zeit = useZeit();
   const wallet = useWallet();
-  const { konto } = useDaten();
+  const { konto, spitze } = useDaten();
   const { name } = useKontakte();
   const { wartend } = useZahlungen();
   const anforderungen = useAnforderungen();
@@ -233,7 +242,7 @@ export function Kontakt({ adresse }: { adresse: string }) {
             <button key={z.txid} type="button" className={`blase ${ein ? 'l' : 'r'}`} onClick={() => nav.gehe({ n: 'detail', zahlung: z })}>
               <span className="summe">{ein ? '+' : '−'}<Stellen text={anzeige(z.betrag)} /> <small>YSR</small></span>
               {z.notiz && <span className="text">{z.notiz}</span>}
-              <span className={`zeit ${wartet ? 'wartet' : ''}`}>{z.zeit ? `${zeit.uhr(z.zeit)} · ` : ''}{wartet ? t.zahlung.wartet : t.zahlung.bestaetigt}</span>
+              <span className={`zeit ${wartet ? 'wartet' : ''}`}>{z.zeit ? `${zeit.uhr(z.zeit)} · ` : ''}{wartet ? t.zahlung.wartetBlock : t.zahlung.bestaetigungen(zeit.zahl(bestaetigungen(z, spitze)))}</span>
             </button>];
         })}
         <div ref={ende} />

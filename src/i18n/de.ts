@@ -225,7 +225,7 @@ export const de = {
   },
   kontakte: {
     titel: 'Kontakte', suche: 'Name oder Adresse', sucheLabel: 'Kontakte durchsuchen',
-    anzahl: (n: number) => (n === 1 ? '1 KONTAKT' : `${n} KONTAKTE`),
+    alle: (n: number) => `Alle · ${n}`,
     leer: 'Noch keine Kontakte. Mit dem Plus legst du den ersten an.',
     nichts: 'Kein Kontakt passt zur Suche.',
     hinweis: 'Kontakte bleiben auf diesem Gerät. Niemand sonst sieht die Namen.',
