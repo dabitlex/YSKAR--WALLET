@@ -250,27 +250,12 @@ export function Wartering({ gross }: { gross?: boolean }) {
   );
 }
 
-/**
- * Drei Stufen nebeneinander: gesendet, im Block, bestaetigt.
- * `stand` = wie viele davon erledigt sind (1 bis 3).
- */
-export function Stufenleiste({ stand, namen }: { stand: 1 | 2 | 3; namen: [string, string, string] }) {
+/** Schritt n von 3 als drei verjuengte Baender (Senden, 4.2). */
+export function Schritte({ n, label }: { n: 1 | 2 | 3; label: string }) {
   return (
-    <div className="stufenleiste" role="img" aria-label={namen.slice(0, stand).join(', ')}>
-      {namen.map((n, i) => {
-        const art = i < stand ? 'fertig' : i === stand ? 'dran' : 'offen';
-        return (
-          <div key={n} className={i <= stand ? 'an' : undefined}>
-            <div className="reihe">
-              <i className={i === 0 ? 'unsichtbar' : i <= stand ? 'voll' : undefined} />
-              <span className={`punkt ${art}`}>{art === 'fertig' && <S n="haken" g={12} w={3} />}</span>
-              <i className={i === 2 ? 'unsichtbar' : i < stand ? 'voll' : undefined} />
-            </div>
-            <span>{n}</span>
-          </div>
-        );
-      })}
-    </div>
+    <span className="schritte" role="img" aria-label={label}>
+      {[1, 2, 3].map(i => <i key={i} className={i <= n ? 'an' : undefined} />)}
+    </span>
   );
 }
 
@@ -425,8 +410,12 @@ export type PinAntwort = 'ok' | 'falsch' | 'gebremst' | { fehler: string };
  * Sechs Ziffern ueber das eigene Tastenfeld. Die Systemtastatur bleibt zu:
  * So liest keine fremde Tastatur-App mit.
  */
-export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck }: {
+export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck, kopf, oben }: {
   titel: string; unter?: string; logo?: boolean;
+  /** Titel in der Kopfzeile neben "Zurueck" (nur mit `zurueck`). */
+  kopf?: string;
+  /** Steht oben unter der Kopfzeile; Titel und Punkte folgen direkt darunter, die Tasten unten (Senden bestaetigen, 4.2). */
+  oben?: ReactNode;
   onPin: (pin: string) => Promise<PinAntwort>;
   /** Wenn gesetzt, zeigt das Feld die Fingerabdruck-Taste. */
   bio?: () => void;
@@ -473,9 +462,10 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck }: {
   const frei = stand === 'frei' && warten <= 0;
   return (
     <div className="seite pinseite">
-      {zurueck && <div style={{ alignSelf: 'stretch', margin: '0 -12px' }}><KopfZurueck titel="" zurueck={zurueck} /></div>}
-      {/* Der freie Platz liegt oben: mit Logo fuellt es ihn, ohne bleibt er leer. Titel und Punkte stehen dicht ueber den Tasten. */}
-      {logo ? <div className="logo-platz"><Muenze groesse="mittel" /></div> : <div className="fuell" />}
+      {zurueck && <div style={{ alignSelf: 'stretch', margin: '0 -12px' }}><KopfZurueck titel={kopf ?? ''} zurueck={zurueck} /></div>}
+      {/* Der freie Platz liegt oben: mit Logo fuellt es ihn, ohne bleibt er leer. Titel und Punkte stehen dicht ueber den Tasten.
+          Mit `oben` steht alles oben, und der freie Platz liegt ueber den Tasten. */}
+      {oben ? <div className="pin-oben">{oben}</div> : logo ? <div className="logo-platz"><Muenze groesse="mittel" /></div> : <div className="fuell" />}
       <h1>{titel}</h1>
       {unter && <p className="unter">{unter}</p>}
       <div className={`punkte ${stand === 'gut' ? 'gut' : ''} ${stand === 'falsch' ? 'falsch' : ''}`} role="img" aria-label={t.pin.stellen(pin.length)}>
@@ -484,6 +474,7 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck }: {
       <div className="fehlertext" role="alert" style={{ textAlign: 'center' }}>
         {warten > 0 ? t.pin.gebremst(warten) : stand === 'prueft' ? <span style={{ color: 'var(--leise)' }}>{t.pin.pruefe}</span> : fehler}
       </div>
+      {oben && <div className="fuell" />}
       <div className="tasten">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(z =>
           <button key={z} type="button" className="taste sinkt" disabled={gesperrt} onClick={() => tipp(z)}>{z}</button>)}

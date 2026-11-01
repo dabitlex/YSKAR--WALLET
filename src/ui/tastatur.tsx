@@ -311,6 +311,45 @@ function Tastatur({ art, wert, onTaste, leiste, weiter, gross, onEinfuegen, onZu
   );
 }
 
+/* ------------------------------------------------------------ Ziffernfeld */
+
+/**
+ * Ein Ziffernfeld fest in der Seite (Senden, Betrag), statt der Tastatur am
+ * Rand. Dieselben Tasten wie dort, ohne Vibration: Normale Eingaben geben
+ * keine Rueckmeldung (Haptik-Regel). Eine angeschlossene Tastatur tippt mit,
+ * solange keine andere Tastatur der App offen ist.
+ */
+export function Ziffernfeld({ onTaste, label }: { onTaste: (taste: string) => void; label: string }) {
+  const t = useT();
+  const tast = useContext(Ctx);
+  const zeichen = dezimalZeichen(t.code);
+  const jetzt = useRef({ onTaste, zeichen, frei: tast.aktiv === null });
+  jetzt.current = { onTaste, zeichen, frei: tast.aktiv === null };
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      const j = jetzt.current;
+      if (!j.frei || e.ctrlKey || e.metaKey || e.altKey) return;
+      const z = e.key === 'Backspace' ? LOESCHEN : e.key.length === 1 ? vonAussen('ziffern', e.key, j.zeichen) : null;
+      if (z === null) return;
+      e.preventDefault();
+      j.onTaste(z);
+    };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+  const taste = (z: string) => <Taste key={z} zeige={z} onDruck={() => onTaste(z)} />;
+  return (
+    <div className="ziffernfeld" role="group" aria-label={label}>
+      {['123', '456', '789'].map(r => <div key={r} className="treihe">{[...r].map(taste)}</div>)}
+      <div className="treihe">
+        <Taste zeige={zeichen} label={t.tast.trennzeichen} onDruck={() => onTaste(zeichen)} />
+        {taste('0')}
+        <Taste wiederholt label={t.tast.loeschen} zeige={<S n="weg" g={24} w={1.8} />} onDruck={() => onTaste(LOESCHEN)} />
+      </div>
+    </div>
+  );
+}
+
 /*
   Eine Taste loest beim Beruehren aus, nicht erst beim Loslassen. Den Klick,
   den der Browser nach dem Loslassen nachschickt, darf dann nichts mehr

@@ -318,17 +318,6 @@ h1,h2,p{margin:0}
 .auswahlzeile > svg{color:var(--blass);flex-shrink:0}
 
 /* ---------- Senden ---------- */
-.an-feld{display:flex;align-items:center;gap:10px;min-height:56px;padding:0 7px 0 16px;border-radius:18px;background:var(--karte);border:1px solid var(--rand-hell);flex-shrink:0}
-.an-feld.aktiv{border-color:rgba(99,216,255,.55);box-shadow:none}
-.an-feld > span.wort-an{font-family:var(--ziffern);font-size:13px;font-weight:500;color:var(--blau-hell);flex-shrink:0}
-.an-feld .tippfeld{flex:1;min-width:0;min-height:44px;padding:6px 0;font-size:14px;line-height:1.7;display:flex;flex-wrap:wrap;align-items:center;gap:0 9px}
-.an-chip{display:inline-flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:999px;border:1px solid rgba(99,216,255,.3);background:rgba(47,123,255,.14);color:var(--text);font-size:14px;font-weight:500;flex-shrink:0}
-.an-chip svg{color:var(--leise)}
-.zuletzt{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px;flex-shrink:0}
-.zuletzt::-webkit-scrollbar{display:none}
-.zuletzt button{display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:transparent;padding:0;flex-shrink:0;width:60px;font-size:12px;font-weight:400;color:var(--lesen)}
-.zuletzt button span.name{max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.zuletzt .neu{width:48px;height:48px;border-radius:50%;border:1.5px dashed var(--rand-hell);display:flex;align-items:center;justify-content:center;color:var(--leise)}
 .betragblock{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 0;flex-shrink:0}
 .betragblock .oben{display:flex;align-items:baseline;gap:10px;max-width:100%}
 .betragblock .oben > span{font-size:18px;font-weight:500;color:var(--leise)}
@@ -339,9 +328,6 @@ h1,h2,p{margin:0}
 .betragblock .unten{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--leise)}
 .betragblock .unten b{font-family:var(--ziffern);font-weight:400;color:var(--lesen)}
 .betragblock .alles{height:26px;padding:0 10px;border-radius:999px;border:1px solid rgba(99,216,255,.35);background:rgba(99,216,255,.12);color:var(--blau-hell);font-family:var(--ziffern);font-size:11px;font-weight:500;letter-spacing:.08em}
-.notizknopf{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;padding:0;color:var(--blass);font-size:13px;font-weight:500;min-height:28px;align-self:center}
-.gebuehrzeile{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 8px;font-size:13px;color:var(--leise);text-align:center;flex-shrink:0}
-.gebuehrzeile b{font-family:var(--ziffern);font-weight:400;color:var(--lesen);white-space:nowrap}
 .mitte-block{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0 2px;flex-shrink:0}
 .mitte-block > small{font-size:15px;font-weight:500;color:var(--leise)}
 .paar{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:14px 0;border-bottom:1px solid var(--linie);font-size:14px}
@@ -383,21 +369,7 @@ h1,h2,p{margin:0}
 .pille.blau{background:rgba(99,216,255,.1);border-color:rgba(99,216,255,.35);color:var(--blau-hell)}
 .pille.rot{background:rgba(255,107,107,.12);border-color:rgba(255,107,107,.35);color:var(--rot)}
 .pille i{width:6px;height:6px;border-radius:50%;background:currentColor}
-.anwen{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--leise)}
-.anwen .ziffern{color:var(--text);font-size:18px;font-weight:500}
-.anwen b{color:var(--text);font-weight:500}
 /* Drei Stufen nebeneinander (Gesendet). */
-.stufenleiste{display:flex;align-self:stretch;flex-shrink:0;padding:0 8px}
-.stufenleiste > div{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--leise)}
-.stufenleiste > div.an{color:var(--text)}
-.stufenleiste .reihe{display:flex;align-items:center;align-self:stretch}
-.stufenleiste .reihe i{flex:1;height:2px;background:var(--rand-hell)}
-.stufenleiste .reihe i.voll{background:var(--gruen-voll)}
-.stufenleiste .reihe i.unsichtbar{opacity:0}
-.stufenleiste .punkt{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.stufenleiste .punkt.fertig{background:var(--gruen-voll);color:#fff}
-.stufenleiste .punkt.dran{border:3px solid var(--bern);animation:puls 1.4s ease-in-out infinite}
-.stufenleiste .punkt.offen{border:2px solid var(--rand-hell)}
 /* Stufen untereinander (Detail). */
 .stufen{padding:16px 18px}
 .stufe{display:flex;gap:14px}
@@ -468,7 +440,7 @@ h1,h2,p{margin:0}
 .feld.tippfeld{white-space:pre-wrap;overflow-wrap:anywhere}
 .feld.tippfeld.aktiv,.feld-huelle.aktiv,.suche .tippfeld.aktiv{box-shadow:inset 0 0 0 1.5px rgba(99,216,255,.55)}
 .feld-huelle .tippfeld{flex:1;min-width:0;min-height:44px;padding:6px 0;font-size:14px;line-height:1.7;display:flex;flex-wrap:wrap;align-items:center;gap:0 9px}
-.feld-huelle .tippfeld span + .strich,.an-feld .tippfeld span + .strich{margin-left:-8px}
+.feld-huelle .tippfeld span + .strich{margin-left:-8px}
 .suche .tippfeld{min-height:48px;border-radius:24px;padding:12px 16px 12px 46px;font-size:15px;line-height:22px;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--karte)}
 .wort.tippfeld{border:1.5px solid transparent;overflow:hidden}
 .wort.tippfeld.aktiv{border-color:rgba(99,216,255,.55)}
@@ -666,3 +638,134 @@ div.ez:active{background:transparent}
   .ziffernblock,.ziffernblock .treihe{gap:6px}
   .kopf h1{font-size:28px;line-height:34px}
 }
+
+/* ---------- Senden (Designsystem 4.2, Phase B1) ---------- */
+.seite.sf{gap:0}
+.sf-kopf{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;flex-shrink:0}
+.sf-mitte{flex:1;min-width:0;display:flex;justify-content:center}
+.sf-titel{font-size:13px;line-height:18px;font-weight:500;color:var(--leise)}
+.sf-platz{width:44px;flex-shrink:0}
+.schritte{width:44px;display:flex;gap:3px;justify-content:flex-end;flex-shrink:0}
+.schritte i{width:12px;height:3px;background:rgba(238,242,248,.16);clip-path:polygon(0 50%,100% 0,100% 100%)}
+.schritte i.an{background:linear-gradient(90deg,var(--blau-hell),var(--blau) 60%,var(--blau-tief))}
+.sf-chip{display:inline-flex;align-items:center;gap:8px;height:36px;max-width:100%;padding:0 14px 0 5px;border-radius:18px;background:var(--glas);box-shadow:inset 0 0 0 1px var(--rand);font-size:13.5px;color:var(--text);min-width:0}
+.sf-chip .bild{border-radius:13px}
+.sf-chip-zeichen{width:26px;height:26px;border-radius:13px;background:var(--glas2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sf-chip-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.sf-chip .mono{font-size:11.5px;flex-shrink:0}
+.leise{color:var(--leise)}
+.sf-lab{font-size:13px;line-height:18px;font-weight:500;color:var(--leise)}
+.sf-xs{font-size:12.5px;line-height:17px;color:var(--blass)}
+.sf-xs.mittig{text-align:center;margin-bottom:6px}
+.sf-klein{display:block;font-size:13px;line-height:18px;color:var(--leise)}
+.sf-link{background:none;border:0;padding:0;color:var(--blau-hell);font:500 13px var(--schrift);display:inline-flex;align-items:center;gap:6px}
+/* 1 -- An wen? */
+.sf-t1{font-size:30px;line-height:36px;font-weight:500;letter-spacing:-.022em;margin-top:22px}
+.sf-adressfeld{margin-top:18px;min-height:56px;border-radius:28px;padding:8px 20px;display:flex;align-items:center;background:var(--glas);box-shadow:inset 0 0 0 1px var(--rand);flex-shrink:0}
+.sf-adressfeld.aktiv{box-shadow:inset 0 0 0 1.5px rgba(99,216,255,.55)}
+.sf-adressfeld .tippfeld{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;column-gap:7px;row-gap:2px;font-family:var(--mono);font-size:15px;line-height:22px;min-height:22px;outline:none}
+.sf-adressfeld .tippfeld .platz{color:var(--blass)}
+.sf-adressfeld .tippfeld span + .strich{margin-left:-7px}
+.sf-meldungan{margin:10px 4px 0}
+.sf-wege{margin-top:10px}
+.sf-wege .knopf{gap:8px}
+.sf-weiter-an{margin-top:12px;flex-shrink:0}
+.sf-abschnitt{margin:30px 0 4px;flex-shrink:0}
+.sf-kontakte{display:flex;flex-direction:column;margin:0 -16px;flex-shrink:0}
+.sf-kontakte .zeile{border-bottom:0;border-radius:16px}
+.sf-kontakte .zeile .mono{font-size:12.5px}
+/* 2 -- Betrag */
+.sf-betrag{display:flex;flex-direction:column;align-items:center;margin-top:40px;flex-shrink:0;min-width:0}
+.sf-eingabe{margin-top:10px;display:flex;align-items:center;max-width:100%;font-size:80px;line-height:82px;font-weight:400;font-stretch:90%;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sf-eingabe .leer{color:var(--blass)}
+.sf-eingabe .strich{height:56px;width:2px;margin-left:4px;vertical-align:middle}
+.sf-eingabe.l1{font-size:64px;line-height:82px}.sf-eingabe.l2{font-size:50px;line-height:82px}.sf-eingabe.l3{font-size:38px;line-height:82px}
+.sf-einheit{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:13px;font-weight:500;letter-spacing:.04em;color:var(--leise)}
+.sf-verfuegbar{margin-top:16px;font-size:13px;line-height:18px;color:var(--leise)}
+.sf-verfuegbar b{font-weight:400;color:var(--text)}
+.sf-meldung{margin-top:8px}
+.sf-gebuehr{margin-top:30px;flex-shrink:0}
+.sf-gebuehrkopf{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 4px 8px}
+.sf-stufen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:20px;background:var(--glas);box-shadow:inset 0 0 0 1px var(--rand)}
+.sf-stufen button{height:56px;border-radius:16px;border:0;background:transparent;color:var(--leise);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:500 14px var(--schrift);padding:0 4px;min-width:0;
+  transition:scale .15s var(--kurve),background-color .15s var(--kurve)}
+.sf-stufen button small{font-size:12.5px;font-weight:400;color:var(--blass);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sf-stufen button[aria-checked="true"]{background:rgba(47,123,255,.14);color:var(--text);box-shadow:inset 0 0 0 1px rgba(99,216,255,.4)}
+.sf-stufen button[aria-checked="true"] small{color:var(--blau-hell)}
+.sf-ohne{display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:20px;background:var(--glas);box-shadow:inset 0 0 0 1px var(--rand);font-size:13px;color:var(--leise)}
+.sf-ohne b{font-size:15px;font-weight:500;color:var(--text)}
+.sf-notizlink{align-self:center;margin-top:14px;flex-shrink:0;min-height:32px}
+.sf-notizfeld{margin-top:16px;display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.sf-notizfeld .sf-gebuehrkopf{margin-bottom:0}
+.ziffernfeld{display:flex;flex-direction:column;gap:0;flex-shrink:0}
+.ziffernfeld .treihe{gap:0}
+.ziffernfeld .ttaste{height:58px;border-radius:18px;background:transparent;box-shadow:none;font-size:26px;font-weight:400;font-variant-numeric:tabular-nums;transform:none}
+.ziffernfeld .ttaste:active,.ziffernfeld .ttaste.unten{background:rgba(255,255,255,.06);transform:none}
+.sf-weiter{margin-top:10px;flex-shrink:0}
+/* 3 -- Pruefen */
+.sf-empfaenger{display:flex;flex-direction:column;align-items:center;margin-top:26px;flex-shrink:0;min-width:0}
+.sf-empfaenger .bild{border-radius:18px}
+.sf-kachel{width:52px;height:52px;border-radius:18px}
+.sf-wer{margin-top:12px;font-size:16px;font-weight:500;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sf-zahl{font-weight:400;font-stretch:90%;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sf-zahl .nk{color:var(--blass);letter-spacing:-.01em}
+.sf-zahl.pruefen{margin-top:8px;font-size:60px;line-height:62px}.sf-zahl.pruefen .nk{font-size:28px}
+.sf-zahl.mittel{display:block;font-size:44px;line-height:46px}.sf-zahl.mittel .nk{font-size:22px}
+.sf-linien{margin-top:24px}
+.sf-linie{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:15px 18px;font-size:15px}
+.sf-linie + .sf-linie{box-shadow:inset 0 1px 0 var(--linie)}
+.sf-linie > span:first-child{color:var(--leise);font-size:14px;flex-shrink:0}
+.sf-linie > :last-child{text-align:right;min-width:0}
+.sf-linie.oben{align-items:flex-start}
+.sf-linie.summe > span{color:var(--text) !important;font-weight:500}
+.sf-adresse{max-width:170px;justify-content:flex-end;font-family:var(--mono);font-size:13px;line-height:20px}
+.sf-notiz{overflow-wrap:anywhere}
+.sf-empfaenger + .sf-linien + .hinweis,.sf-linien + .hinweis{margin-top:16px}
+.seite.sf .kasten{margin-top:14px}
+.sf-hinweis{margin:16px 4px 0;font-size:13px;line-height:18px;color:var(--leise)}
+.seite.sf .schieber{flex-shrink:0}
+/* Uebermittelt / Nicht gesendet */
+.sf-statuskopf{display:flex;align-items:center;gap:18px;margin-top:22px;flex-shrink:0;min-width:0}
+.sf-statuskopf > svg{flex-shrink:0}
+.sf-statuskopf > span{min-width:0}
+.sf-schritte{margin-top:22px;padding:2px 18px}
+.sf-schritt{display:flex;gap:14px;padding:11px 0;box-shadow:inset 0 -1px 0 var(--linie)}
+.sf-schritt:last-child{box-shadow:none}
+.sf-schritt > i{width:18px;height:4px;margin-top:9px;flex-shrink:0;background:rgba(238,242,248,.16);clip-path:polygon(0 50%,100% 0,100% 100%)}
+.sf-schritt.erledigt > i{background:var(--blau-hell)}.sf-schritt.wartet > i{background:var(--bern)}.sf-schritt.fehler > i{background:var(--rot)}
+.sf-schritt > span{flex:1;min-width:0;display:flex;flex-direction:column}
+.sf-schritt b{font-weight:500;color:var(--text)}
+.sf-schritt.offen b{color:var(--blass)}
+.sf-schritt b + span{font-size:13px;line-height:18px;color:var(--leise)}
+.sf-fuss{margin:12px 4px 0;font-size:12.5px;line-height:17px;color:var(--blass)}
+.sf-fertig{min-height:52px;font-size:15px}
+.paar-knoepfe .knopf{gap:8px}
+.sf-fehlerkopf{display:flex;flex-direction:column;align-items:center;margin-top:40px;text-align:center;flex-shrink:0}
+.sf-warnkachel{width:64px;height:64px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:rgba(255,143,132,.1);color:var(--rot)}
+.sf-warnkachel.bern{background:rgba(245,190,107,.1);color:var(--bern)}
+.sf-fehlerkopf h1{margin-top:20px;font-size:30px;line-height:36px;font-weight:500;letter-spacing:-.022em}
+.sf-fehlerkopf p{margin-top:8px;max-width:300px;font-size:15px;line-height:22px;color:var(--leise)}
+.sf-fehlerkopf + .sf-schritte{margin-top:28px}
+/* PIN beim Senden: Chip oben */
+.pinseite .pin-oben{display:flex;justify-content:center;margin-top:20px;max-width:100%}
+@media (max-height:780px){
+  .sf-t1{margin-top:12px;font-size:28px;line-height:34px}
+  .sf-betrag{margin-top:16px}
+  .sf-eingabe{font-size:64px;line-height:66px}
+  .sf-eingabe.l1{font-size:54px;line-height:66px}.sf-eingabe.l2{font-size:44px;line-height:66px}.sf-eingabe.l3{font-size:34px;line-height:66px}
+  .sf-eingabe .strich{height:46px}
+  .sf-verfuegbar{margin-top:10px}
+  .sf-gebuehr{margin-top:16px}
+  .sf-stufen button{height:50px}
+  .ziffernfeld .ttaste{height:46px;font-size:23px}
+  .sf-empfaenger{margin-top:12px}
+  .sf-zahl.pruefen{font-size:52px;line-height:54px}
+  .sf-linien{margin-top:16px}
+  .sf-linie{padding-top:12px;padding-bottom:12px}
+  .sf-statuskopf{margin-top:12px}
+  .sf-schritte{margin-top:14px}
+  .sf-schritt{padding:8px 0}
+  .sf-fehlerkopf{margin-top:20px}
+  .sf-abschnitt{margin-top:20px}
+}
+.pinseite .kopf-zurueck h1{font-size:13px;line-height:18px;font-weight:500;letter-spacing:0;color:var(--leise);text-align:center;padding-right:56px}
