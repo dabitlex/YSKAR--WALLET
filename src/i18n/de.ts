@@ -13,11 +13,9 @@ export const de = {
   willkommen: {
     titel1: 'Deine YSR.', titel2: 'Dein Schlüssel.',
     text: 'Diese Wallet entsteht auf deinem Gerät. Senden, empfangen und den Verlauf im Blick behalten, mehr braucht es nicht.',
-    neu: 'Neue Wallet erstellen', wieder: 'Wallet wiederherstellen',
-    kurz: 'Erstelle eine neue Wallet oder hole deine bestehende mit 12 Wörtern zurück.',
-    los: 'Los geht’s', habe: 'Ich habe schon eine Wallet',
+    neu: 'Neue Wallet erstellen',
+    habe: 'Ich habe schon eine Wallet',
     fuss: 'Deine Schlüssel bleiben auf diesem Gerät. Niemand von YSKAR hat Zugriff.',
-    wahl: 'Wallet hinzufügen', neuText: 'Neuer Schlüssel, neue 12 Wörter', wiederText: 'Mit deinen 12 Wörtern',
     fertigTitel: 'Deine Wallet ist bereit', fertigText: 'Schlüssel gesichert, PIN gesetzt. Du kannst jetzt YSR empfangen und senden.',
     zurWallet: 'Zur Wallet',
   },
@@ -41,7 +39,7 @@ export const de = {
     pruefe: 'Wird geprüft …',
   },
   woerter: {
-    titel: 'Schreib dir diese 12 Wörter auf',
+    kopf: 'Neue Wallet', titel: 'Schreib dir diese 12 Wörter auf',
     text: 'Auf Papier, in dieser Reihenfolge. Mit ihnen stellst du deine Wallet auf jedem Gerät wieder her.',
     zeigen: 'Wörter anzeigen', verbergen: 'Wörter verbergen',
     warnStark: 'Wer die 12 Wörter hat, hat das Guthaben.',
@@ -55,8 +53,8 @@ export const de = {
     ansehen: 'Deine 12 Wörter',
   },
   wieder: {
-    titel: 'Wallet wiederherstellen',
-    text: 'Tippe deine 12 Wörter in der richtigen Reihenfolge ein. Nach den ersten Buchstaben schlägt die App das Wort vor.',
+    kopf: 'Wiederherstellen', titel: 'Deine 12 Wörter',
+    text: 'In der Reihenfolge von deinem Zettel. Die Eingabe läuft über die Tastatur der Wallet, nicht über die des Telefons.',
     unbekannt: (n: number) => `Wort ${n} steht nicht in der Wortliste. Prüfe die Schreibweise.`,
     leeren: 'Alle leeren', einfuegen: 'Einfügen',
     feld: 'Deine 12 Wörter',

@@ -7,7 +7,8 @@ import { bioStand, bioEinschalten, bioAusschalten } from '../wallet/biometrie.ts
 import { einfuegen, sichtschutz } from '../geraet/geraet.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { LOESCHEN, tippeWort, wortVorschlaege, istWort, woerterAusText } from '../wallet/tasten.ts';
-import { S, KopfZurueck, Blatt, PinFeld, Muenze, Vierer, useZurueck, type PinAntwort } from '../ui/teile.tsx';
+import { S, Kasten, PinFeld, Schritte, Vierer, useZurueck, type PinAntwort } from '../ui/teile.tsx';
+import { YMarke } from '../ui/zeichen.tsx';
 import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
 type Schritt = 'willkommen' | 'wahl' | 'woerter' | 'pruefen' | 'eingabe' | 'pin' | 'pinNochmal' | 'bio' | 'fertig';
@@ -95,45 +96,26 @@ export function Einstieg() {
 
   if (schritt === 'willkommen' || schritt === 'wahl') {
     return (
-      <div className="seite" style={{ paddingTop: 'calc(var(--oben) + 12px)' }}>
-        <div className="schein" aria-hidden="true" style={{ top: 'calc(var(--oben) + 60px)', opacity: .26 }} />
-        <button type="button" className="sprachknopf sinkt" onClick={() => einstellen({ sprache: sprachCode(sprache) === 'de' ? 'en' : 'de' })}>
-          <S n="welt" g={16} /><span>{sprachCode(sprache) === 'de' ? 'Deutsch' : 'English'}</span>
-        </button>
-        <div className="fuell" />
-        <div className="hero"><Muenze /></div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-          <h1 className="gross-titel mittig">{t.willkommen.titel1}<span className="lt">{t.willkommen.titel2}</span></h1>
-          <p className="fliess mittig" style={{ maxWidth: 330 }}>{t.willkommen.kurz} {t.willkommen.fuss}</p>
+      <div className="seite sf ew">
+        <div className="ew-oben">
+          <button type="button" className="sprachknopf sinkt" onClick={() => einstellen({ sprache: sprachCode(sprache) === 'de' ? 'en' : 'de' })}>
+            <S n="welt" g={16} w={1.6} /><span>{sprachCode(sprache) === 'de' ? 'Deutsch' : 'English'}</span>
+          </button>
         </div>
+        <div className="ew-marke"><YMarke g={56} farbe="var(--blau-hell)" /></div>
+        <h1 className="ew-titel">{t.willkommen.titel1}<span>{t.willkommen.titel2}</span></h1>
+        <p className="ew-text">{t.willkommen.text}</p>
+        <span className="band-linie ew-band" aria-hidden="true" />
         <div className="fuell" />
-        <div className="stapel">
-          <button type="button" className="knopf hell sinkt" onClick={() => setSchritt('wahl')}><span>{t.willkommen.los}</span><span className="pfeilkreis"><S n="weiter" g={14} w={2.6} /></span></button>
-          <button type="button" className="knopf zweit sinkt" onClick={wiederStarten}>{t.willkommen.habe}</button>
-        </div>
-        <p className="fuss motto">proof, not promise</p>
-        {schritt === 'wahl' && (
-          <Blatt titel={t.willkommen.wahl} onZu={() => setSchritt('willkommen')}>
-            <div className="stapel">
-              <button type="button" className="auswahlzeile sinkt" onClick={neuStarten}>
-                <span className="kachel aus"><S n="plus" g={22} w={2.2} /></span>
-                <span className="worte"><b>{t.willkommen.neu}</b><small>{t.willkommen.neuText}</small></span>
-                <S n="weiter" g={18} w={2.2} />
-              </button>
-              <button type="button" className="auswahlzeile sinkt" onClick={wiederStarten}>
-                <span className="kachel ein"><S n="einfuegen" g={22} /></span>
-                <span className="worte"><b>{t.willkommen.wieder}</b><small>{t.willkommen.wiederText}</small></span>
-                <S n="weiter" g={18} w={2.2} />
-              </button>
-            </div>
-          </Blatt>
-        )}
+        <button type="button" className="knopf sinkt" onClick={neuStarten}>{t.willkommen.neu}</button>
+        <button type="button" className="knopf zweit sinkt ew-zweit" onClick={wiederStarten}>{t.willkommen.habe}</button>
+        <p className="ew-fuss"><S n="schloss" g={15} w={1.6} />{t.willkommen.fuss}</p>
       </div>
     );
   }
 
   if (schritt === 'pin') {
-    return <PinFeld key="pin" titel={t.pin.festlegen} unter={t.pin.festlegenText} zurueck={() => setSchritt(weg === 'neu' ? 'pruefen' : 'eingabe')}
+    return <PinFeld key="pin" kopf={weg === 'neu' ? t.woerter.kopf : t.wieder.kopf} titel={t.pin.festlegen} unter={t.pin.festlegenText} zurueck={() => setSchritt(weg === 'neu' ? 'pruefen' : 'eingabe')}
       onPin={async (p): Promise<PinAntwort> => {
         if (schwach(p)) return { fehler: t.pin.schwach };
         setPin(p); setTimeout(() => setSchritt('pinNochmal'), 250);
@@ -142,7 +124,7 @@ export function Einstieg() {
   }
 
   if (schritt === 'pinNochmal') {
-    return <PinFeld key="nochmal" titel={t.pin.wiederholen} unter={t.pin.wiederholenText} zurueck={() => setSchritt('pin')}
+    return <PinFeld key="nochmal" kopf={weg === 'neu' ? t.woerter.kopf : t.wieder.kopf} titel={t.pin.wiederholen} unter={t.pin.wiederholenText} zurueck={() => setSchritt('pin')}
       onPin={async (p): Promise<PinAntwort> => {
         if (p !== pin) { setTimeout(() => setSchritt('pin'), 1400); return { fehler: t.pin.ungleich }; }
         setTimeout(nachPin, 250);
@@ -152,15 +134,13 @@ export function Einstieg() {
 
   if (schritt === 'woerter') {
     return (
-      <div className="seite">
-        <KopfZurueck zurueck={anfang} titel="" />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
-          <h1 className="titel2 mittig">{t.woerter.titel}</h1>
-          <p className="fliess mittig" style={{ fontSize: 15, maxWidth: 340 }}>{t.woerter.text}</p>
-        </div>
+      <div className="seite sf ew">
+        <Kopfzeile titel={t.woerter.kopf} zurueck={anfang} rechts={<Schritte n={1} label={t.senden.schritt(1)} />} />
+        <h1 className="sf-t1">{t.woerter.titel}</h1>
+        <p className="ew-unter">{t.woerter.text}</p>
         <Wortkarte woerter={woerter} offen={offen} umschalten={() => setOffen(o => !o)} />
+        <div className="ew-warn"><Kasten art="warn" symbol="warnung"><b>{t.woerter.warnStark}</b><br /><span className="leise">{t.woerter.warnText}</span></Kasten></div>
         <div className="fuell" />
-        <div className="hinweis bern"><S n="warnung" g={18} /><div><strong style={{ color: 'var(--lesen)' }}>{t.woerter.warnStark}</strong> {t.woerter.warnText}</div></div>
         <button type="button" className="knopf sinkt" disabled={!offen} onClick={() => { setOffen(false); setSchritt('pruefen'); }}>{t.woerter.weiter}</button>
       </div>
     );
@@ -172,31 +152,27 @@ export function Einstieg() {
 
   if (schritt === 'eingabe') {
     return (
-      <div className="seite">
-        <KopfZurueck zurueck={anfang} titel="" />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
-          <h1 className="titel2 mittig">{t.wieder.titel}</h1>
-          <p className="fliess mittig" style={{ fontSize: 15, maxWidth: 340 }}>{t.wieder.text}</p>
+      <div className="seite sf ew">
+        <Kopfzeile titel={t.wieder.kopf} zurueck={anfang} rechts={<span className="ew-zaehler ziffern" aria-label={t.wieder.zaehler(anzahl)}>{anzahl}/12</span>} />
+        <h1 className="sf-t1">{t.wieder.titel}</h1>
+        <p className="ew-unter">{t.wieder.text}</p>
+        <div className="ew-woerter">
+          {/* Fertige Woerter verdeckt (4.2). Ergeben alle 12 keine gueltige Wallet, wieder offen -- sonst sieht man den Fehler nicht. */}
+          <Wortfelder kennung="w" werte={eingabe} nummern={eingabe.map((_, i) => i + 1)} auto verdeckt={!(anzahl === 12 && !gueltig)}
+                      setze={(i, w) => setEingabe(e => e.map((x, j) => (j === i ? w : x)))} />
         </div>
-        <div className="feldgruppe">
-          <div className="feldkopf"><span className="feldname">{t.wieder.feld}</span><small>{t.wieder.zaehler(anzahl)}</small></div>
-          <div className="karte" style={{ padding: 12, gap: 12, borderRadius: 24 }}>
-            <Wortfelder kennung="w" werte={eingabe} nummern={eingabe.map((_, i) => i + 1)} auto
-                        setze={(i, w) => setEingabe(e => e.map((x, j) => (j === i ? w : x)))} />
-            <div className="paar-knoepfe">
-              <button type="button" className="tonknopf sinkt" onClick={async () => { const x = await einfuegen(); if (x.trim()) setEingabe(woerterAusText(x, 12)); }}>
-                <S n="einfuegen" g={19} /><span>{t.wieder.einfuegen}</span>
-              </button>
-              <button type="button" className="tonknopf grau sinkt" disabled={anzahl === 0} onClick={() => setEingabe(Array<string>(12).fill(''))}>{t.wieder.leeren}</button>
-            </div>
-          </div>
-          <div className="fehlertext" role="alert">{wortFehler(eingabe, tast.aktiv, 'w', t) ?? (anzahl === 12 && !gueltig ? t.wieder.ungueltig : '')}</div>
+        <div className="paar-knoepfe ew-knoepfe">
+          <button type="button" className="knopf zweit sinkt" onClick={async () => { const x = await einfuegen(); if (x.trim()) setEingabe(woerterAusText(x, 12)); }}>
+            <S n="einfuegen" g={18} w={1.6} /><span>{t.wieder.einfuegen}</span>
+          </button>
+          <button type="button" className="knopf zweit sinkt" disabled={anzahl === 0} onClick={() => setEingabe(Array<string>(12).fill(''))}>{t.wieder.leeren}</button>
         </div>
+        <div className="fehlertext" role="alert">{wortFehler(eingabe, tast.aktiv, 'w', t) ?? (anzahl === 12 && !gueltig ? t.wieder.ungueltig : '')}</div>
         {adresse && (
-          <div className="karte innen" style={{ padding: '14px 18px', gap: 6 }}>
-            <div className="etikett">{t.wieder.adresse}</div>
-            <Vierer adresse={adresse} />
-            <div style={{ fontSize: 13, color: 'var(--leise)' }}>{t.wieder.adresseText}</div>
+          <div className="karte ew-adresse">
+            <span className="sf-lab">{t.wieder.adresse}</span>
+            <Vierer adresse={adresse} klasse="mono" />
+            <span className="sf-klein">{t.wieder.adresseText}</span>
           </div>
         )}
         <div className="fuell" />
@@ -207,8 +183,8 @@ export function Einstieg() {
 
   if (schritt === 'bio') {
     return (
-      <div className="seite">
-        <KopfZurueck zurueck={() => setSchritt('pin')} titel="" />
+      <div className="seite sf ew">
+        <Kopfzeile titel={weg === 'neu' ? t.woerter.kopf : t.wieder.kopf} zurueck={() => setSchritt('pin')} />
         <div className="fuell" />
         <div className="grosskreis"><S n="finger" g={68} w={1.6} /></div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
@@ -247,22 +223,38 @@ export function Einstieg() {
   );
 }
 
-/** Die 12 Woerter in zwei Spalten. Zuerst verdeckt -- der Blick muss gewollt sein. */
+/**
+ * Die 12 Woerter in zwei Spalten. Zuerst verdeckt -- der Blick muss gewollt sein (4.2:
+ * graue Balken, in der Mitte "Woerter anzeigen").
+ */
 export function Wortkarte({ woerter, offen, umschalten }: { woerter: string[]; offen: boolean; umschalten: () => void }) {
   const t = useT();
+  const breiten = [58, 44, 66, 52, 40, 60, 48, 70, 54, 46, 62, 50];
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div className="wortliste">
+    <div className={`karte wortkarte ${offen ? 'offen' : ''}`}>
+      <div className="wortliste" aria-hidden={!offen}>
         {woerter.map((w, i) => (
           <div key={i}>
-            <small>{i + 1}.</small>
-            <b className={offen ? undefined : 'zu'}>{offen ? w : '••••'}</b>
+            <small className="ziffern">{i + 1}</small>
+            {offen ? <b className="mono">{w}</b> : <i style={{ width: breiten[i % 12] }} />}
           </div>
         ))}
       </div>
-      <button type="button" className="tonknopf sinkt" aria-pressed={offen} onClick={umschalten}>
-        <S n={offen ? 'augeZu' : 'auge'} g={19} /><span>{offen ? t.woerter.verbergen : t.woerter.zeigen}</span>
+      <button type="button" className={`wortkarte-knopf sinkt ${offen ? 'unten' : ''}`} aria-pressed={offen} onClick={umschalten}>
+        <S n={offen ? 'augeZu' : 'auge'} g={18} w={1.6} /><span>{offen ? t.woerter.verbergen : t.woerter.zeigen}</span>
       </button>
+    </div>
+  );
+}
+
+/** Kopfzeile der Einrichtung: Zurueck, Titel in der Mitte, rechts Schritte oder Zaehler. */
+function Kopfzeile({ titel, zurueck, rechts }: { titel: string; zurueck: () => void; rechts?: React.ReactNode }) {
+  const t = useT();
+  return (
+    <div className="sf-kopf">
+      <button type="button" className="klein sinkt" aria-label={t.allg.zurueck} onClick={zurueck}><S n="zurueck" w={2.2} /></button>
+      <div className="sf-mitte"><span className="sf-titel">{titel}</span></div>
+      {rechts ?? <span className="sf-platz" />}
     </div>
   );
 }
@@ -278,8 +270,12 @@ function wortFehler(werte: string[], aktiv: string | null, kennung: string, t: R
  * der App: nur a-z, mit Vorschlaegen aus der Wortliste. Ist ein Wort
  * eindeutig fertig, geht es von selbst ins naechste leere Feld.
  */
-function Wortfelder({ kennung, werte, nummern, setze, auto, einspaltig }: {
+function Wortfelder({ kennung, werte, nummern, setze, auto, einspaltig, verdeckt, richtig }: {
   kennung: string; werte: string[]; nummern: number[]; setze: (i: number, wort: string) => void; auto?: boolean; einspaltig?: boolean;
+  /** Fertige Woerter verdecken, solange nicht an ihnen getippt wird (4.2). Unbekannte bleiben sichtbar und rot. */
+  verdeckt?: boolean;
+  /** Pruefung: stimmt das Wort an dieser Stelle? null = noch nicht fertig. */
+  richtig?: (i: number, wort: string) => boolean | null;
 }) {
   const t = useT();
   const tast = useTastatur();
@@ -297,10 +293,15 @@ function Wortfelder({ kennung, werte, nummern, setze, auto, einspaltig }: {
         const id = `${kennung}${i}`;
         const dran = tast.aktiv === id;
         const vorschlaege = dran ? wortVorschlaege(w, 4) : [];
+        const stimmt = !dran && w && richtig ? richtig(i, w) : null;
+        const zu = !dran && istWort(w) && (verdeckt || stimmt === true);
         return (
-          <Tippfeld key={id} id={id} art="wort" klasse="wort" label={t.woerter.wort(nummern[i])} wert={w} auto={auto && i === 0 && werte.every(x => x === '')}
-                    vor={<small>{String(nummern[i]).padStart(2, '0')}</small>}
-                    zeige={<b className={!dran && !istWort(w) ? 'falsch' : undefined}>{w}</b>}
+          <Tippfeld key={id} id={id} art="wort" klasse={`wort ${zu ? 'fertig' : ''}`} label={t.woerter.wort(nummern[i])} wert={w} auto={auto && i === 0 && werte.every(x => x === '')}
+                    vor={<small className="ziffern">{einspaltig ? t.woerter.wort(nummern[i]) : nummern[i]}</small>}
+                    zeige={<>
+                      <b className={`mono ${(!dran && !istWort(w)) || stimmt === false ? 'falsch' : ''}`}>{zu ? '••••' : w}</b>
+                      {stimmt === true && <span className="wort-gut"><S n="haken" g={16} w={2.4} /></span>}
+                    </>}
                     onTaste={z => {
                       if (z === LOESCHEN && w === '') { if (i > 0) tast.oeffne(`${kennung}${i - 1}`); return; }
                       const neu = tippeWort(w, z);
@@ -334,14 +335,15 @@ function Pruefung({ woerter, zurueck, fertig, arbeitet, fehler }: { woerter: str
     else setFalsch(true);
   };
   return (
-    <div className="seite">
-      <KopfZurueck zurueck={zurueck} titel="" />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
-        <h1 className="titel2 mittig">{t.woerter.pruefTitel}</h1>
-        <p className="fliess mittig" style={{ fontSize: 15, maxWidth: 340 }}>{t.woerter.pruefText}</p>
+    <div className="seite sf ew">
+      <Kopfzeile titel={t.woerter.kopf} zurueck={zurueck} rechts={<Schritte n={2} label={t.senden.schritt(2)} />} />
+      <h1 className="sf-t1">{t.woerter.pruefTitel}</h1>
+      <p className="ew-unter">{t.woerter.pruefText}</p>
+      <div className="ew-woerter">
+        <Wortfelder kennung="wort" werte={werte} nummern={stellen.map(s => s + 1)} einspaltig auto
+                    richtig={(i, w) => (istWort(w) ? w === woerter[stellen[i]] : null)}
+                    setze={(i, w) => { setFalsch(false); setWerte(alt => alt.map((x, j) => (j === i ? w : x))); }} />
       </div>
-      <Wortfelder kennung="wort" werte={werte} nummern={stellen.map(s => s + 1)} einspaltig auto
-                  setze={(i, w) => { setFalsch(false); setWerte(alt => alt.map((x, j) => (j === i ? w : x))); }} />
       <div className="fehlertext" role="alert">{falsch ? t.woerter.pruefFalsch : fehler}</div>
       <div className="fuell" />
       <button type="button" className="knopf sinkt" disabled={!voll || arbeitet} onClick={pruefen}>{t.woerter.einrichten}</button>

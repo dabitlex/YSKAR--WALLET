@@ -14,11 +14,9 @@ export const en: Woerterbuch = {
   willkommen: {
     titel1: 'Your YSR.', titel2: 'Your key.',
     text: 'This wallet is created on your device. Send, receive and keep an eye on your history. Nothing more.',
-    neu: 'Create new wallet', wieder: 'Restore wallet',
-    kurz: 'Create a new wallet or bring back your existing one with 12 words.',
-    los: 'Get started', habe: 'I already have a wallet',
+    neu: 'Create new wallet',
+    habe: 'I already have a wallet',
     fuss: 'Your keys stay on this device. Nobody at YSKAR has access.',
-    wahl: 'Add wallet', neuText: 'New key, new 12 words', wiederText: 'With your 12 words',
     fertigTitel: 'Your wallet is ready', fertigText: 'Key backed up, PIN set. You can receive and send YSR now.',
     zurWallet: 'Open wallet',
   },
@@ -42,7 +40,7 @@ export const en: Woerterbuch = {
     pruefe: 'Checking …',
   },
   woerter: {
-    titel: 'Write down these 12 words',
+    kopf: 'New wallet', titel: 'Write down these 12 words',
     text: 'On paper, in this order. They restore your wallet on any device.',
     zeigen: 'Show words', verbergen: 'Hide words',
     warnStark: 'Whoever has the 12 words has the balance.',
@@ -56,8 +54,8 @@ export const en: Woerterbuch = {
     ansehen: 'Your 12 words',
   },
   wieder: {
-    titel: 'Restore wallet',
-    text: 'Type your 12 words in the right order. After the first letters the app suggests the word.',
+    kopf: 'Restore', titel: 'Your 12 words',
+    text: 'In the order on your note. Typing uses the wallet\u2019s own keyboard, not the phone\u2019s.',
     unbekannt: n => `Word ${n} is not in the word list. Check the spelling.`,
     leeren: 'Clear all', einfuegen: 'Paste',
     feld: 'Your 12 words',

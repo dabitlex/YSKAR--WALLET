@@ -927,3 +927,51 @@ section > .st-abschnitt{margin-top:26px}
   .ez-ghd{margin-top:24px}
   .ez-sicherheit{margin-top:16px}
 }
+
+/* ---------- Einrichten und Wiederherstellen (Designsystem 4.2, Phase B6) ---------- */
+.seite.sf.ew{gap:0}
+.ew-oben{display:flex;justify-content:flex-end;min-height:44px;align-items:center;flex-shrink:0}
+.ew-marke{margin-top:96px;display:flex;flex-shrink:0}
+.ew-titel{margin-top:34px;font-size:44px;line-height:48px;font-weight:500;letter-spacing:-.03em;flex-shrink:0}
+.ew-titel span{display:block;color:var(--blass)}
+.ew-text{margin-top:18px;color:var(--leise);font-size:16px;line-height:24px;max-width:320px;flex-shrink:0}
+.ew-band{width:44px;margin-top:24px;flex-shrink:0}
+.ew-zweit{margin-top:10px;min-height:56px;font-size:16px}
+.ew-fuss{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:18px;font-size:12.5px;line-height:17px;color:var(--leise);text-align:center;flex-shrink:0}
+.ew-fuss svg{flex-shrink:0}
+.ew-unter{margin-top:10px;font-size:14.5px;line-height:21px;color:var(--leise);flex-shrink:0}
+.ew-warn{margin-top:14px;flex-shrink:0}
+.ew-warn b{font-weight:500}
+.ew-zaehler{width:44px;text-align:right;font-size:13px;color:var(--leise);flex-shrink:0}
+.ew-woerter{margin-top:20px;flex-shrink:0}
+.ew-knoepfe{margin-top:12px}
+.ew .fehlertext{margin-top:8px;min-height:18px}
+.ew-adresse{margin-top:6px;padding:14px 18px;gap:6px}
+.ew-adresse .vierer{font-family:var(--mono)}
+/* Wortkarte */
+.wortkarte{position:relative;margin-top:20px;padding:14px}
+.wortkarte .wortliste{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;padding:0}
+.wortkarte .wortliste div{display:flex;align-items:center;gap:12px;height:38px;padding:0 6px}
+.wortkarte .wortliste small{width:20px;font-size:12.5px;color:var(--blass);text-align:right;flex-shrink:0}
+.wortkarte .wortliste i{height:10px;border-radius:5px;background:rgba(238,242,248,.13)}
+.wortkarte .wortliste b{font-size:16px;font-weight:400}
+.wortkarte-knopf{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:44px;padding:0 18px;border-radius:22px;border:0;display:inline-flex;align-items:center;gap:8px;
+  background:var(--nav);box-shadow:inset 0 0 0 1px var(--rand-hell);color:var(--text);font:500 14.5px var(--schrift);white-space:nowrap}
+.wortkarte-knopf.unten{position:static;transform:none;margin:12px auto 0;display:flex}
+/* Wortfelder */
+.ew-woerter .wortraster{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ew-woerter .wort{height:44px;border-radius:14px;gap:8px;padding:0 10px;background:var(--glas);border:0;box-shadow:inset 0 0 0 1px var(--rand)}
+.ew-woerter .wort.tippfeld.aktiv{box-shadow:inset 0 0 0 1.5px rgba(99,216,255,.55);border:0}
+.ew-woerter .wort small{font-size:11.5px;color:var(--blass);min-width:14px}
+.ew-woerter .wort b{font-size:14px;font-weight:400}
+.ew-woerter .wort.fertig b{color:var(--leise);letter-spacing:.1em}
+.ew-woerter .wortraster.eins{grid-template-columns:minmax(0,1fr);gap:10px}
+.ew-woerter .wortraster.eins .wort{height:54px;border-radius:18px;padding:0 16px;gap:14px}
+.ew-woerter .wortraster.eins .wort small{font-size:13px;color:var(--leise);width:62px}
+.ew-woerter .wortraster.eins .wort b{flex:1;font-size:16px}
+.wort-gut{display:flex;color:var(--gruen);margin-left:auto}
+@media (max-height:780px){
+  .ew-marke{margin-top:40px}
+  .ew-titel{margin-top:24px;font-size:38px;line-height:42px}
+  .wortkarte .wortliste div{height:32px}
+}
