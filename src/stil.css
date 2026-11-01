@@ -836,3 +836,43 @@ section > .st-abschnitt{margin-top:26px}
   .dt-betrag{margin-top:12px}
   .dt-status{margin-top:16px}
 }
+
+/* ---------- Empfangen und Scannen (Designsystem 4.2, Phase B3) ---------- */
+.ep-titel{display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:26px;flex-shrink:0}
+.ep-titel .sf-t1{margin-top:0}
+.ep-titel .sf-klein{margin-top:6px}
+.ep-titel b{font-weight:500;color:var(--text)}
+.ep-qr{margin:28px auto 0;flex-shrink:0}
+.ep-qr .qrplatte{border-radius:28px;padding:16px}
+.ep-qr .qrplatte svg{width:220px;height:220px;max-width:62vw;max-height:62vw}
+.ep-qr .qr-logo{width:48px;height:48px;border-radius:14px;background:var(--grund)}
+.ep-qr .qr-logo img{width:28px;height:28px}
+.ep-adresse{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:24px;flex-shrink:0}
+.ep-vierer{max-width:270px;justify-content:center;font-family:var(--mono);font-size:15px;line-height:24px}
+.ep-teilung{width:96px;margin-top:0}
+.ep-anfordern{margin-top:10px;flex-shrink:0}
+.seite.sf > .paar-knoepfe{flex-shrink:0}
+.seite.sf > .knopf.text{flex-shrink:0;margin-top:2px}
+/* Scanner */
+.scanner{background:radial-gradient(90% 60% at 50% 42%,#1A2230 0%,#0B0F16 60%,#050608 100%)}
+.scanner .oben{justify-content:space-between;padding:calc(var(--oben) + 16px) 24px 0;z-index:1}
+.scanner .oben h1{font-size:13px;line-height:18px;font-weight:500;color:var(--text);flex:1;text-align:center}
+.scanner .oben .klein{background:rgba(5,7,11,.45)}
+.scanner .rahmen{width:250px;height:250px;max-width:70vw;max-height:70vw;top:calc(var(--oben) + 60px + min(250px,70vw)/2 + 32px);border:0;border-radius:22px;box-shadow:0 0 0 2000px rgba(5,7,11,.55)}
+.scanner .rahmen > i{position:absolute;width:46px;height:46px;border:0 solid var(--text)}
+.scanner .rahmen > i:nth-child(1){left:0;top:0;border-width:2.5px 0 0 2.5px;border-top-left-radius:22px}
+.scanner .rahmen > i:nth-child(2){right:0;top:0;border-width:2.5px 2.5px 0 0;border-top-right-radius:22px}
+.scanner .rahmen > i:nth-child(3){left:0;bottom:0;border-width:0 0 2.5px 2.5px;border-bottom-left-radius:22px}
+.scanner .rahmen > i:nth-child(4){right:0;bottom:0;border-width:0 2.5px 2.5px 0;border-bottom-right-radius:22px}
+.scanner .rahmen .st-teilung{position:absolute;left:40px;right:40px;top:50%;width:auto;margin:0}
+.scanner .text{top:calc(var(--oben) + 60px + min(250px,70vw) + 66px);bottom:auto;left:40px;right:40px;font-size:15.5px;line-height:22px;font-weight:400}
+.scanner .text p + p{margin-top:6px}
+.scanner .unten{position:absolute;left:24px;right:24px;bottom:calc(var(--unten) + 28px)}
+@media (max-height:780px){
+  .ep-titel{margin-top:14px}
+  .ep-qr{margin-top:18px}
+  .ep-qr .qrplatte svg{width:196px;height:196px}
+  .ep-adresse{margin-top:16px}
+  .scanner .rahmen{top:calc(var(--oben) + 40px + min(250px,70vw)/2 + 24px)}
+  .scanner .text{top:calc(var(--oben) + 40px + min(250px,70vw) + 48px)}
+}

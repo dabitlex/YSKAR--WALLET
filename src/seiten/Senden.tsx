@@ -589,7 +589,8 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
               </div>}
         </>
       )}
-      {scannt && <Scanner onZu={() => setScannt(false)} onText={text => { if (!uebernehmen(text)) return false; setScannt(false); return true; }} />}
+      {scannt && <Scanner onZu={() => setScannt(false)} onText={text => { if (!uebernehmen(text)) return false; setScannt(false); return true; }}
+                          einfuegen={async () => { const x = await einfuegen(); setScannt(false); if (!uebernehmen(x)) melde(t.senden.keinCode); }} />}
     </div>
   );
 }

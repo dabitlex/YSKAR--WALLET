@@ -204,18 +204,19 @@ export const en: Woerterbuch = {
   },
   empfangen: {
     titel: 'Receive', deine: 'Your address', qr: 'QR code of your address', qrBetrag: 'QR code of your request',
-    kopieren: 'Copy', teilen: 'Share', anfordern: 'Request a specific amount', anfordernText: 'Create a code and link with an amount',
-    hinweis: 'Send only YSR to this address. It stays the same, you can pass it on as often as you like.',
+    kopieren: 'Copy', teilen: 'Share',
     blattTitel: 'Request amount',
     blattText: 'This creates a code and a link that you pass on yourself.',
     erstellen: 'Create code',
-    angefordert: 'Requested', ohneBetrag: 'Without amount',
+    ohneBetrag: 'Without amount',
     teilTitel: 'YSKAR payment',
     teilText: (betrag, adresse, code, notiz) =>
       `Please send me ${betrag} YSR.${notiz ? `\nNote: ${notiz}` : ''}\n\nAddress:\n${adresse}\n\nPaste or open in the YSKAR Wallet:\n${code}`,
     teilAdresse: adresse => `My YSKAR address:\n${adresse}`,
     nichtTeilbar: 'Sharing is not possible here. The text was copied.',
     fuer: n => `Request to ${n}`,
+    unter: 'YSR only · always stays the same', anfordernKurz: 'Request amount', aendern: 'Change amount',
+    angefordertBetrag: b => `${b} YSR requested`,
   },
   kontakte: {
     titel: 'Contacts', suche: 'Name or address', sucheLabel: 'Search contacts',
@@ -278,6 +279,8 @@ export const en: Woerterbuch = {
     keinZugriff: 'The camera is not allowed. Enable it in the device settings.',
     keineKamera: 'No camera is available on this device.',
     keinCode: 'This is not a YSKAR code.',
+    kurz: 'Scan', zahlung: 'QR code of a YSKAR address or payment request', anmeldung: 'Sign-in QR code on a YSKAR site',
+    lokal: 'The image stays on the device.', einfuegen: 'Paste an address instead', licht: 'Turn on light', lichtAus: 'Turn off light',
   },
   einf: {
     titel: 'Introduction', zurueck: 'Previous card', weiter: 'Next card',

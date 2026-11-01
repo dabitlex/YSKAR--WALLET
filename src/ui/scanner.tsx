@@ -15,12 +15,22 @@ interface Detektor { detect(q: CanvasImageSource): Promise<{ rawValue: string }[
 /** Ein durchsichtiges Bild von 1x1 Pixel. */
 const LEER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
-export function Scanner({ onText, onZu }: { onText: (text: string) => boolean; onZu: () => void }) {
+export function Scanner({ onText, onZu, zweck, einfuegen }: {
+  onText: (text: string) => boolean; onZu: () => void;
+  /** Was gescannt werden soll; Vorgabe: Adresse oder Zahlungsanforderung. */
+  zweck?: string;
+  /** Wenn gesetzt: Knopf "Adresse stattdessen einfuegen" (4.2). */
+  einfuegen?: () => void;
+}) {
   const t = useT();
   const video = useRef<HTMLVideoElement>(null);
+  const spur = useRef<MediaStreamTrack | null>(null);
   const [fehler, setFehler] = useState('');
   const [hinweis, setHinweis] = useState('');
   const [laeuft, setLaeuft] = useState(false);
+  // Licht nur anbieten, wenn die Kamera es selbst meldet.
+  const [lichtDa, setLichtDa] = useState(false);
+  const [licht, setLicht] = useState(false);
   const rueckruf = useRef(onText);
   rueckruf.current = onText;
   useZurueck(onZu);
@@ -40,6 +50,11 @@ export function Scanner({ onText, onZu }: { onText: (text: string) => boolean; o
         return;
       }
       if (!lebt) { strom.getTracks().forEach(s => s.stop()); return; }
+      spur.current = strom.getVideoTracks()[0] ?? null;
+      try {
+        const k = spur.current?.getCapabilities?.() as (MediaTrackCapabilities & { torch?: boolean }) | undefined;
+        if (k?.torch) setLichtDa(true);
+      } catch { /* ohne Licht */ }
       const v = video.current!;
       v.srcObject = strom;
       await v.play().catch(() => {});
@@ -79,18 +94,33 @@ export function Scanner({ onText, onZu }: { onText: (text: string) => boolean; o
     return () => { lebt = false; clearTimeout(uhr); strom?.getTracks().forEach(s => s.stop()); };
   }, [t]);
 
+  const lichtUmschalten = async () => {
+    const an = !licht;
+    try {
+      await spur.current?.applyConstraints({ advanced: [{ torch: an } as MediaTrackConstraintSet] });
+      setLicht(an);
+    } catch (e) { fehlerMerken('licht', e); setLichtDa(false); }
+  };
+
   return obenauflegen(
     <div className="scanner" role="dialog" aria-modal="true" aria-label={t.scan.titel}>
       {/* Ohne eigenes Vorschaubild zeigt die Android-Webansicht ein graues Feld mit Play-Symbol,
           bis das erste Kamerabild da ist. Deshalb: leeres Vorschaubild, sichtbar erst ab dem ersten Bild. */}
       <video ref={video} playsInline muted poster={LEER} className={laeuft ? 'laeuft' : undefined}
              onPlaying={() => setLaeuft(true)} />
-      {!fehler && <div className="rahmen" aria-hidden="true" />}
+      {!fehler && <div className="rahmen" aria-hidden="true"><i /><i /><i /><i /><span className="st-teilung"><i /><i /></span></div>}
       <div className="oben">
-        <button type="button" className="klein sinkt" aria-label={t.allg.schliessen} onClick={onZu}><S n="kreuz" /></button>
-        <h1>{t.scan.titel}</h1>
+        <button type="button" className="klein sinkt" aria-label={t.allg.schliessen} onClick={onZu}><S n="kreuz" g={19} w={1.6} /></button>
+        <h1>{t.scan.kurz}</h1>
+        {lichtDa
+          ? <button type="button" className="klein sinkt" aria-pressed={licht} aria-label={licht ? t.scan.lichtAus : t.scan.licht} onClick={lichtUmschalten}><S n="licht" g={19} w={1.6} /></button>
+          : <span className="sf-platz" />}
       </div>
-      <div className="text" role="status">{fehler || hinweis || t.scan.hinweis}</div>
+      <div className="text" role="status">
+        <p>{fehler || hinweis || zweck || t.scan.zahlung}</p>
+        {!fehler && <p className="sf-klein">{t.scan.lokal}</p>}
+      </div>
+      {einfuegen && <div className="unten"><button type="button" className="knopf zweit sinkt" onClick={einfuegen}>{t.scan.einfuegen}</button></div>}
     </div>,
   );
 }

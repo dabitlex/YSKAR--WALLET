@@ -79,7 +79,7 @@ export function AnmeldenQr({ code }: { code?: string }) {
   if (schritt === 'scannen') {
     return (
       <div className="seite">
-        <Scanner onZu={() => nav.zurueck()} onText={gescannt} />
+        <Scanner onZu={() => nav.zurueck()} onText={gescannt} zweck={t.scan.anmeldung} />
       </div>
     );
   }

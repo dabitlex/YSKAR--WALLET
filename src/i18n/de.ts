@@ -209,18 +209,19 @@ export const de = {
   },
   empfangen: {
     titel: 'Empfangen', deine: 'Deine Adresse', qr: 'QR-Code deiner Adresse', qrBetrag: 'QR-Code deiner Anforderung',
-    kopieren: 'Kopieren', teilen: 'Teilen', anfordern: 'Bestimmten Betrag anfordern', anfordernText: 'Code und Link mit Betrag erzeugen',
-    hinweis: 'An diese Adresse nur YSR senden. Sie bleibt gleich, du kannst sie beliebig oft weitergeben.',
+    kopieren: 'Kopieren', teilen: 'Teilen',
     blattTitel: 'Betrag anfordern',
     blattText: 'Daraus entsteht ein Code und ein Link, den du selbst weitergibst.',
     erstellen: 'Code erstellen',
-    angefordert: 'Angefordert', ohneBetrag: 'Ohne Betrag',
+    ohneBetrag: 'Ohne Betrag',
     teilTitel: 'YSKAR-Zahlung',
     teilText: (betrag: string, adresse: string, code: string, notiz: string) =>
       `Bitte sende mir ${betrag} YSR.${notiz ? `\nNotiz: ${notiz}` : ''}\n\nAdresse:\n${adresse}\n\nIn der YSKAR Wallet einfügen oder öffnen:\n${code}`,
     teilAdresse: (adresse: string) => `Meine YSKAR-Adresse:\n${adresse}`,
     nichtTeilbar: 'Teilen ist hier nicht möglich. Der Text wurde kopiert.',
     fuer: (n: string) => `Anforderung an ${n}`,
+    unter: 'Nur für YSR · bleibt immer gleich', anfordernKurz: 'Betrag anfordern', aendern: 'Betrag ändern',
+    angefordertBetrag: (b: string) => `${b} YSR angefordert`,
   },
   kontakte: {
     titel: 'Kontakte', suche: 'Name oder Adresse', sucheLabel: 'Kontakte durchsuchen',
@@ -283,6 +284,8 @@ export const de = {
     keinZugriff: 'Die Kamera ist nicht freigegeben. Erlaube sie in den Einstellungen des Geräts.',
     keineKamera: 'Auf diesem Gerät ist keine Kamera verfügbar.',
     keinCode: 'Das ist kein YSKAR-Code.',
+    kurz: 'Scannen', zahlung: 'QR-Code einer YSKAR-Adresse oder Zahlungsanforderung', anmeldung: 'QR-Code der Anmeldung auf einer YSKAR-Seite',
+    lokal: 'Das Bild bleibt auf dem Gerät.', einfuegen: 'Adresse stattdessen einfügen', licht: 'Licht einschalten', lichtAus: 'Licht ausschalten',
   },
   einf: {
     titel: 'Einführung', zurueck: 'Vorige Karte', weiter: 'Nächste Karte',

@@ -7,9 +7,9 @@ import { NOTIZ_BYTES, notizBytes, notizKuerzen } from '../wallet/notiz.ts';
 import { useKontakte } from '../wallet/kontakte.ts';
 import { anforderungMerken } from '../wallet/anforderungen.ts';
 import { DECIMALS } from '../kern/params.ts';
-import { kopieren, teilen } from '../geraet/geraet.ts';
+import { kopieren, teilen, tippGefuehl } from '../geraet/geraet.ts';
 import { tippeBetrag, tippeText } from '../wallet/tasten.ts';
-import { S, KopfZurueck, Vierer, QrBild, Blatt, useMeldung } from '../ui/teile.tsx';
+import { S, Vierer, QrBild, Blatt, useMeldung } from '../ui/teile.tsx';
 import { Tippfeld, betragKlasse } from '../ui/tastatur.tsx';
 
 /**
@@ -43,42 +43,39 @@ export function Empfangen({ fuer }: { fuer?: string }) {
     if (anforderung && fuer && !vermerkt) { anforderungMerken(fuer, anforderung.betrag, anforderung.notiz); setVermerkt(true); }
   };
 
+  const kopiert = async () => {
+    if (await kopieren(anforderung ? code : adresse)) { tippGefuehl(); melde(t.allg.kopiert); }
+  };
+
   return (
-    <div className="seite">
-      <KopfZurueck titel={fuerName ? t.empfangen.fuer(fuerName) : t.empfangen.titel} zurueck={nav.zurueck} />
-
-      <div className="karte qrkarte">
-        <QrBild text={code} label={anforderung ? t.empfangen.qrBetrag : t.empfangen.qr} />
-        {anforderung && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-            <div className="etikett">{t.empfangen.angefordert}</div>
-            <div className="ziffern" style={{ fontSize: 20, fontWeight: 500 }}>{betragGenau(anforderung.betrag, t.code, DECIMALS, 2)} <small style={{ fontSize: 13, color: 'var(--leise)' }}>YSR</small></div>
-            {anforderung.notiz && <div style={{ fontSize: 14, color: 'var(--lesen)' }}>{anforderung.notiz}</div>}
-          </div>
-        )}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-          <div className="etikett">{t.empfangen.deine}</div>
-          <Vierer adresse={adresse} klasse="mittig" />
-        </div>
-
-        <div className="paar-knoepfe" style={{ alignSelf: 'stretch' }}>
-          <button type="button" className="knopf zweit sinkt" style={{ fontSize: 15 }} onClick={async () => { if (await kopieren(anforderung ? code : adresse)) melde(t.allg.kopiert); }}>
-            <S n="kopie" g={18} /><span>{t.empfangen.kopieren}</span>
-          </button>
-          <button type="button" className="knopf zweit sinkt" style={{ fontSize: 15 }} onClick={weitergeben}><S n="teilen" g={18} /><span>{t.empfangen.teilen}</span></button>
-        </div>
+    <div className="seite sf">
+      <div className="sf-kopf">
+        <button type="button" className="klein sinkt" aria-label={t.allg.zurueck} onClick={nav.zurueck}><S n="zurueck" w={2.2} /></button>
+        <div className="sf-mitte"><span className="sf-titel">{fuerName ? t.empfangen.fuer(fuerName) : t.empfangen.titel}</span></div>
+        <span className="sf-platz" />
       </div>
 
-      {anforderung
-        ? <button type="button" className="knopf zweit sinkt" onClick={() => { setAnforderung(null); setVermerkt(false); }}>{t.empfangen.ohneBetrag}</button>
-        : <button type="button" className="auswahlzeile sinkt" onClick={() => setBlatt(true)}>
-            <span className="kachel aus"><S n="runter" g={22} w={2.2} /></span>
-            <span className="worte"><b>{t.empfangen.anfordern}</b><small>{t.empfangen.anfordernText}</small></span>
-            <S n="weiter" g={18} w={2.2} />
-          </button>}
+      <div className="ep-titel">
+        <h1 className="sf-t1">{t.empfangen.deine}</h1>
+        <span className="sf-klein">{anforderung
+          ? <><b className="ziffern">{t.empfangen.angefordertBetrag(betragGenau(anforderung.betrag, t.code, DECIMALS, 2))}</b>{anforderung.notiz && <> · {anforderung.notiz}</>}</>
+          : t.empfangen.unter}</span>
+      </div>
+
+      <div className="ep-qr"><QrBild text={code} label={anforderung ? t.empfangen.qrBetrag : t.empfangen.qr} /></div>
+
+      <div className="ep-adresse">
+        <Vierer adresse={adresse} klasse="mittig ep-vierer" />
+        <span className="st-teilung ep-teilung" aria-hidden="true"><i /><i /></span>
+      </div>
 
       <div className="fuell" />
-      <div className="hinweis"><S n="info" g={18} /><div>{t.empfangen.hinweis}</div></div>
+      <div className="paar-knoepfe">
+        <button type="button" className="knopf zweit sinkt" onClick={kopiert}><S n="kopie" g={18} w={1.6} /><span>{t.empfangen.kopieren}</span></button>
+        <button type="button" className="knopf zweit sinkt" onClick={weitergeben}><S n="teilen" g={18} w={1.6} /><span>{t.empfangen.teilen}</span></button>
+      </div>
+      <button type="button" className="knopf sinkt ep-anfordern" onClick={() => setBlatt(true)}>{anforderung ? t.empfangen.aendern : t.empfangen.anfordernKurz}</button>
+      {anforderung && <button type="button" className="knopf text sinkt" onClick={() => { setAnforderung(null); setVermerkt(false); }}>{t.empfangen.ohneBetrag}</button>}
 
       {blatt && (
         <Blatt titel={t.empfangen.blattTitel} onZu={() => setBlatt(false)}>
