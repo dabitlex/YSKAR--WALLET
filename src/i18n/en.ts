@@ -91,7 +91,7 @@ export const en: Woerterbuch = {
     block: h => `Block #${h}`, notiz: n => `Note “${n}”`,
   },
   verlauf: {
-    titel: 'History', suche: 'Name, address, block or note', sucheLabel: 'Search history',
+    titel: 'Activity', suche: 'Name, address, block or note', sucheLabel: 'Search activity',
     alle: 'All', eingang: 'Incoming', ausgang: 'Outgoing', mehr: 'Load more',
     nichts: 'Nothing found.', leer: 'No payments yet.', fehler: 'The history could not be loaded.',
     wartend: 'Waiting',

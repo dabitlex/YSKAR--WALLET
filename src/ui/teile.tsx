@@ -10,6 +10,7 @@ import type { Zahlung } from '../wallet/zahlungen.ts';
 import * as tresor from '../wallet/tresor.ts';
 import { tippGefuehl, fehlerGefuehl, beiZurueck } from '../geraet/geraet.ts';
 import { useNav, REITER, type Reiter } from '../zustand.tsx';
+import { YMarke, YBaender, ZahlZeichen } from './zeichen.tsx';
 import zeichenBild from '../bilder/zeichen.svg';
 
 /* ----------------------------------------------------------------- Symbole */
@@ -54,6 +55,11 @@ const PFADE = {
   pool: <><path d="m12 3 9 5-9 5-9-5 9-5z" /><path d="m3 12.5 9 5 9-5" /><path d="m3 17 9 5 9-5" /></>,
   belohnung: <><path d="M7 3h10l4 6-9 12L3 9l4-6z" /><path d="M3 9h18" /><path d="m10 3 2 6 2-6" /><path d="m12 9-3 12" /><path d="m12 9 3 12" /></>,
   kurve: <path d="M3 17l5-6 4 3 4-6 5 4" />,
+  /* Leiste (Designsystem 4.2): Wallet, Aktivitaet, Kontakte, Einstellungen. */
+  wallet: <><rect x="3" y="6" width="18" height="14" rx="4" /><path d="M16 13h2" /></>,
+  aktivitaet: <path d="M4 12h3l3-7 4 14 3-7h3" />,
+  kontakt: <><circle cx="12" cy="8" r="4" /><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" /></>,
+  zahnrad: <><circle cx="12" cy="12" r="3" /><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" /></>,
   // Einstellungen
   schluessel: <><circle cx="8" cy="15" r="4" /><path d="m11 12 9-9" /><path d="m16 7 3 3" /><path d="m14 9 2 2" /></>,
   buch: <><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5z" /><path d="M4 19a2 2 0 0 1 2-2h13" /></>,
@@ -317,16 +323,17 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
   const wann = z.zeit === null ? '' : mitUhr ? zeit.uhr(z.zeit) : zeit.kurz(z.zeit);
   const zusatz = [wann, z.notiz ? t.zahlung.notiz(z.notiz) : belohnung ? t.zahlung.block(zeit.zahl(z.hoehe ?? 0)) : '']
     .filter(Boolean).join(' · ');
+  // Zeichen nach Art der Zahlung (Designsystem 4.2): verjuengte Pfeile, Pool-Anteil als drei zusammenlaufende Baender.
+  const art = z.art === 'pool' ? 'pool' : z.art === 'belohnung' ? 'belohnung' : ein ? 'ein' : 'aus';
+  const ton = wartet ? 'bern' : belohnung ? 'block' : ein ? 'ein' : 'aus';
   return (
     <button type="button" className="zeile" onClick={onTipp}>
-      {wartet && !ein ? <Wartering />
-        : kontakt && !belohnung ? <Bild name={kontakt} g={44} />
-        : <div className={`kachel art ${wartet ? 'bern' : belohnung ? 'block' : ein ? 'ein' : 'aus'}`}>
-            <S n={z.art === 'pool' ? 'pool' : z.art === 'belohnung' ? 'belohnung' : ein ? 'rein' : 'raus'} g={20} w={2} />
-          </div>}
+      <div className={`kachel art ${ton}`}><ZahlZeichen art={art} /></div>
       <div className="mitte">
         <b>{titel}</b>
-        <small>{wartet ? <><span>{wann}</span><span className="pille bern"><i />{t.zahlung.wartetKurz}</span></> : zusatz}</small>
+        <small>{wartet
+          ? <><YBaender stand={['erledigt', 'wartet', 'offen']} label={t.zahlung.wartet} /><span className="wartet">{t.zahlung.wartetKurz}</span>{wann && <span>{wann}</span>}</>
+          : zusatz}</small>
       </div>
       <span className="rechts">
         <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}<Stellen text={anzeige(z.betrag)} /></span>
@@ -351,7 +358,7 @@ export function Stellen({ text }: { text: string }) {
 
 /* ------------------------------------------------------------- Navigation */
 
-const REITER_BILD: Record<Reiter, SymbolName> = { start: 'haus', kontakte: 'leute', verlauf: 'uhr', einstellungen: 'regler' };
+const REITER_BILD: Record<Reiter, SymbolName> = { start: 'wallet', verlauf: 'aktivitaet', kontakte: 'kontakt', einstellungen: 'zahnrad' };
 
 export function Nav() {
   const t = useT();
@@ -364,9 +371,9 @@ export function Nav() {
         {REITER.map(r => {
           const an = nav.ort.n === r;
           return (
-            <button key={r} type="button" className="sinkt" aria-current={an ? 'page' : undefined} aria-label={an ? undefined : namen[r]}
+            <button key={r} type="button" aria-current={an ? 'page' : undefined}
                     onClick={() => { if (!an) nav.reiter(r); }}>
-              <S n={REITER_BILD[r]} g={22} />{an && <span>{namen[r]}</span>}
+              <S n={REITER_BILD[r]} g={20} w={1.6} /><span>{namen[r]}</span>
             </button>
           );
         })}
@@ -495,56 +502,60 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck }: {
 /* --------------------------------------------------------------- Schieber */
 
 /**
- * Zum Senden schieben. Wer zu frueh loslaesst, sendet nichts. Ein Tipp auf
- * den Knopf oder die Eingabetaste laesst ihn von selbst fahren -- so bleibt
- * er auch mit Vorlesefunktion und Tastatur bedienbar.
+ * Zum Senden schieben -- der einzige Weg zu senden. Ausgeloest wird nur am
+ * Ende der Bahn; wer frueher loslaesst, sendet nichts und der Knopf federt
+ * zurueck. Antippen tut nichts. Fuer Vorlesefunktion und Tastatur gibt es
+ * einen unsichtbaren Regler in vier Schritten; erst der letzte sendet.
  */
 export function Schieber({ text, label, onFertig, gesperrt }: { text: string; label: string; onFertig: () => void; gesperrt?: boolean }) {
   const bahn = useRef<HTMLDivElement>(null);
   const [lage, setLage] = useState(0);
-  const [art, setArt] = useState<'' | 'zurueck' | 'auto' | 'fertig'>('');
-  const zug = useRef({ an: false, x0: 0, lage0: 0, weit: 0 });
-  const weg = () => Math.max(1, (bahn.current?.clientWidth ?? 350) - 8 - 54);
+  const [art, setArt] = useState<'' | 'zurueck' | 'fertig'>('');
+  const [stufe, setStufe] = useState(0);
+  const zug = useRef({ an: false, x0: 0, lage0: 0 });
+  const weg = () => Math.max(1, (bahn.current?.clientWidth ?? 350) - 12 - 56);
 
-  const fertig = () => { setArt('fertig'); setLage(weg()); onFertig(); };
+  const fertig = () => { setArt('fertig'); setLage(weg()); tippGefuehl(); onFertig(); };
 
+  // Nur Schieben bis ans Ende loest aus (Entscheidung 01.11.2026): Antippen tut nichts.
   const runter = (e: React.PointerEvent) => {
     if (gesperrt || art === 'fertig') return;
-    zug.current = { an: true, x0: e.clientX, lage0: lage, weit: 0 };
+    zug.current = { an: true, x0: e.clientX, lage0: lage };
     setArt('');
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* egal */ }
   };
   const bewegt = (e: React.PointerEvent) => {
     const z = zug.current;
     if (!z.an) return;
-    const d = e.clientX - z.x0;
-    z.weit = Math.max(z.weit, Math.abs(d));
-    setLage(Math.max(0, Math.min(weg(), z.lage0 + d)));
+    setLage(Math.max(0, Math.min(weg(), z.lage0 + e.clientX - z.x0)));
   };
   const los = () => {
     const z = zug.current;
     if (!z.an) return;
     z.an = false;
-    if (z.weit < 4) return;
-    if (lage >= weg() * 0.86) { tippGefuehl(); fertig(); }
+    if (lage >= weg() * 0.98) fertig();
     else { setArt('zurueck'); setLage(0); }
   };
-  const klick = () => {
-    if (gesperrt || art === 'fertig' || zug.current.weit >= 4) { zug.current.weit = 0; return; }
-    setArt('auto'); setLage(weg());
-    setTimeout(() => { tippGefuehl(); fertig(); }, 520);
+  // Bildschirmleser und Tastatur: ein Regler in vier Schritten. Erst der letzte Schritt sendet --
+  // auch hier braucht es mehrere bewusste Bewegungen, ein einzelnes Tippen genuegt nie.
+  const regler = (wert: number) => {
+    if (gesperrt || art === 'fertig') return;
+    setStufe(wert);
+    if (wert >= 100) fertig(); else { setArt(''); setLage(weg() * wert / 100); }
   };
 
   const w = weg();
   return (
-    <div ref={bahn} className={`schieber vertieft ${art}`}>
+    <div ref={bahn} className={`schieber ${art} ${gesperrt ? 'gesperrt' : ''}`}>
       <div className="spur" style={{ width: lage + 62 }} />
-      <div className="wort-mitte" style={{ opacity: Math.max(0, 1 - (lage / w) * 1.6) }}>{text}</div>
-      <div className="pfeile" aria-hidden="true"><S n="doppel" g={24} /></div>
-      <button type="button" className="knauf" aria-label={label} disabled={gesperrt} style={{ transform: `translateX(${lage}px)` }}
-              onPointerDown={runter} onPointerMove={bewegt} onPointerUp={los} onPointerCancel={los} onClick={klick}>
-        <S n={art === 'fertig' ? 'haken' : 'pfeil'} g={24} w={2.4} />
-      </button>
+      <div className="wort-mitte" aria-hidden="true" style={{ opacity: Math.max(0, 1 - (lage / w) * 1.6) }}>{text}</div>
+      <div className="pfeile" aria-hidden="true"><S n="weiter" g={18} /></div>
+      <div className="knauf" aria-hidden="true" style={{ transform: `translateX(${lage}px)` }}
+           onPointerDown={runter} onPointerMove={bewegt} onPointerUp={los} onPointerCancel={los}>
+        {art === 'fertig' ? <S n="haken" g={24} w={2.4} /> : <YMarke g={28} farbe="#fff" />}
+      </div>
+      <input type="range" className="nur-leser" min={0} max={100} step={25} value={stufe} aria-label={label}
+             disabled={gesperrt || art === 'fertig'} onChange={e => regler(Number(e.target.value))} />
     </div>
   );
 }

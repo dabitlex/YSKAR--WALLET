@@ -90,7 +90,7 @@ export const de = {
     block: (h: string) => `Block #${h}`, notiz: (n: string) => `Notiz „${n}“`,
   },
   verlauf: {
-    titel: 'Verlauf', suche: 'Name, Adresse, Block oder Notiz', sucheLabel: 'Verlauf durchsuchen',
+    titel: 'Aktivität', suche: 'Name, Adresse, Block oder Notiz', sucheLabel: 'Aktivität durchsuchen',
     alle: 'Alle', eingang: 'Eingang', ausgang: 'Ausgang', mehr: 'Mehr laden',
     nichts: 'Nichts gefunden.', leer: 'Noch keine Zahlungen.', fehler: 'Der Verlauf ließ sich nicht laden.',
     wartend: 'Wartet',
