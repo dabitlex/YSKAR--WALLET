@@ -6,7 +6,7 @@ import { bioAktiv, bioAusschalten, bioEinschalten, bioStand } from '../wallet/bi
 import { kopieren, sichtschutz, imBrowserOeffnen, tippGefuehl } from '../geraet/geraet.ts';
 import { istNativ, letzteFehler } from '../geraet/plattform.ts';
 import { eingangMoeglich, eingangStand, eingangEinschalten, eingangAusschalten, eingangAkku, type EingangStand } from '../geraet/eingang.ts';
-import { S, Kopf, KopfZurueck, Blatt, Kasten, PinFeld, Zeichen, useMeldung, type PinAntwort } from '../ui/teile.tsx';
+import { S, Kopf, Blatt, Kasten, PinFeld, useMeldung, type PinAntwort } from '../ui/teile.tsx';
 import { Wortkarte } from './Einstieg.tsx';
 
 declare const __VERSION__: string;
@@ -22,17 +22,29 @@ const LINKS = {
 
 type SymbolName = Parameters<typeof S>[0]['n'];
 
-/** Eine Zeile der Einstellungen: Bezeichnung links, rechts Wert oder Symbol. */
-function Zeile({ text, symbol, wert, rot, onTipp, rechts }: {
-  text: string; symbol?: SymbolName; wert?: string; rot?: boolean; onTipp?: () => void; rechts?: ReactNode;
+/**
+ * Eine Zeile der Einstellungen (4.2): Symbol links, Bezeichnung mit
+ * Unterzeile, rechts Wert und Pfeil, ein Schalter oder ein Haken.
+ */
+function Zeile({ text, unter, symbol, wert, rot, onTipp, rechts }: {
+  text: string; unter?: string; symbol?: SymbolName; wert?: string; rot?: boolean; onTipp?: () => void; rechts?: ReactNode;
 }) {
   const inhalt = <>
-    <span className="ez-text">{text}</span>
-    {rechts ?? (wert !== undefined ? <span className="ez-wert">{wert}</span> : symbol && <span className="ez-symbol"><S n={symbol} g={21} /></span>)}
+    {symbol && <span className="ez-ico"><S n={symbol} g={20} w={1.6} /></span>}
+    <span className="ez-text">{text}{unter && <small>{unter}</small>}</span>
+    {rechts ?? <>
+      {wert !== undefined && <span className="ez-wert">{wert}</span>}
+      {onTipp && !rot && <span className="ez-symbol"><S n="weiter" g={18} w={1.6} /></span>}
+    </>}
   </>;
   return onTipp
     ? <button type="button" className={`ez sinkt ${rot ? 'rot' : ''}`} onClick={onTipp}>{inhalt}</button>
     : <div className={`ez ${rot ? 'rot' : ''}`}>{inhalt}</div>;
+}
+
+/** Ein Schalter fuer eine Zeile. */
+function Schalter({ an, label, onUmschalten }: { an: boolean; label: string; onUmschalten: () => void }) {
+  return <button type="button" role="switch" className="schalter" aria-checked={an} aria-label={label} onClick={onUmschalten}><span /></button>;
 }
 
 export function Einstellungen() {
@@ -84,7 +96,7 @@ export function Einstellungen() {
   };
 
   if (entfernenPin) {
-    return <PinFeld titel={t.pin.eingeben} unter={t.einst.entfernenPin} zurueck={() => setEntfernenPin(false)}
+    return <PinFeld kopf={t.einst.entfernen} titel={t.pin.eingeben} unter={t.einst.entfernenPin} zurueck={() => setEntfernenPin(false)}
       onPin={async (pin): Promise<PinAntwort> => {
         const r = await wallet.pinPruefen(pin);
         if (!r.ok) return r.grund;
@@ -95,27 +107,47 @@ export function Einstellungen() {
   }
 
   const meldungAn = !!meldung?.an && meldung.berechtigung === 'granted';
+  const sperrKurz = (sek: number) => (sek === 0 ? t.einst.sperreSofort : t.einst.sperreNachText(sek === 60 ? t.einst.min1Kurz : t.einst.min5Kurz));
   return (
-    <div className="seite mit-nav eng">
+    <div className="seite mit-nav st">
       <Kopf titel={t.einst.titel} />
 
+      <button type="button" className="ez-sicherheit sinkt" onClick={() => nav.gehe({ n: 'sicherheit' })}>
+        <span className="ez-sicherheit-kopf">
+          <span className="ez-sicherheit-ico"><S n="schild" g={22} w={1.6} /></span>
+          <span className="ez-text"><b>{t.einst.sicherheitZeile}</b><small>{t.einst.sicherheitUnter}</small></span>
+          <span className="ez-symbol"><S n="weiter" g={18} w={1.6} /></span>
+        </span>
+        <span className="ez-chips">
+          <span>{t.einst.chipFinger(bioAktiv())}</span>
+          <span>{t.einst.chipSperre(sperrKurz(e.sperreNach))}</span>
+          <span>{t.einst.chipSicht(e.sichtschutz)}</span>
+        </span>
+      </button>
+
+      <div className="ez-ghd">{t.einst.ghdAllgemein}</div>
       <div className="ez-gruppe">
-        <Zeile text={t.einst.sicherheitZeile} symbol="schloss" onTipp={() => nav.gehe({ n: 'sicherheit' })} />
-        <Zeile text={t.einst.woerter} symbol="schluessel" onTipp={() => nav.gehe({ n: 'woerterZeigen' })} />
-        {eingangMoeglich() && <Zeile text={t.einst.meldungKurz} wert={meldungAn ? t.allg.an : t.allg.aus} onTipp={() => setBlatt('meldung')} />}
-        <Zeile text={t.einst.vibration}
-               rechts={<button type="button" role="switch" className="schalter" aria-checked={e.vibration} aria-label={t.einst.vibration}
-                               onClick={() => { einstellen({ vibration: !e.vibration }); if (!e.vibration) tippGefuehl(); }}><span /></button>} />
-        <Zeile text={t.einst.sprache} wert={sprachText(e.sprache)} onTipp={() => setBlatt('sprache')} />
-        <Zeile text={t.einst.stellen} wert={stellenKurz(e.stellen)} onTipp={() => setBlatt('stellen')} />
+        {eingangMoeglich() && <Zeile text={t.einst.meldungKurz} unter={t.einst.meldungUnter} symbol="glocke"
+          rechts={<Schalter an={meldungAn} label={t.einst.meldungKurz} onUmschalten={async () => {
+            const war = meldungAn;
+            await meldungUmschalten();
+            // Eingeschaltet: Hinweise zu Berechtigung und Akku zeigen.
+            if (!war) setBlatt('meldung');
+          }} />} />}
+        <Zeile text={t.einst.vibration} unter={t.einst.vibrationUnter} symbol="vibration"
+               rechts={<Schalter an={e.vibration} label={t.einst.vibration} onUmschalten={() => { einstellen({ vibration: !e.vibration }); if (!e.vibration) tippGefuehl(); }} />} />
+        <Zeile text={t.einst.sprache} symbol="welt" wert={sprachText(e.sprache)} onTipp={() => setBlatt('sprache')} />
+        <Zeile text={t.einst.stellen} symbol="regler" wert={stellenKurz(e.stellen)} onTipp={() => setBlatt('stellen')} />
       </div>
 
+      <div className="ez-ghd">{t.einst.ghdWerkzeuge}</div>
       <div className="ez-gruppe">
         <Zeile text={t.sig.signieren} symbol="stift" onTipp={() => nav.gehe({ n: 'signieren' })} />
         <Zeile text={t.sig.pruefen} symbol="schild" onTipp={() => nav.gehe({ n: 'signaturPruefen' })} />
-        <Zeile text={t.qr.eintrag} symbol="scan" onTipp={() => nav.gehe({ n: 'anmeldenQr' })} />
+        <Zeile text={t.qr.eintrag} unter={t.einst.qrUnter} symbol="scan" onTipp={() => nav.gehe({ n: 'anmeldenQr' })} />
       </div>
 
+      <div className="ez-ghd">{t.einst.ghdHilfe}</div>
       <div className="ez-gruppe">
         <Zeile text={t.einf.titel} symbol="info" onTipp={() => nav.gehe({ n: 'einfuehrung' })} />
         <Zeile text={t.einst.anleitungen} symbol="buch" onTipp={() => imBrowserOeffnen(LINKS.anleitungen)} />
@@ -124,14 +156,14 @@ export function Einstellungen() {
         <Zeile text={t.einst.recht} symbol="dokument" onTipp={() => setBlatt('recht')} />
       </div>
 
-      <div className="ez-gruppe">
-        <Zeile text={t.einst.entfernen} symbol="weg" rot onTipp={() => setBlatt('entfernen')} />
+      <div className="ez-ghd rot">{t.einst.ghdGefahr}</div>
+      <div className="ez-gruppe gefahr">
+        <Zeile text={t.einst.entfernen} unter={t.einst.entfernenUnter} symbol="weg" rot onTipp={() => setBlatt('entfernen')} />
       </div>
 
       <button type="button" className="ez-fuss" onClick={versionTipp} aria-label={`${t.einst.version} ${__VERSION__}`}>
-        <Zeichen g={34} />
-        <b>YSKAR Wallet</b>
-        <span>{t.einst.version} {__VERSION__}</span>
+        <span className={`ez-punkt ${daten.offline ? 'aus' : ''}`} aria-hidden="true" />
+        <span className="ziffern">{t.einst.fussVersion(__VERSION__)} · {daten.offline || daten.spitze === null ? t.einst.fussOffline : t.einst.fussBlock(new Intl.NumberFormat(t.code).format(daten.spitze))}</span>
       </button>
 
       {blatt === 'sprache' && (
@@ -217,7 +249,7 @@ export function Sicherheit() {
   };
 
   if (pinFuerBio) {
-    return <PinFeld titel={t.pin.eingeben} unter={t.einst.bioPin} zurueck={() => setPinFuerBio(false)}
+    return <PinFeld kopf={t.einst.finger} titel={t.pin.eingeben} unter={t.einst.bioPin} zurueck={() => setPinFuerBio(false)}
       onPin={async (pin): Promise<PinAntwort> => {
         const r = await wallet.pinPruefen(pin);
         if (!r.ok) return r.grund;
@@ -229,21 +261,43 @@ export function Sicherheit() {
   }
 
   return (
-    <div className="seite eng">
-      <KopfZurueck titel={t.einst.sicherheitZeile} zurueck={() => nav.zurueck()} />
+    <div className="seite sf ez-seite">
+      <div className="sf-kopf">
+        <button type="button" className="klein sinkt" aria-label={t.allg.zurueck} onClick={() => nav.zurueck()}><S n="zurueck" w={2.2} /></button>
+        <div className="sf-mitte"><span className="sf-titel">{t.einst.sicherheitZeile}</span></div>
+        <span className="sf-platz" />
+      </div>
+      <h1 className="sf-t1">{t.einst.schutzTitel}</h1>
+      <div className="karte ez-schutz">
+        {([['schluessel', t.einst.schutz1, t.einst.schutz1Text], ['schloss', t.einst.schutz2, t.einst.schutz2Text], ['schild', t.einst.schutz3, t.einst.schutz3Text]] as [SymbolName, string, string][])
+          .map(([n, titel, text]) => (
+            <div key={n} className="ez-schutz-punkt"><span><S n={n} g={20} w={1.6} /></span><span><b>{titel}</b><small>{text}</small></span></div>
+          ))}
+      </div>
+
+      <div className="ez-ghd">{t.einst.ghdEntsperren}</div>
       <div className="ez-gruppe">
         <Zeile text={t.einst.pinAendern} symbol="schloss" onTipp={() => nav.gehe({ n: 'pinAendern' })} />
-        <Zeile text={t.einst.finger}
-               rechts={<button type="button" role="switch" className="schalter" aria-checked={bio} aria-label={t.einst.finger} onClick={fingerUmschalten}><span /></button>} />
-        <Zeile text={t.einst.sperre} wert={sperrKurz(e.sperreNach)} onTipp={() => setBlatt(true)} />
+        <Zeile text={t.einst.finger} symbol="finger" rechts={<Schalter an={bio} label={t.einst.finger} onUmschalten={fingerUmschalten} />} />
+        <Zeile text={t.einst.sperre} symbol="uhr" wert={sperrKurz(e.sperreNach)} onTipp={() => setBlatt(true)} />
       </div>
-      <p className="ez-hinweis">{t.einst.fingerText}</p>
+      <p className="ez-hinweis">{t.einst.notizPin}</p>
+      <p className="ez-hinweis">{t.einst.notizFinger}</p>
+
+      <div className="ez-ghd">{t.einst.ghdSicherung}</div>
       <div className="ez-gruppe">
-        <Zeile text={t.einst.sichtschutz}
-               rechts={<button type="button" role="switch" className="schalter" aria-checked={e.sichtschutz} aria-label={t.einst.sichtschutz}
-                               onClick={() => einstellen({ sichtschutz: !e.sichtschutz })}><span /></button>} />
+        <Zeile text={t.einst.woerter} unter={t.einst.woerterUnter} symbol="schluessel" onTipp={() => nav.gehe({ n: 'woerterZeigen' })} />
       </div>
-      <p className="ez-hinweis">{t.einst.sichtschutzText}</p>
+      <p className="ez-hinweis">{t.einst.notizWoerter}</p>
+
+      <div className="ez-ghd">{t.einst.ghdBildschirm}</div>
+      <div className="ez-gruppe">
+        <Zeile text={t.einst.sichtschutz} unter={t.einst.sichtUnter} symbol="auge"
+               rechts={<Schalter an={e.sichtschutz} label={t.einst.sichtschutz} onUmschalten={() => einstellen({ sichtschutz: !e.sichtschutz })} />} />
+      </div>
+      <p className="ez-hinweis">{t.einst.notizSicht}</p>
+
+      <div className="ez-ehrlich"><Kasten art="warn" symbol="warnung"><b>{t.einst.ehrlich}</b> <span className="leise">{t.einst.ehrlichText}</span></Kasten></div>
 
       {blatt && (
         <Blatt titel={t.einst.sperreTitel} onZu={() => setBlatt(false)}>
@@ -271,7 +325,7 @@ export function PinAendern() {
   const [neu, setNeu] = useState('');
 
   if (schritt === 'alt') {
-    return <PinFeld key="alt" titel={t.pin.alt} unter={t.pin.altText} zurueck={nav.zurueck}
+    return <PinFeld key="alt" kopf={t.einst.pinAendern} titel={t.pin.alt} unter={t.pin.altText} zurueck={nav.zurueck}
       onPin={async (p): Promise<PinAntwort> => {
         const r = await wallet.pinPruefen(p);
         if (!r.ok) return r.grund;
@@ -280,14 +334,14 @@ export function PinAendern() {
       }} />;
   }
   if (schritt === 'neu') {
-    return <PinFeld key="neu" titel={t.pin.neu} unter={t.pin.festlegenText} zurueck={nav.zurueck}
+    return <PinFeld key="neu" kopf={t.einst.pinAendern} titel={t.pin.neu} unter={t.pin.festlegenText} zurueck={nav.zurueck}
       onPin={async (p): Promise<PinAntwort> => {
         if (/^(\d)\1{5}$/.test(p) || ['123456', '654321'].includes(p)) return { fehler: t.pin.schwach };
         setNeu(p); setTimeout(() => setSchritt('nochmal'), 250);
         return 'ok';
       }} />;
   }
-  return <PinFeld key="nochmal" titel={t.pin.wiederholen} unter={t.pin.wiederholenText} zurueck={() => setSchritt('neu')}
+  return <PinFeld key="nochmal" kopf={t.einst.pinAendern} titel={t.pin.wiederholen} unter={t.pin.wiederholenText} zurueck={() => setSchritt('neu')}
     onPin={async (p): Promise<PinAntwort> => {
       if (p !== neu) { setTimeout(() => setSchritt('neu'), 1400); return { fehler: t.pin.ungleich }; }
       if (!(await wallet.pinAendern(alt, neu))) return 'falsch';
@@ -308,7 +362,7 @@ export function WoerterZeigen() {
   useEffect(() => { if (!woerter) return; sichtschutz(true); return () => sichtschutz(false); }, [woerter]);
 
   if (!woerter) {
-    return <PinFeld titel={t.pin.eingeben} unter={t.einst.woerterPin} zurueck={nav.zurueck}
+    return <PinFeld kopf={t.einst.woerter} titel={t.pin.eingeben} unter={t.einst.woerterPin} zurueck={nav.zurueck}
       onPin={async (p): Promise<PinAntwort> => {
         const r = await wallet.pinPruefen(p);
         if (!r.ok) return r.grund;
@@ -317,8 +371,12 @@ export function WoerterZeigen() {
       }} />;
   }
   return (
-    <div className="seite" style={{ gap: 20 }}>
-      <KopfZurueck titel={t.woerter.ansehen} zurueck={nav.zurueck} />
+    <div className="seite sf ez-seite" style={{ gap: 20 }}>
+      <div className="sf-kopf">
+        <button type="button" className="klein sinkt" aria-label={t.allg.zurueck} onClick={nav.zurueck}><S n="zurueck" w={2.2} /></button>
+        <div className="sf-mitte"><span className="sf-titel">{t.woerter.ansehen}</span></div>
+        <span className="sf-platz" />
+      </div>
       <Wortkarte woerter={woerter} offen={offen} umschalten={() => setOffen(o => !o)} />
       <Kasten art="warn" symbol="warnung"><strong>{t.woerter.warnStark}</strong> {t.woerter.warnText}</Kasten>
       <div className="fuell" />

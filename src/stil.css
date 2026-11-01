@@ -887,3 +887,43 @@ section > .st-abschnitt{margin-top:26px}
 .kt-form .feld-huelle{background:var(--glas);border:0;box-shadow:inset 0 0 0 1px var(--rand)}
 .kontaktkopf .bild{border-radius:14px}
 .kontaktkopf h1{font-size:17px}
+
+/* ---------- Einstellungen und Sicherheit (Designsystem 4.2, Phase B5) ---------- */
+.ez-gruppe{background:var(--glas);border:0;box-shadow:inset 0 0 0 1px var(--rand)}
+.blatt .ez-gruppe{background:var(--flaeche)}
+.ez + .ez::before{left:0}
+.ez-ico{display:flex;flex-shrink:0;color:var(--leise)}
+.ez.rot .ez-ico{color:var(--rot)}
+.ez-text{display:flex;flex-direction:column;gap:2px;white-space:normal}
+.ez-text small{font-size:13px;line-height:18px;color:var(--leise)}
+.ez.rot .ez-text small{color:var(--leise)}
+.ez-ghd{margin:34px 4px 10px;font-size:13px;font-weight:500;color:var(--leise);flex-shrink:0}
+.ez-ghd.rot{color:var(--rot)}
+.ez-gruppe.gefahr{box-shadow:inset 0 0 0 1px rgba(255,143,132,.22)}
+.ez-hinweis{margin:10px 4px 0;font-size:13px;line-height:19px;color:var(--blass)}
+.ez-hinweis + .ez-hinweis{margin-top:8px}
+.ez-sicherheit{display:block;margin-top:24px;padding:18px;border:0;border-radius:24px;text-align:left;color:var(--text);font:inherit;flex-shrink:0;
+  box-shadow:inset 0 0 0 1px rgba(99,216,255,.22);background:linear-gradient(180deg,rgba(47,123,255,.08),rgba(47,123,255,.02));transition:scale .15s var(--kurve)}
+.ez-sicherheit-kopf{display:flex;align-items:center;gap:14px}
+.ez-sicherheit-ico{width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:rgba(99,216,255,.1);color:var(--blau-hell);flex-shrink:0}
+.ez-sicherheit .ez-text{flex:1;min-width:0}
+.ez-sicherheit .ez-text b{font-weight:500;font-size:17px}
+.ez-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.ez-chips span{padding:4px 9px;border-radius:11px;background:rgba(255,255,255,.05);color:var(--leise);font-size:12.5px;line-height:17px}
+.ez-fuss{flex-direction:row;justify-content:center;gap:8px;margin-top:24px;padding:8px 0;font-size:12.5px;color:var(--blass)}
+.ez-punkt{width:6px;height:6px;border-radius:50%;background:var(--gruen)}
+.ez-punkt.aus{background:var(--bern)}
+.seite.ez-seite{gap:0}
+.ez-seite .sf-t1{margin-top:22px}
+.ez-schutz{margin-top:18px;padding:2px 18px}
+.ez-schutz-punkt{display:flex;gap:14px;padding:14px 0}
+.ez-schutz-punkt + .ez-schutz-punkt{box-shadow:inset 0 1px 0 var(--linie)}
+.ez-schutz-punkt > span:first-child{color:var(--blau-hell);display:flex;flex-shrink:0;margin-top:1px}
+.ez-schutz-punkt b{display:block;font-weight:500;margin-bottom:3px}
+.ez-schutz-punkt small{display:block;font-size:13px;line-height:18px;color:var(--leise)}
+.ez-ehrlich{margin-top:24px;flex-shrink:0}
+.ez-ehrlich b{font-weight:500}
+@media (max-height:780px){
+  .ez-ghd{margin-top:24px}
+  .ez-sicherheit{margin-top:16px}
+}
