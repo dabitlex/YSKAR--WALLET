@@ -194,7 +194,7 @@ export function Einstieg() {
         </div>
         {adresse && (
           <div className="karte innen" style={{ padding: '14px 18px', gap: 6 }}>
-            <div className="etikett">{t.wieder.adresse.toUpperCase()}</div>
+            <div className="etikett">{t.wieder.adresse}</div>
             <Vierer adresse={adresse} />
             <div style={{ fontSize: 13, color: 'var(--leise)' }}>{t.wieder.adresseText}</div>
           </div>

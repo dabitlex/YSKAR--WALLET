@@ -1,51 +1,60 @@
 /*
-  YSKAR Wallet -- Fassung 3 "Warp / Crystal Blue".
+  YSKAR Wallet 2.0 -- Designsystem Iteration 4.2 (verbindlich seit 01.11.2026).
 
-  Dieselbe Welt wie yskar.app: Nachtblau als Grund, Flaechen eine Stufe
-  heller mit einer feinen blaeulichen Linie als Rand, die Marke in
-  Crystal Blue mit Cyan als hellem Akzent. Zahlen stehen leicht (300) und
-  eng, Etiketten in Mono-Versalien. Geist und Geist Mono wie auf der Website.
+  Dunkel und ruhig, Blau nur fuer die Hauptaktion und den Fokus, kein farbiger
+  Schein. Text in Instrument Sans (zwei Gewichte: 400 und 500), Geist Mono nur
+  fuer Adressen und Kennungen. Tabellenziffern nur bei Betraegen.
 
-  Entwurf: Figma "YSKAR Wallet -- Android", Section "Fassung 3 -- Website-Stil".
+  Quelle: Doc "YSKAR Wallet 2.0 - Designsystem 4.2" und die Vorschau
+  "YSKAR Wallet - Iteration 4.2". Beide Schriften liegen in src/schrift (SIL OFL).
 */
-@font-face{font-family:'Geist';src:url('./schrift/geist-variable.woff2') format('woff2-variations'),url('./schrift/geist-variable.woff2') format('woff2');font-weight:100 900;font-display:block}
+@font-face{font-family:'Instrument Sans';src:url('./schrift/instrument-sans-latin.woff2') format('woff2-variations'),url('./schrift/instrument-sans-latin.woff2') format('woff2');font-weight:400 700;font-stretch:75% 100%;font-display:block;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Instrument Sans';src:url('./schrift/instrument-sans-latin-ext.woff2') format('woff2-variations'),url('./schrift/instrument-sans-latin-ext.woff2') format('woff2');font-weight:400 700;font-stretch:75% 100%;font-display:block;
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 @font-face{font-family:'Geist Mono';src:url('./schrift/geist-mono-variable.woff2') format('woff2-variations'),url('./schrift/geist-mono-variable.woff2') format('woff2');font-weight:100 900;font-display:block}
 
 :root{
   color-scheme:dark;
-  /* Flaechen: Grund -> Karte -> Flaeche, wie --bg, --panel, --panel2 der Website. */
-  --grund:#03060F; --senke:#060B18; --tief:#03060F; --karte:#0A1122; --flaeche:#0E1730; --nav:#0A1122; --blatt:#0A1122;
-  --rand:rgba(140,170,255,.12); --linie:rgba(140,170,255,.12); --rand-hell:rgba(140,170,255,.22);
-  --glas:rgba(255,255,255,.04);
-  --text:#F2F6FF; --lesen:#C3CCDF; --leise:#8E9AB4; --blass:#6B7794;
-  /* Marke: Crystal Blue, Cyan, Tiefblau. */
-  --blau:#2F7BFF; --blau-druck:#1B4FD1; --blau-hell:#63D8FF; --blau-flaeche:#10244F; --blau-punkt:#63D8FF; --blau-tief:#1B4FD1;
-  --gruen:#3BE59A; --gruen-voll:#1F9E6E; --gruen-flaeche:#0B2A1E;
-  --bern:#FFB454; --bern-flaeche:#33250F; --bern-text:#FFE3B8;
-  --rot:#FF6B6B; --rot-voll:#D13B3B; --rot-flaeche:#3A1A1E;
-  --schein:0 10px 28px -8px rgba(47,123,255,.45);
-  --schrift:'Geist',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --ziffern:'Geist Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  /* Flaechen (Designsystem: --bg, --s1, --s2, --line, --line2). Deckend gerechnet ueber dem Grund. */
+  --grund:#05070B; --senke:#080C14; --tief:#05070B; --karte:#0C1018; --flaeche:#131822; --nav:#0D121C; --blatt:#0D121C;
+  --rand:rgba(238,242,248,.07); --linie:rgba(238,242,248,.07); --rand-hell:rgba(238,242,248,.11);
+  --glas:rgba(255,255,255,.035); --glas2:rgba(255,255,255,.055);
+  /* Text: --tx, --tx2, --tx3 (Kontrast auf der Karte 17,1 / 8,4 / 5,5 : 1). */
+  --text:#EEF2F8; --lesen:#C9D0DC; --leise:#A3ACBD; --blass:#8089A0;
+  /* Marke. Hauptknopf in Deep Blue (Weiss darauf 6,8:1), Cyan fuer Fokus und Status. */
+  --blau:#2F7BFF; --blau-druck:#1640AE; --blau-hell:#63D8FF; --blau-flaeche:#10244F; --blau-punkt:#63D8FF; --blau-tief:#1B4FD1;
+  --gruen:#7CE8BC; --gruen-voll:#1F9E6E; --gruen-flaeche:#0B2A1E;
+  --bern:#F5BE6B; --bern-flaeche:#2B2112; --bern-text:#F7E3C2;
+  --rot:#FF8F84; --rot-voll:#C8372F; --rot-flaeche:#33181A;
+  /* Kein farbiger Schein mehr (4.2): Tiefe nur durch Flaechen und Raender. */
+  --schein:none;
+  --schrift:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  /* Zahlen stehen in der Textschrift mit Tabellenziffern; Mono nur fuer Adressen und Kennungen. */
+  --ziffern:var(--schrift);
+  --mono:'Geist Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --kurve:cubic-bezier(.2,0,0,1);
   /* Android zeichnet bis unter Statusleiste und Gestenbalken; Capacitor traegt deren Hoehe ein. */
   --oben:var(--safe-area-inset-top,env(safe-area-inset-top,0px));
   --unten:var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px));
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body,#wurzel{height:100%;margin:0}
-body{background:var(--grund);color:var(--text);font-family:var(--schrift);font-size:16px;line-height:1.4;overflow:hidden;
+body{background:var(--grund);color:var(--text);font-family:var(--schrift);font-stretch:96%;font-kerning:normal;-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.45;overflow:hidden;
   -webkit-user-select:none;user-select:none;overscroll-behavior:none;-webkit-text-size-adjust:100%}
 button,input,textarea{font-family:inherit;color:inherit}
 button{cursor:pointer}
 h1,h2,p{margin:0}
 :focus-visible{outline:2px solid var(--blau-hell);outline-offset:2px}
 .ziffern{font-family:var(--ziffern);font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-stretch:100%}
 .waehlbar{-webkit-user-select:text;user-select:text}
 .nur-leser{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- Geruest ---------- */
-.app{position:relative;height:100%;max-width:520px;margin:0 auto;overflow:hidden;background:var(--grund)}
+.app{position:relative;height:100%;max-width:520px;margin:0 auto;overflow:hidden;background:radial-gradient(120% 42% at 50% -8%,#0E1D3D 0%,#080D18 48%,var(--grund) 100%)}
 /* Ein sehr dezenter blauer Schein oben, wie auf der Website -- hinter Guthaben oder Muenze. */
-.schein{position:absolute;left:50%;top:-180px;width:520px;height:320px;transform:translateX(-50%);border-radius:50%;background:var(--blau);opacity:.2;filter:blur(90px);pointer-events:none}
+.schein{display:none}
 .seite{position:absolute;inset:0;display:flex;flex-direction:column;gap:20px;padding:calc(var(--oben) + 16px) 20px calc(var(--unten) + 24px);
   overflow-y:auto;overflow-x:hidden;animation:herein .24s ease both}
 .seite.mit-nav{padding-bottom:calc(var(--unten) + 120px)}
@@ -56,21 +65,21 @@ h1,h2,p{margin:0}
 .auf{animation:auf .45s cubic-bezier(.2,.7,.2,1) both}
 
 .kopf{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;flex-shrink:0}
-.kopf h1{font-size:26px;font-weight:600;letter-spacing:-.03em;flex:1;min-width:0}
+.kopf h1{font-size:30px;line-height:36px;font-weight:500;letter-spacing:-.022em;flex:1;min-width:0}
 .kopf-zurueck{display:flex;align-items:center;gap:12px;min-height:44px;flex-shrink:0}
-.kopf-zurueck h1{font-size:20px;font-weight:600;letter-spacing:-.02em;flex:1;min-width:0}
+.kopf-zurueck h1{font-size:20px;font-weight:500;letter-spacing:-.02em;flex:1;min-width:0}
 .kopf-rechts{display:flex;gap:10px;flex-shrink:0}
 
 /* ---------- Tasten ---------- */
-.sinkt{transition:transform .09s ease-out,box-shadow .09s ease-out,background-color .09s ease-out,opacity .09s ease-out}
-.sinkt:active{transform:translateY(1px) scale(.97);transition-duration:.05s}
+.sinkt{transition:transform .15s var(--kurve),background-color .15s var(--kurve),opacity .15s var(--kurve)}
+.sinkt:active{transform:scale(.96)}
 /* Runde Taste, 44 px: Glas mit feiner Linie, wie die Kopfknoepfe der Website. */
 .klein{width:44px;height:44px;border-radius:50%;border:1px solid var(--rand-hell);background:var(--glas);color:var(--text);
   display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0}
 .klein:active{background:var(--flaeche)}
 .klein.leer{background:transparent;border-color:transparent;color:var(--leise)}
 .klein.im-feld{width:40px;height:40px}
-.knopf{min-height:54px;border-radius:999px;border:1px solid transparent;background:var(--blau);color:#fff;font-size:15px;font-weight:600;width:100%;padding:0 22px;
+.knopf{min-height:56px;border-radius:999px;border:1px solid transparent;background:var(--blau-tief);color:#fff;font-size:16px;font-weight:500;width:100%;padding:0 22px;
   display:flex;align-items:center;justify-content:center;gap:10px;flex-shrink:0;box-shadow:var(--schein)}
 .knopf:active{background:var(--blau-druck);box-shadow:none}
 .knopf.zweit{background:var(--glas);border-color:var(--rand-hell);color:var(--text);box-shadow:none}
@@ -86,13 +95,13 @@ h1,h2,p{margin:0}
 .knopf.text{background:transparent;box-shadow:none;color:var(--blau-hell);font-size:15px;min-height:48px}
 .paar-knoepfe{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;flex-shrink:0}
 .stapel{display:flex;flex-direction:column;gap:10px;flex-shrink:0}
-.verweis{background:none;border:0;padding:0;color:var(--blau-hell);font-size:13px;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+.verweis{background:none;border:0;padding:0;color:var(--blau-hell);font-size:13px;font-weight:500;min-height:44px;display:inline-flex;align-items:center}
 
 /* ---------- Flaechen ---------- */
 .karte{background:var(--karte);border:1px solid var(--rand);border-radius:22px;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
 .karte.innen{padding:4px 18px}
 .vertieft{background:var(--karte)}
-.rubrik{font-family:var(--ziffern);font-size:11px;font-weight:500;letter-spacing:.14em;color:var(--leise);padding:6px 2px 0;text-transform:uppercase;flex-shrink:0}
+.rubrik{font-family:var(--ziffern);font-size:11px;font-weight:500;color:var(--leise);padding:6px 2px 0;flex-shrink:0}
 .hinweis{display:flex;gap:10px;align-items:flex-start;color:var(--leise);font-size:13px;line-height:1.5;padding:0 4px;flex-shrink:0}
 .hinweis svg{flex-shrink:0;margin-top:1px;color:var(--blass)}
 .hinweis.bern svg{color:var(--bern)}
@@ -105,14 +114,14 @@ h1,h2,p{margin:0}
 .kasten.ruhig svg{color:var(--leise)}
 .kasten.rot{background:var(--rot-flaeche);color:#FFD9D4}
 .kasten.rot svg{color:var(--rot)}
-.fehlertext{color:var(--rot);font-size:13px;font-weight:600;min-height:20px}
-.gutzeile{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--gruen);min-height:20px}
+.fehlertext{color:var(--rot);font-size:13px;font-weight:500;min-height:20px}
+.gutzeile{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--gruen);min-height:20px}
 .gutzeile.rot{color:var(--rot)}
 .gutzeile.leise{color:var(--leise)}
 
 /* ---------- Felder ---------- */
 .feldgruppe{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
-.feldname{font-size:14px;font-weight:600;color:var(--lesen)}
+.feldname{font-size:14px;font-weight:500;color:var(--lesen)}
 .feldkopf{display:flex;justify-content:space-between;align-items:baseline}
 .feldkopf small{font-family:var(--ziffern);font-size:12px;color:var(--leise)}
 .feld{min-height:52px;border-radius:16px;padding:13px 16px;font-size:15px;line-height:22px;width:100%;background:var(--karte);border:1px solid var(--rand)}
@@ -122,11 +131,11 @@ h1,h2,p{margin:0}
 
 /* ---------- Guthaben (Start) ---------- */
 .guthaben{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0 4px;flex-shrink:0}
-.etikett{font-family:var(--ziffern);font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--blau-hell)}
+.etikett{font-family:var(--ziffern);font-size:13px;font-weight:500;color:var(--blau-hell)}
 .etikettzeile{display:flex;align-items:center;gap:8px;min-height:44px;margin:-14px 0}
 .etikettzeile .klein{width:36px;height:36px}
 .betrag{display:flex;align-items:baseline;gap:8px;min-width:0;max-width:100%}
-.betrag .gross{font-size:56px;line-height:1;font-weight:300;letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+.betrag .gross{font-size:68px;line-height:1.03;font-weight:400;font-stretch:90%;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
 /* Beim Hochzaehlen haelt der unsichtbare Endwert den Platz frei. */
 .betrag .gross.zaehlt{display:grid}
 .betrag .gross.zaehlt > span{grid-area:1/1}
@@ -137,7 +146,7 @@ h1,h2,p{margin:0}
 .betrag.mittel .einheit{font-size:15px}
 .unterzeile-start{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
 .adress-pille{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 12px;border-radius:999px;border:1px solid var(--rand);background:var(--glas);color:var(--lesen);
-  font-family:var(--ziffern);font-size:12px}
+  font-family:var(--mono);font-size:12px}
 .adress-pille svg{color:var(--blass)}
 .adress-pille:active{background:var(--flaeche)}
 .trenn{height:1px;background:var(--linie);margin-top:4px}
@@ -146,7 +155,7 @@ h1,h2,p{margin:0}
 .rund-reihe{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0 24px;flex-shrink:0}
 .rund{display:flex;flex-direction:column;align-items:center;gap:8px;padding:2px 0;border:0;background:transparent;font-size:13px;font-weight:500;color:var(--lesen)}
 .rund .kreis{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--glas);border:1px solid var(--rand-hell);color:var(--text);transition:background-color .09s ease-out}
-.rund.blau .kreis{background:var(--blau);border-color:transparent;color:#fff;box-shadow:var(--schein)}
+.rund.blau .kreis{background:var(--blau-tief);border-color:transparent;color:#fff;box-shadow:var(--schein)}
 .rund:active .kreis{background:var(--flaeche)}
 .rund.blau:active .kreis{background:var(--blau-druck);box-shadow:none}
 /* Aktionen: zwei breite Pillen und die Scan-Taste. */
@@ -156,7 +165,7 @@ h1,h2,p{margin:0}
 
 /* ---------- Listen ---------- */
 .ueber{display:flex;align-items:center;justify-content:space-between;min-height:44px;flex-shrink:0}
-.ueber b{font-family:var(--ziffern);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--leise)}
+.ueber b{font-family:var(--ziffern);font-size:13px;font-weight:500;color:var(--leise)}
 .zeile{display:flex;align-items:center;gap:14px;padding:14px 16px;border:0;border-bottom:1px solid var(--linie);background:transparent;text-align:left;width:100%;min-height:72px}
 .zeile:last-child{border-bottom:0}
 .zeile:active{background:rgba(255,255,255,.03)}
@@ -188,7 +197,7 @@ h1,h2,p{margin:0}
 .wartering.gross{width:68px;height:68px}
 @keyframes dreh{to{transform:rotate(360deg)}}
 /* Initialen eines Kontakts. Vier ruhige Toene, nach dem Namen gewaehlt. */
-.bild{border-radius:50%;background:rgba(99,216,255,.16);border:1px solid rgba(99,216,255,.35);color:var(--blau-hell);font-weight:600;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bild{border-radius:50%;background:rgba(99,216,255,.16);border:1px solid rgba(99,216,255,.35);color:var(--blau-hell);font-weight:500;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .bild.t1{background:rgba(59,229,154,.14);border-color:rgba(59,229,154,.35);color:var(--gruen)}.bild.t2{background:rgba(255,180,84,.14);border-color:rgba(255,180,84,.35);color:var(--bern)}.bild.t3{background:rgba(47,123,255,.18);border-color:rgba(47,123,255,.4);color:#9DB9FF}
 .einstellzeile{display:flex;align-items:center;gap:14px;min-height:56px;padding:0;border:0;border-bottom:1px solid var(--linie);
   background:transparent;font-size:15px;font-weight:500;text-align:left;width:100%}
@@ -218,13 +227,13 @@ h1,h2,p{margin:0}
 /* Die Leiste kommt mit der Seite herein, nicht vor ihr. */
 .nav,.schleier{animation:herein .24s ease both}
 .nav button{height:48px;min-width:44px;border-radius:24px;border:0;background:transparent;color:var(--leise);display:flex;align-items:center;justify-content:center;gap:8px;
-  font-size:14px;font-weight:600;padding:0 12px;white-space:nowrap}
+  font-size:14px;font-weight:500;padding:0 12px;white-space:nowrap}
 .nav button[aria-current="page"]{background:var(--blau);color:#fff;padding:0 16px;box-shadow:var(--schein)}
 @media (max-width:380px){.nav{left:14px;right:14px}.nav button{font-size:13px}.seite{padding-left:16px;padding-right:16px}}
 
 /* ---------- PIN ---------- */
 .pinseite{align-items:center;padding-left:24px;padding-right:24px}
-.pinseite h1{font-size:24px;font-weight:600;letter-spacing:-.03em;text-align:center}
+.pinseite h1{font-size:24px;font-weight:500;letter-spacing:-.03em;text-align:center}
 .pinseite p.unter{font-size:15px;color:var(--leise);text-align:center;margin-top:-10px}
 .punkte{display:flex;gap:14px;margin-top:10px}
 .punkte span{width:12px;height:12px;border-radius:50%;border:2px solid var(--rand-hell);transition:background-color .12s,border-color .12s,transform .18s cubic-bezier(.3,1.8,.5,1)}
@@ -252,25 +261,25 @@ h1,h2,p{margin:0}
 .lader-seite .schein{animation:schein-auf 1.6s ease-out both}
 @keyframes schein-auf{from{opacity:0}to{opacity:.18}}
 @keyframes name-rein{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
-.lader-seite .motto{position:absolute;left:0;right:0;bottom:calc(var(--unten) + 150px);text-align:center;font-family:var(--ziffern);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--leise);animation:schein-auf 1s .6s both;opacity:1}
+.lader-seite .motto{position:absolute;left:0;right:0;bottom:calc(var(--unten) + 150px);text-align:center;font-family:var(--ziffern);font-size:13px;color:var(--leise);animation:schein-auf 1s .6s both;opacity:1}
 .lader-seite.geht{opacity:0;pointer-events:none}
 .lader{position:absolute;left:0;right:0;bottom:calc(var(--unten) + 72px);display:flex;flex-direction:column;align-items:center;gap:14px;opacity:0;transition:opacity .35s}
 .lader.sichtbar{opacity:1}
-.lader-text{font-size:14px;font-weight:600;color:var(--leise);min-height:21px}
+.lader-text{font-size:14px;font-weight:500;color:var(--leise);min-height:21px}
 .rille{width:208px;height:4px;border-radius:2px;background:var(--flaeche);overflow:hidden}
 .rille div{width:0;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--blau-tief),var(--blau-hell));transition:width .6s cubic-bezier(.3,.7,.3,1)}
 
 /* ---------- Einstieg ---------- */
 .hero{display:flex;align-items:center;justify-content:center;flex-shrink:0;min-height:120px}
-.gross-titel{font-size:40px;line-height:1.06;font-weight:600;letter-spacing:-.04em}
+.gross-titel{font-size:44px;line-height:1.09;font-weight:500;letter-spacing:-.03em}
 /* Die zweite Zeile einer grossen Ueberschrift: leicht, im Markenverlauf -- wie "you can verify." */
-.gross-titel .lt{display:block;font-weight:300;background:linear-gradient(100deg,var(--blau-hell),var(--blau) 55%,var(--blau-tief));-webkit-background-clip:text;background-clip:text;color:transparent}
+.gross-titel .lt{display:block;color:var(--blass)}
 .fliess{font-size:16px;line-height:1.55;color:var(--leise)}
 .mittig{text-align:center}
-.titel2{font-size:28px;line-height:1.12;font-weight:600;letter-spacing:-.03em}
+.titel2{font-size:30px;line-height:1.2;font-weight:500;letter-spacing:-.022em}
 .sprachknopf{height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--rand);background:var(--glas);color:var(--text);font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:8px;align-self:flex-end}
 .fuss{font-size:13px;color:var(--blass);text-align:center;line-height:1.5}
-.fuss.motto{font-family:var(--ziffern);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+.fuss.motto{font-family:var(--ziffern);font-size:11px;letter-spacing:.2em}
 /* Die 12 Woerter: zwei nummerierte Spalten, kein Kaestchen je Wort. */
 .wortliste{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px;padding:8px 24px}
 .wortliste div{display:flex;align-items:baseline;gap:12px;min-width:0}
@@ -285,14 +294,14 @@ h1,h2,p{margin:0}
 .wort b.falsch{color:var(--rot)}
 .wortraster.eins{grid-template-columns:minmax(0,1fr);gap:10px}
 .wortraster.eins .wort{height:56px;border-radius:18px;padding:0 18px;background:var(--karte)}
-.tonknopf{height:48px;border-radius:999px;background:rgba(47,123,255,.14);border:1px solid rgba(99,216,255,.3);color:var(--blau-hell);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:9px;width:100%}
+.tonknopf{height:48px;border-radius:999px;background:rgba(47,123,255,.14);border:1px solid rgba(99,216,255,.3);color:var(--blau-hell);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:9px;width:100%}
 .tonknopf.grau{background:var(--glas);border-color:var(--rand-hell);color:var(--lesen)}
 .tonknopf:disabled{opacity:.45}
 .grosskreis{width:140px;height:140px;border-radius:50%;background:rgba(47,123,255,.12);border:1px solid rgba(99,216,255,.3);color:var(--blau-hell);display:flex;align-items:center;justify-content:center;align-self:center;flex-shrink:0}
 .auswahlzeile{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--rand);border-radius:22px;background:var(--karte);text-align:left;width:100%}
 .auswahlzeile:active{background:var(--flaeche)}
 .auswahlzeile .worte{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.auswahlzeile b{font-size:15px;font-weight:600}
+.auswahlzeile b{font-size:15px;font-weight:500}
 .auswahlzeile small{font-size:13px;color:var(--leise)}
 .auswahlzeile .kachel{border-radius:14px}
 .auswahlzeile > svg{color:var(--blass);flex-shrink:0}
@@ -300,7 +309,7 @@ h1,h2,p{margin:0}
 /* ---------- Senden ---------- */
 .an-feld{display:flex;align-items:center;gap:10px;min-height:56px;padding:0 7px 0 16px;border-radius:18px;background:var(--karte);border:1px solid var(--rand-hell);flex-shrink:0}
 .an-feld.aktiv{border-color:var(--blau);box-shadow:0 0 0 3px rgba(47,123,255,.18)}
-.an-feld > span.wort-an{font-family:var(--ziffern);font-size:11px;font-weight:500;letter-spacing:.16em;color:var(--blau-hell);flex-shrink:0}
+.an-feld > span.wort-an{font-family:var(--ziffern);font-size:13px;font-weight:500;color:var(--blau-hell);flex-shrink:0}
 .an-feld .tippfeld{flex:1;min-width:0;min-height:44px;padding:6px 0;font-size:14px;line-height:1.7;display:flex;flex-wrap:wrap;align-items:center;gap:0 9px}
 .an-chip{display:inline-flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:999px;border:1px solid rgba(99,216,255,.3);background:rgba(47,123,255,.14);color:var(--text);font-size:14px;font-weight:500;flex-shrink:0}
 .an-chip svg{color:var(--leise)}
@@ -312,36 +321,36 @@ h1,h2,p{margin:0}
 .betragblock{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 0;flex-shrink:0}
 .betragblock .oben{display:flex;align-items:baseline;gap:10px;max-width:100%}
 .betragblock .oben span{font-size:18px;font-weight:500;color:var(--leise)}
-.betragblock .tippfeld{height:64px;font-size:56px;line-height:64px;font-weight:300;letter-spacing:-.04em;white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums;min-width:40px;text-align:center}
+.betragblock .tippfeld{height:82px;font-size:80px;line-height:82px;font-weight:400;font-stretch:90%;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums;min-width:40px;text-align:center}
 .betragblock .tippfeld.lang1{font-size:40px}
 .betragblock .tippfeld.lang2{font-size:30px;letter-spacing:-.02em}
 .betragblock .tippfeld.lang3{font-size:22px;letter-spacing:0}
 .betragblock .unten{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--leise)}
 .betragblock .unten b{font-family:var(--ziffern);font-weight:400;color:var(--lesen)}
-.betragblock .alles{height:26px;padding:0 10px;border-radius:999px;border:1px solid rgba(99,216,255,.35);background:rgba(99,216,255,.12);color:var(--blau-hell);font-family:var(--ziffern);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
-.notizknopf{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;padding:0;color:var(--blass);font-size:13px;font-weight:600;min-height:28px;align-self:center}
+.betragblock .alles{height:26px;padding:0 10px;border-radius:999px;border:1px solid rgba(99,216,255,.35);background:rgba(99,216,255,.12);color:var(--blau-hell);font-family:var(--ziffern);font-size:11px;font-weight:500;letter-spacing:.08em}
+.notizknopf{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;padding:0;color:var(--blass);font-size:13px;font-weight:500;min-height:28px;align-self:center}
 .gebuehrzeile{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 8px;font-size:13px;color:var(--leise);text-align:center;flex-shrink:0}
 .gebuehrzeile b{font-family:var(--ziffern);font-weight:400;color:var(--lesen);white-space:nowrap}
 .mitte-block{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0 2px;flex-shrink:0}
-.mitte-block > small{font-size:15px;font-weight:700;color:var(--leise)}
+.mitte-block > small{font-size:15px;font-weight:500;color:var(--leise)}
 .paar{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:14px 0;border-bottom:1px solid var(--linie);font-size:14px}
 .paar:last-child{border-bottom:0}
 .paar > span:first-child{color:var(--leise);flex-shrink:0}
 .paar.hoch{flex-direction:column;gap:5px}
 .paar.hoch b{font-size:16px;font-weight:500}
 .paar.rechts > div{display:flex;flex-direction:column;align-items:flex-end;gap:3px;min-width:0}
-.paar.summe b{font-weight:700;color:var(--leise)}
+.paar.summe b{font-weight:500;color:var(--leise)}
 .paar.summe .ziffern{font-size:16px;font-weight:500;color:var(--text)}
-.vierer{font-family:var(--ziffern);font-size:14px;line-height:1.7;display:flex;flex-wrap:wrap;gap:0 9px}
+.vierer{font-family:var(--mono);font-size:14px;line-height:1.7;display:flex;flex-wrap:wrap;gap:0 9px}
 .vierer span.rand{color:var(--blau-hell);font-weight:500}
 .vierer.klein-schrift{font-size:12px;gap:0 6px;justify-content:flex-end;color:var(--lesen)}
 .vierer.mittig{justify-content:center}
 .schieber{position:relative;height:64px;border-radius:32px;overflow:hidden;touch-action:none;flex-shrink:0;background:var(--karte);border:1px solid var(--rand-hell)}
 .schieber .spur{position:absolute;left:0;top:0;bottom:0;width:62px;border-radius:32px;background:rgba(47,123,255,.22)}
-.schieber .wort-mitte{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:40px;font-size:15px;font-weight:600;color:var(--leise);pointer-events:none}
+.schieber .wort-mitte{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:40px;font-size:15px;font-weight:500;color:var(--leise);pointer-events:none}
 .schieber .pfeile{position:absolute;right:20px;top:20px;color:var(--blass);display:flex;pointer-events:none;animation:wink 1.6s ease-in-out infinite}
 @keyframes wink{0%,100%{transform:translateX(0);opacity:.6}50%{transform:translateX(5px);opacity:1}}
-.knauf{position:absolute;left:3px;top:3px;width:56px;height:56px;border-radius:50%;border:0;padding:0;background:var(--blau);color:#fff;display:flex;align-items:center;justify-content:center;
+.knauf{position:absolute;left:3px;top:3px;width:56px;height:56px;border-radius:50%;border:0;padding:0;background:var(--blau-tief);color:#fff;display:flex;align-items:center;justify-content:center;
   box-shadow:var(--schein);touch-action:none}
 .schieber.zurueck .knauf,.schieber.zurueck .spur{transition:transform .32s cubic-bezier(.3,1.5,.5,1),width .32s cubic-bezier(.3,1.5,.5,1)}
 .schieber.auto .knauf,.schieber.auto .spur{transition:transform .5s cubic-bezier(.5,0,.2,1),width .5s cubic-bezier(.5,0,.2,1)}
@@ -364,7 +373,7 @@ h1,h2,p{margin:0}
 .pille i{width:6px;height:6px;border-radius:50%;background:currentColor}
 .anwen{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--leise)}
 .anwen .ziffern{color:var(--text);font-size:18px;font-weight:500}
-.anwen b{color:var(--text);font-weight:600}
+.anwen b{color:var(--text);font-weight:500}
 /* Drei Stufen nebeneinander (Gesendet). */
 .stufenleiste{display:flex;align-self:stretch;flex-shrink:0;padding:0 8px}
 .stufenleiste > div{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--leise)}
@@ -403,11 +412,11 @@ h1,h2,p{margin:0}
 
 /* ---------- Kontakt-Verlauf ---------- */
 .kontaktkopf{display:flex;align-items:center;gap:12px;padding:calc(var(--oben) + 16px) 20px 12px;flex-shrink:0}
-.kontaktkopf h1{font-size:20px;font-weight:600;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.kontaktkopf small{font-family:var(--ziffern);font-size:12px;color:var(--leise)}
+.kontaktkopf h1{font-size:20px;font-weight:500;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kontaktkopf small{font-family:var(--mono);font-size:12px;color:var(--leise)}
 .gespraech{flex:1;overflow-y:auto;padding:8px 20px 16px;display:flex;flex-direction:column;gap:8px}
 .gespraech::before{content:'';flex:1}
-.tagmarke{align-self:center;font-family:var(--ziffern);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--blass);padding:6px 0 2px}
+.tagmarke{align-self:center;font-family:var(--ziffern);font-size:11px;letter-spacing:.1em;color:var(--blass);padding:6px 0 2px}
 .blase{max-width:78%;padding:12px 16px 10px;display:flex;flex-direction:column;gap:4px;border:0;text-align:left}
 .blase.r{align-self:flex-end;border-radius:20px 20px 6px 20px;background:var(--blau);color:#fff}
 .blase.l{align-self:flex-start;border-radius:20px 20px 20px 6px;background:var(--karte);border:1px solid var(--rand)}
@@ -418,9 +427,9 @@ h1,h2,p{margin:0}
 .blase.l .summe small,.blase.l .zeit,.blase.frage .zeit{color:var(--leise);opacity:1}
 .blase .text{font-size:15px;line-height:1.4;overflow-wrap:anywhere}
 .blase .zeit{font-size:12px;opacity:.8;display:flex;align-items:center;gap:6px}
-.blase .zeit.wartet{color:var(--bern);font-weight:600;opacity:1}
+.blase .zeit.wartet{color:var(--bern);font-weight:500;opacity:1}
 .blase.r .zeit.wartet{color:#FFE2B0}
-.blase .marke{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--leise)}
+.blase .marke{font-size:12px;font-weight:500;letter-spacing:.08em;color:var(--leise)}
 .fussleiste{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px 20px calc(var(--unten) + 24px);flex-shrink:0}
 
 /* ---------- Blatt (von unten) und Meldung ---------- */
@@ -430,10 +439,10 @@ h1,h2,p{margin:0}
   display:flex;flex-direction:column;gap:16px;animation:hoch .28s cubic-bezier(.2,.8,.2,1) both}
 @keyframes hoch{from{transform:translateY(100%)}}
 .blatt::before{content:'';width:40px;height:4px;border-radius:2px;background:var(--rand-hell);align-self:center;flex-shrink:0}
-.blatt h2{font-size:20px;font-weight:600;letter-spacing:-.02em;padding:0 4px}
+.blatt h2{font-size:20px;font-weight:500;letter-spacing:-.02em;padding:0 4px}
 .blatt p{font-size:15px;line-height:1.5;color:var(--lesen);padding:0 4px}
 .blatt .karte{background:var(--karte)}
-.meldung{position:absolute;left:50%;bottom:calc(var(--unten) + 104px);transform:translateX(-50%);background:var(--text);color:var(--grund);font-size:14px;font-weight:600;padding:11px 18px;border-radius:999px;
+.meldung{position:absolute;left:50%;bottom:calc(var(--unten) + 104px);transform:translateX(-50%);background:var(--text);color:var(--grund);font-size:14px;font-weight:500;padding:11px 18px;border-radius:999px;
   z-index:60;box-shadow:0 10px 24px rgba(0,0,0,.45);animation:meldung 2.2s both;pointer-events:none;white-space:nowrap;max-width:calc(100% - 40px);overflow:hidden;text-overflow:ellipsis}
 @keyframes meldung{0%{opacity:0;transform:translate(-50%,10px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,0)}}
 .band{background:var(--bern-flaeche);border:1px solid rgba(255,180,84,.3);color:var(--bern-text);font-size:13px;font-weight:500;border-radius:14px;padding:10px 14px;flex-shrink:0}
@@ -466,13 +475,13 @@ h1,h2,p{margin:0}
 .tleiste{display:flex;align-items:center;gap:8px;min-height:50px;padding:0 3px 0 5px}
 .tlinks{flex:1;min-width:0;display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;touch-action:pan-x}
 .tlinks::-webkit-scrollbar{display:none}
-.tknopf{height:36px;padding:0 13px;border-radius:11px;border:1px solid var(--rand);background:var(--glas);color:var(--lesen);font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap}
+.tknopf{height:36px;padding:0 13px;border-radius:11px;border:1px solid var(--rand);background:var(--glas);color:var(--lesen);font-size:14px;font-weight:500;display:flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap}
 .tknopf:active{background:var(--flaeche)}
 .tknopf.vorschlag{font-family:var(--ziffern);font-weight:500;font-size:15px;color:var(--text)}
 .tknopf.vorschlag.genau{background:var(--blau-flaeche);color:var(--blau-hell)}
-.tfertig{height:44px;padding:0 12px;border:0;background:transparent;color:var(--blau-hell);font-size:15px;font-weight:600;flex-shrink:0}
+.tfertig{height:44px;padding:0 12px;border:0;background:transparent;color:var(--blau-hell);font-size:15px;font-weight:500;flex-shrink:0}
 .tfertig:active{opacity:.6}
-.thinweis{font-size:14px;font-weight:600;color:var(--leise);padding-left:6px;white-space:nowrap}
+.thinweis{font-size:14px;font-weight:500;color:var(--leise);padding-left:6px;white-space:nowrap}
 .thinweis.rot{color:var(--rot)}
 .tblock{display:flex;flex-direction:column;gap:7px}
 .treihe{display:flex;gap:5px}
@@ -484,20 +493,20 @@ h1,h2,p{margin:0}
 .ttaste.dunkel:active,.ttaste.dunkel.unten{background:var(--flaeche)}
 /* Das getippte Zeichen gross ueber der Taste: Der Finger verdeckt sie. */
 .ttaste[data-z].unten::after{content:attr(data-z);position:absolute;left:50%;bottom:calc(100% + 5px);transform:translateX(-50%);min-width:46px;height:54px;padding:0 8px;border-radius:12px;
-  background:#1B2A55;color:#fff;font-family:var(--schrift);font-size:28px;font-weight:600;display:flex;align-items:center;justify-content:center;
+  background:#1B2A55;color:#fff;font-family:var(--schrift);font-size:28px;font-weight:500;display:flex;align-items:center;justify-content:center;
   box-shadow:0 8px 18px rgba(0,0,0,.5);pointer-events:none;z-index:2}
-.tastatur.t-adresse .ttaste[data-z].unten::after,.tastatur.t-wort .ttaste[data-z].unten::after{font-family:var(--ziffern);font-weight:500}
+.tastatur.t-adresse .ttaste[data-z].unten::after,.tastatur.t-wort .ttaste[data-z].unten::after{font-family:var(--mono);font-weight:500}
 .treihe > .ttaste[data-z]:first-child.unten::after{left:-2px;transform:none}
 .treihe > .ttaste[data-z]:last-child.unten::after{left:auto;right:-2px;transform:none}
 .ttaste.dunkel.an{background:var(--text);color:var(--grund)}
-.ttaste.klein-schrift{font-size:14px;font-weight:600;letter-spacing:.02em}
+.ttaste.klein-schrift{font-size:14px;font-weight:500;letter-spacing:.02em}
 .ttaste.leertaste{background:#111A33}
 .tastatur.t-ziffern{padding-left:14px;padding-right:14px}
 .ziffernblock{gap:8px}
 .ziffernblock .treihe{gap:8px}
 .ziffernblock .ttaste{height:56px;border-radius:28px;font-family:var(--ziffern);font-size:23px;font-weight:400;box-shadow:none;background:var(--glas);border:1px solid var(--rand)}
 .ziffernblock .ttaste.dunkel{background:transparent;border-color:transparent}
-.tastatur.t-adresse .ttaste,.tastatur.t-wort .ttaste{font-family:var(--ziffern);font-weight:500;font-size:20px}
+.tastatur.t-adresse .ttaste,.tastatur.t-wort .ttaste{font-family:var(--mono);font-weight:500;font-size:20px}
 @media (max-height:640px){.ttaste{height:42px}.ziffernblock .ttaste{height:48px;border-radius:24px}}
 
 /* ---------- Scanner ---------- */
@@ -505,9 +514,9 @@ h1,h2,p{margin:0}
 .scanner video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;opacity:0;transition:opacity .15s ease}
 .scanner video.laeuft{opacity:1}
 .scanner .oben{position:relative;display:flex;align-items:center;gap:12px;padding:calc(var(--oben) + 16px) 20px 0}
-.scanner .oben h1{font-size:20px;font-weight:800}
+.scanner .oben h1{font-size:20px;font-weight:500}
 .scanner .rahmen{position:absolute;left:50%;top:50%;width:min(68vw,280px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:28px;border:3px solid #fff;box-shadow:0 0 0 2000px rgba(0,0,0,.5)}
-.scanner .text{position:absolute;left:20px;right:20px;bottom:calc(var(--unten) + 48px);text-align:center;font-size:15px;font-weight:600}
+.scanner .text{position:absolute;left:20px;right:20px;bottom:calc(var(--unten) + 48px);text-align:center;font-size:15px;font-weight:500}
 .dreher{width:22px;height:22px;border-radius:50%;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;animation:dreh .8s linear infinite}
 
 @media (prefers-reduced-motion:reduce){
@@ -534,24 +543,24 @@ h1,h2,p{margin:0}
 .profilkarte .zeichen{width:48px;height:48px;border-radius:16px;background:rgba(3,6,15,.5);border:1px solid rgba(99,216,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .profilkarte .zeichen img{width:26px;height:26px}
 .profilkarte .worte{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.profilkarte b{font-size:15px;font-weight:600}
-.profilkarte small{font-family:var(--ziffern);font-size:12px;color:var(--leise);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profilkarte b{font-size:15px;font-weight:500}
+.profilkarte small{font-family:var(--mono);font-size:12px;color:var(--leise);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* Nachkommastellen: im Guthaben halb so gross, in Zeilen nur blasser */
 .betrag .gross i{font-size:.5em;letter-spacing:-.02em}
 i.nk{font-style:normal;opacity:.6}
 
 /* Nachricht signieren */
-.genau{background:var(--senke);border-radius:16px;padding:14px 16px;font-family:var(--ziffern);font-size:12px;line-height:1.65;color:var(--lesen);overflow-wrap:anywhere;flex-shrink:0}
+.genau{background:var(--senke);border-radius:16px;padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.65;color:var(--lesen);overflow-wrap:anywhere;flex-shrink:0}
 .genau .blass{color:var(--leise)}
-.mitte-block .domain{font-size:26px;font-weight:600;letter-spacing:-.02em;text-align:center;overflow-wrap:anywhere}
+.mitte-block .domain{font-size:26px;font-weight:500;letter-spacing:-.02em;text-align:center;overflow-wrap:anywhere}
 .hexzeile{display:flex;gap:10px;align-items:flex-start}
-.hexzeile .hex{flex:1;min-width:0;font-size:12px;line-height:1.6;color:var(--lesen);overflow-wrap:anywhere}
+.hexzeile .hex{font-family:var(--mono);flex:1;min-width:0;font-size:12px;line-height:1.6;color:var(--lesen);overflow-wrap:anywhere}
 .knopf.mit-symbol{display:flex;gap:10px;align-items:center;justify-content:center}
 .kachel.rotkachel{background:var(--rot-flaeche);color:var(--rot)}
 .gutzeile.winzig{font-size:12px}
 .feld.nachrichtfeld{min-height:150px}
-.feld-huelle .tippfeld.ziffern{font-size:12px;line-height:1.6;overflow-wrap:anywhere;word-break:break-all}
+.feld-huelle .tippfeld.ziffern{font-family:var(--mono);font-size:12px;line-height:1.6;overflow-wrap:anywhere;word-break:break-all}
 .feld-huelle .tippfeld.mehrzeilig{display:block;white-space:pre-wrap;word-break:normal}
 .kasten.gruen{background:var(--gruen-flaeche);color:#CFF7E4}
 .kasten.gruen svg{color:var(--gruen)}
@@ -572,7 +581,7 @@ div.ez:active{background:transparent}
 .ez-hinweis{color:var(--leise);font-size:13px;line-height:1.5;padding:0 6px;flex-shrink:0}
 .ez-fuss{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 4px;border:0;background:transparent;color:var(--leise);font:inherit;font-size:13px;flex-shrink:0}
 .ez-fuss img{margin-bottom:6px}
-.ez-fuss b{color:var(--text);font-size:15px;font-weight:600}
+.ez-fuss b{color:var(--text);font-size:15px;font-weight:500}
 .blatt .ez-gruppe{background:var(--flaeche)}
 
 /* Einfuehrung: Karten im Story-Stil */
@@ -584,10 +593,10 @@ div.ez:active{background:transparent}
 .ef-flaeche{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px 0;touch-action:manipulation;min-height:0}
 .ef-bild{animation:ef-rein .35s ease both;display:flex;justify-content:center}
 .ef-text{padding:0 26px calc(var(--unten) + 28px);display:flex;flex-direction:column;gap:12px;animation:ef-rein .35s ease both}
-.ef-text h2{font-size:30px;line-height:1.12;font-weight:600;letter-spacing:-.02em}
+.ef-text h2{font-size:30px;line-height:1.12;font-weight:500;letter-spacing:-.02em}
 .ef-text p{font-size:16px;line-height:1.5;color:#C9D6F5}
 .ef-unten{display:flex;align-items:center;gap:10px;margin-top:4px}
-.ef-aktion{margin-right:auto;height:50px;padding:0 24px;border-radius:99px;border:0;background:#fff;color:#03060F;font:inherit;font-weight:600;font-size:16px}
+.ef-aktion{margin-right:auto;height:50px;padding:0 24px;border-radius:99px;border:0;background:#fff;color:#03060F;font:inherit;font-weight:500;font-size:16px}
 .ef-pfeil{width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center}
 .ef-pfeil:disabled{opacity:.3}
 @keyframes ef-rein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -595,8 +604,8 @@ div.ez:active{background:transparent}
 .ef-muenze{width:270px;height:280px}
 .ef-mini{width:260px;background:var(--grund);border-radius:28px;padding:18px 16px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:12px;border:1px solid rgba(140,170,255,.18);color:var(--text)}
 .ef-k{font-size:13px;color:var(--leise);text-align:center}
-.ef-t{font-size:14px;font-weight:600;text-align:center}.ef-t.links{text-align:left}.ef-t.gross{font-size:20px}
-.ef-b{font-size:34px;font-weight:300;letter-spacing:-.03em;text-align:center}.ef-b i{font-style:normal;font-size:.5em;color:var(--blass)}.ef-b u{text-decoration:none;font-size:13px;color:var(--leise);margin-left:4px}
+.ef-t{font-size:14px;font-weight:500;text-align:center}.ef-t.links{text-align:left}.ef-t.gross{font-size:20px}
+.ef-b{font-size:34px;font-weight:400;font-stretch:90%;letter-spacing:-.02em;text-align:center}.ef-b i{font-style:normal;font-size:.5em;color:var(--blass)}.ef-b u{text-decoration:none;font-size:13px;color:var(--leise);margin-left:4px}
 .ef-p{background:var(--karte);border-radius:14px;padding:4px 12px}
 .ef-p > div{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 0;color:var(--leise)}
 .ef-p > div + div{border-top:1px solid var(--linie)}
@@ -620,14 +629,14 @@ div.ez:active{background:transparent}
 .ef-punkte{display:flex;gap:12px;justify-content:center}.ef-punkte i{width:12px;height:12px;border-radius:50%;background:var(--blau)}.ef-punkte i.l{background:transparent;border:1.5px solid var(--leise)}
 .ef-sw{width:34px;height:20px;border-radius:99px;background:var(--blau);position:relative}.ef-sw::after{content:"";position:absolute;right:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff}
 .ef-welt{display:flex;justify-content:center}.ef-welt svg{box-sizing:content-box;padding:11px;border-radius:50%;background:rgba(47,123,255,.14);color:var(--blau-hell)}
-.ef-knopf{height:38px;border-radius:99px;background:var(--blau);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff}
+.ef-knopf{height:38px;border-radius:99px;background:var(--blau);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#fff}
 .ef-tg{width:280px;display:flex;flex-direction:column;gap:10px}
 .ef-tg > div{display:flex;align-items:center;gap:12px;background:var(--karte);border-radius:16px;padding:12px;color:var(--text)}
 .ef-tg .a{width:40px;height:40px;border-radius:50%;background:var(--grund);display:flex;align-items:center;justify-content:center}.ef-tg .a img{width:22px}
-.ef-tg b{display:block;font-size:13px;font-weight:600}.ef-tg small{font-size:11px;color:var(--leise)}.ef-tg .o{margin-left:auto;color:var(--blau-hell);display:flex}
+.ef-tg b{display:block;font-size:13px;font-weight:500}.ef-tg small{font-size:11px;color:var(--leise)}.ef-tg .o{margin-left:auto;color:var(--blau-hell);display:flex}
 /* Karte auf dem Startbildschirm */
 .ef-karte{position:relative;flex-shrink:0}
 .ef-karte-los{width:100%;border:0;background:linear-gradient(110deg,var(--karte) 55%,var(--blau-flaeche));border-radius:20px;padding:16px 18px;display:flex;gap:14px;align-items:center;text-align:left;color:var(--text);font:inherit}
-.ef-karte-text{flex:1;display:flex;flex-direction:column;gap:4px}.ef-karte-text b{font-size:16px;font-weight:600}.ef-karte-text span{font-size:14px;color:var(--blau-hell)}
+.ef-karte-text{flex:1;display:flex;flex-direction:column;gap:4px}.ef-karte-text b{font-size:16px;font-weight:500}.ef-karte-text span{font-size:14px;color:var(--blau-hell)}
 .ef-karte-bild{width:60px;height:60px;border-radius:18px;background:var(--grund);display:flex;align-items:center;justify-content:center;margin-right:18px}.ef-karte-bild img{width:32px}
 .ef-karte-zu{position:absolute;right:6px;top:6px;width:32px;height:32px;border:0;background:transparent;color:var(--leise);display:flex;align-items:center;justify-content:center}
