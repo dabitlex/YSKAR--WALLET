@@ -508,6 +508,7 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck }: {
  * einen unsichtbaren Regler in vier Schritten; erst der letzte sendet.
  */
 export function Schieber({ text, label, onFertig, gesperrt }: { text: string; label: string; onFertig: () => void; gesperrt?: boolean }) {
+  const t = useT();
   const bahn = useRef<HTMLDivElement>(null);
   const [lage, setLage] = useState(0);
   const [art, setArt] = useState<'' | 'zurueck' | 'fertig'>('');
@@ -538,8 +539,10 @@ export function Schieber({ text, label, onFertig, gesperrt }: { text: string; la
   };
   // Bildschirmleser und Tastatur: ein Regler in vier Schritten. Erst der letzte Schritt sendet --
   // auch hier braucht es mehrere bewusste Bewegungen, ein einzelnes Tippen genuegt nie.
-  const regler = (wert: number) => {
+  const regler = (gewuenscht: number) => {
     if (gesperrt || art === 'fertig') return;
+    // Hoechstens eine Stufe je Bewegung: Ende-, Bild- oder Sprungtasten koennen nicht direkt senden.
+    const wert = Math.min(gewuenscht, stufe + 25);
     setStufe(wert);
     if (wert >= 100) fertig(); else { setArt(''); setLage(weg() * wert / 100); }
   };
@@ -555,6 +558,7 @@ export function Schieber({ text, label, onFertig, gesperrt }: { text: string; la
         {art === 'fertig' ? <S n="haken" g={24} w={2.4} /> : <YMarke g={28} farbe="#fff" />}
       </div>
       <input type="range" className="nur-leser" min={0} max={100} step={25} value={stufe} aria-label={label}
+             aria-valuetext={t.senden.schiebenStufe(stufe / 25)}
              disabled={gesperrt || art === 'fertig'} onChange={e => regler(Number(e.target.value))} />
     </div>
   );

@@ -128,6 +128,7 @@ export const en: Woerterbuch = {
     warnung: 'A transfer cannot be taken back.',
     neueAdresse: 'You have not sent to this address before. Compare it character by character.',
     schieben: 'Slide to send', schiebenLabel: 'Slide right to send',
+    schiebenStufe: (n: number) => (n >= 4 ? 'Sending' : `Step ${n} of 4. Sends only at step 4.`),
     danach: 'You then confirm with fingerprint or PIN.', danachPin: 'You then confirm with your PIN.',
     pinText: 'to send the payment',
     bioGrund: b => `Send ${b} YSR`,
@@ -192,6 +193,8 @@ export const en: Woerterbuch = {
   einst: {
     sicherheitZeile: 'Security', meldungKurz: 'Notifications', systemKurz: 'System',
     min1Kurz: '1 min', min5Kurz: '5 min',
+    vibration: 'Vibration', sichtschutz: 'Screen privacy',
+    sichtschutzText: 'No screenshots, and the app is hidden in the app overview. On the 12 words screen privacy is always on.',
     fingerText: 'Use your fingerprint to unlock the wallet and to confirm payments and signatures. Your PIN stays the fallback.',
     anleitungen: 'Guides', community: 'Community', news: 'YSKAR News', recht: 'Legal',
     datenschutz: 'Privacy policy', impressum: 'Legal notice', lizenz: 'Licence',

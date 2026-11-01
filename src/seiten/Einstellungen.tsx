@@ -3,7 +3,7 @@ import { useT, sprachCode } from '../i18n/index.ts';
 import { useDaten, useNav, useWallet } from '../zustand.tsx';
 import { einstellen, useEinstellungen, type Sprache, type AnzeigeStellen } from '../wallet/einstellungen.ts';
 import { bioAktiv, bioAusschalten, bioEinschalten, bioStand } from '../wallet/biometrie.ts';
-import { kopieren, sichtschutz, imBrowserOeffnen } from '../geraet/geraet.ts';
+import { kopieren, sichtschutz, imBrowserOeffnen, tippGefuehl } from '../geraet/geraet.ts';
 import { istNativ, letzteFehler } from '../geraet/plattform.ts';
 import { eingangMoeglich, eingangStand, eingangEinschalten, eingangAusschalten, eingangAkku, type EingangStand } from '../geraet/eingang.ts';
 import { S, Kopf, KopfZurueck, Blatt, Kasten, PinFeld, Zeichen, useMeldung, type PinAntwort } from '../ui/teile.tsx';
@@ -103,6 +103,9 @@ export function Einstellungen() {
         <Zeile text={t.einst.sicherheitZeile} symbol="schloss" onTipp={() => nav.gehe({ n: 'sicherheit' })} />
         <Zeile text={t.einst.woerter} symbol="schluessel" onTipp={() => nav.gehe({ n: 'woerterZeigen' })} />
         {eingangMoeglich() && <Zeile text={t.einst.meldungKurz} wert={meldungAn ? t.allg.an : t.allg.aus} onTipp={() => setBlatt('meldung')} />}
+        <Zeile text={t.einst.vibration}
+               rechts={<button type="button" role="switch" className="schalter" aria-checked={e.vibration} aria-label={t.einst.vibration}
+                               onClick={() => { einstellen({ vibration: !e.vibration }); if (!e.vibration) tippGefuehl(); }}><span /></button>} />
         <Zeile text={t.einst.sprache} wert={sprachText(e.sprache)} onTipp={() => setBlatt('sprache')} />
         <Zeile text={t.einst.stellen} wert={stellenKurz(e.stellen)} onTipp={() => setBlatt('stellen')} />
       </div>
@@ -235,6 +238,12 @@ export function Sicherheit() {
         <Zeile text={t.einst.sperre} wert={sperrKurz(e.sperreNach)} onTipp={() => setBlatt(true)} />
       </div>
       <p className="ez-hinweis">{t.einst.fingerText}</p>
+      <div className="ez-gruppe">
+        <Zeile text={t.einst.sichtschutz}
+               rechts={<button type="button" role="switch" className="schalter" aria-checked={e.sichtschutz} aria-label={t.einst.sichtschutz}
+                               onClick={() => einstellen({ sichtschutz: !e.sichtschutz })}><span /></button>} />
+      </div>
+      <p className="ez-hinweis">{t.einst.sichtschutzText}</p>
 
       {blatt && (
         <Blatt titel={t.einst.sperreTitel} onZu={() => setBlatt(false)}>

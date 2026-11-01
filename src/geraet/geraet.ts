@@ -5,16 +5,23 @@ import { Clipboard } from '@capacitor/clipboard';
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
 import { Share } from '@capacitor/share';
 import { istNativ, fehlerMerken } from './plattform.ts';
+import { einstellungenLager } from '../wallet/einstellungen.ts';
 
-/** Kurzes Vibrieren. Im Browser passiert nichts. */
+/*
+  Haptik. Jede Rueckmeldung laeuft durch diese drei Funktionen; ist in den
+  Einstellungen "Vibration" aus, vibriert die App nirgends. Im Browser passiert nichts.
+*/
+const vibrierenErlaubt = (): boolean => istNativ() && einstellungenLager.lesen().vibration;
+
+/** Kurzes, dezentes Signal. */
 export function tippGefuehl(): void {
-  if (istNativ()) Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
+  if (vibrierenErlaubt()) Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
 }
 export function erfolgGefuehl(): void {
-  if (istNativ()) Haptics.notification({ type: NotificationType.Success }).catch(() => {});
+  if (vibrierenErlaubt()) Haptics.notification({ type: NotificationType.Success }).catch(() => {});
 }
 export function fehlerGefuehl(): void {
-  if (istNativ()) Haptics.notification({ type: NotificationType.Error }).catch(() => {});
+  if (vibrierenErlaubt()) Haptics.notification({ type: NotificationType.Error }).catch(() => {});
 }
 
 export async function kopieren(text: string): Promise<boolean> {
@@ -105,6 +112,29 @@ export function beiLink(f: () => void): () => void {
 interface SichtschutzPlugin { setzen(o: { an: boolean }): Promise<void> }
 const Sichtschutz = registerPlugin<SichtschutzPlugin>('Sichtschutz');
 
+/*
+  Zwei Quellen: Screens mit den 12 Woertern verlangen den Schutz immer
+  (sichtschutz(true) beim Oeffnen, sichtschutz(false) beim Schliessen), und der
+  Schalter in den Einstellungen schuetzt alle Bildschirme. Gezaehlt wird, damit
+  das Schliessen der Woerter einen eingeschalteten Schalter nicht aufhebt.
+*/
+let verlangt = 0;
+let gesetzt: boolean | null = null;
+
+function sichtschutzAnwenden(): void {
+  const an = verlangt > 0 || einstellungenLager.lesen().sichtschutz;
+  if (an === gesetzt) return;
+  gesetzt = an;
+  if (istNativ()) Sichtschutz.setzen({ an }).catch(e => { gesetzt = null; fehlerMerken('sichtschutz', e); });
+}
+
+/** Ein Screen mit den 12 Woertern oeffnet (true) oder schliesst (false). */
 export function sichtschutz(an: boolean): void {
-  if (istNativ()) Sichtschutz.setzen({ an }).catch(e => fehlerMerken('sichtschutz', e));
+  verlangt = Math.max(0, verlangt + (an ? 1 : -1));
+  sichtschutzAnwenden();
+}
+
+/** Nach dem Start und nach jeder Aenderung des Schalters aufrufen. */
+export function sichtschutzEinstellungAnwenden(): void {
+  sichtschutzAnwenden();
 }

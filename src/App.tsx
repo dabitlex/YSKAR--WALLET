@@ -3,7 +3,8 @@ import { useT } from './i18n/index.ts';
 import { WalletProvider, DatenProvider, NavProvider, useWallet, useDaten, useNav, REITER, type Reiter } from './zustand.tsx';
 import { kopfLaden } from './netz/api.ts';
 import { zahlungAusCode } from './wallet/qr.ts';
-import { appSchliessen, beiLink, linkAbholen } from './geraet/geraet.ts';
+import { appSchliessen, beiLink, linkAbholen, sichtschutzEinstellungAnwenden } from './geraet/geraet.ts';
+import { useEinstellungen } from './wallet/einstellungen.ts';
 import { eingangGeoeffnet } from './geraet/eingang.ts';
 import { MeldungProvider, Nav, Zeichen, useZurueck, zurueckTasteVerbinden } from './ui/teile.tsx';
 import { TastaturRahmen } from './ui/tastatur.tsx';
@@ -149,6 +150,9 @@ function Inhalt() {
   const [geladen, setGeladen] = useState(false);
   // Die Zurueck-Taste von Android: was obenauf liegt, sonst die App verlassen.
   useEffect(() => zurueckTasteVerbinden(appSchliessen), []);
+  // Sichtschutz-Schalter: beim Start und bei jeder Aenderung anwenden.
+  const { sichtschutz } = useEinstellungen();
+  useEffect(() => { sichtschutzEinstellungAnwenden(); }, [sichtschutz]);
   return (
     <>
       {wallet.phase === 'kein_tresor' && <Einstieg />}

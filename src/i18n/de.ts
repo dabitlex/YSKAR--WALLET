@@ -127,6 +127,7 @@ export const de = {
     warnung: 'Eine Überweisung lässt sich nicht zurückholen.',
     neueAdresse: 'An diese Adresse hast du noch nicht gesendet. Vergleiche sie Zeichen für Zeichen.',
     schieben: 'Zum Senden schieben', schiebenLabel: 'Zum Senden nach rechts schieben',
+    schiebenStufe: (n: number) => (n >= 4 ? 'Senden ausgelöst' : `Schritt ${n} von 4. Gesendet wird erst bei Schritt 4.`),
     danach: 'Danach bestätigst du mit Fingerabdruck oder PIN.', danachPin: 'Danach bestätigst du mit deiner PIN.',
     pinText: 'um die Zahlung zu senden',
     bioGrund: (b: string) => `${b} YSR senden`,
@@ -191,6 +192,8 @@ export const de = {
   einst: {
     sicherheitZeile: 'Sicherheit', meldungKurz: 'Benachrichtigungen', systemKurz: 'System',
     min1Kurz: '1 Min.', min5Kurz: '5 Min.',
+    vibration: 'Vibration', sichtschutz: 'Sichtschutz',
+    sichtschutzText: 'Keine Bildschirmfotos, und die App ist in der App-Übersicht verdeckt. Bei den 12 Wörtern ist der Sichtschutz immer an.',
     fingerText: 'Mit dem Fingerabdruck entsperrst du die Wallet und bestätigst Zahlungen und Signaturen. Die PIN bleibt der Ersatz.',
     anleitungen: 'Anleitungen', community: 'Community', news: 'YSKAR News', recht: 'Rechtliches',
     datenschutz: 'Datenschutz', impressum: 'Impressum', lizenz: 'Lizenz',
