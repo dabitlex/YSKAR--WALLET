@@ -15,6 +15,11 @@ export interface Zahlung {
   /** Blockhoehe; null = wartet noch auf den ersten Block. */
   hoehe: number | null;
   anteile?: number;
+  /**
+   * Nur bei wartenden Zahlungen: fuehrt der Knoten sie in seiner Liste?
+   * true/false nach seiner Liste, null = nicht abrufbar oder unbekannt.
+   */
+  mempool?: boolean | null;
 }
 
 const gross = (s: string | null | undefined): bigint => { try { return BigInt(s ?? '0'); } catch { return 0n; } };
@@ -44,6 +49,23 @@ export function ausWartend(w: Wartend, zeit: number | null = null): Zahlung {
 export function bestaetigungen(z: Zahlung, spitze: number | null): number {
   if (z.hoehe === null) return 0;
   return spitze === null || spitze < z.hoehe ? 1 : spitze - z.hoehe + 1;
+}
+
+/**
+ * Eine eigene wartende Zahlung, die der Knoten nicht (mehr) fuehrt. Erst nach
+ * zwei Minuten: Direkt nach dem Senden kann seine Liste noch hinterherhinken.
+ * Ob sie noch in einen Block kommt, ist offen -- das ist kein "abgelehnt".
+ */
+export function nichtGelistet(z: Zahlung, jetzt = Math.floor(Date.now() / 1000)): boolean {
+  return z.hoehe === null && z.mempool === false && z.zeit !== null && jetzt - z.zeit > 120;
+}
+
+/** Mining-Filter: nur Blockbelohnungen und Pool-Anteile (kind reward und pool). */
+export const istMining = (z: Zahlung): boolean => z.art === 'belohnung' || z.art === 'pool';
+
+/** Summe eines Tages: Eingaenge plus, Ausgaenge minus, ohne Gebuehren. */
+export function tagessumme(liste: Zahlung[]): bigint {
+  return liste.reduce((s, z) => (z.art === 'aus' ? s - z.betrag : s + z.betrag), 0n);
 }
 
 export interface Tag { schluessel: string; zeit: number | null; zahlungen: Zahlung[] }

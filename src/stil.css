@@ -769,3 +769,70 @@ div.ez:active{background:transparent}
   .sf-abschnitt{margin-top:20px}
 }
 .pinseite .kopf-zurueck h1{font-size:13px;line-height:18px;font-weight:500;letter-spacing:0;color:var(--leise);text-align:center;padding-right:56px}
+
+/* ---------- Wallet, Aktivitaet, Zahlung (Designsystem 4.2, Phase B2) ---------- */
+.seite.st{gap:0}
+.st-kopf{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;flex-shrink:0}
+.st-kopf .sf-chip{border:0;padding-right:14px}
+.st-kopf .sf-chip .mono{font-size:12.5px}
+.st-knoepfe{display:flex;gap:8px}
+.st-meldung{margin-top:16px;flex-shrink:0}
+.st-meldung b{font-weight:500}
+.st-guthaben{display:flex;flex-direction:column;align-items:center;margin-top:54px;flex-shrink:0;min-width:0}
+.st-meldung + .st-guthaben{margin-top:26px}
+.st-guthaben .betrag.start{margin-top:10px;justify-content:center}
+.betrag.start .gross{font-size:68px;line-height:70px}
+.betrag.start .gross i{font-size:.44em;letter-spacing:-.01em}
+.betrag.start .einheit{display:none}
+.st-guthaben.alt .betrag.start .gross{color:var(--leise)}
+.st-guthaben .sf-einheit{margin-top:10px}
+.st-laedt{min-height:70px;display:flex;align-items:center;color:var(--leise);font-size:15px;margin-top:10px}
+.st-teilung{display:flex;width:132px;margin-top:20px}
+.st-teilung i{flex:1;height:3px;background:linear-gradient(90deg,var(--blau-hell),var(--blau) 60%,var(--blau-tief));clip-path:polygon(0 50%,100% 0,100% 100%)}
+.st-teilung i + i{clip-path:polygon(0 0,100% 50%,0 100%)}
+.st-wartet{display:flex;align-items:center;gap:9px;margin-top:18px;border:0;background:none;padding:6px 10px;border-radius:14px;font:inherit;font-size:13px;line-height:18px;color:var(--leise);max-width:100%;
+  transition:scale .15s var(--kurve)}
+.st-wartet > span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-wartet b{font-weight:400;color:var(--bern);font-variant-numeric:tabular-nums}
+.st-aktionen{display:flex;justify-content:center;gap:36px;margin-top:38px;flex-shrink:0}
+.st-aktionen .rund{width:72px}
+.st-liste{margin-top:0;display:flex;flex-direction:column;flex-shrink:0}
+.st-abschnitt{display:flex;justify-content:space-between;align-items:baseline;margin:36px 0 4px}
+.st-liste .st-abschnitt{margin-top:36px}
+section > .st-abschnitt{margin-top:26px}
+.st-abschnitt .verweis{font-size:13px}
+.sf-lab.bern{color:var(--bern)}
+.liste{display:flex;flex-direction:column;margin:0 -16px}
+.liste .zeile{border-bottom:0;border-radius:16px}
+.seite.st .kopf + .suche{margin-top:14px}
+.segment.vier{margin-top:22px}
+.st-hinweis{margin:14px 4px 0}
+.st-mehr{margin-top:20px}
+.seite.st .leerstand{margin-top:20px}
+/* Zahlung */
+.dt-betrag{display:flex;flex-direction:column;align-items:center;margin-top:22px;flex-shrink:0;min-width:0}
+.sf-zahl.dt{font-size:52px;line-height:56px}.sf-zahl.dt .nk{font-size:24px}
+.sf-zahl.dt.plus{color:var(--gruen)}
+.dt-betrag .sf-klein{margin-top:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dt-status{margin-top:24px;padding:16px 18px;flex-direction:row;gap:14px;align-items:center}
+.dt-status > svg{flex-shrink:0}
+.dt-status > span{flex:1;min-width:0;display:flex;flex-direction:column}
+.dt-status b{font-weight:500}
+.dt-status.weg b{color:var(--bern)}
+.dt-status + .sf-fuss{margin-top:10px}
+.dt-linien{margin-top:16px}
+.dt-tx{display:inline-flex;align-items:center;gap:8px;border:0;background:none;padding:0;color:var(--text);font:inherit}
+.dt-tx .mono{font-size:13px}
+.dt-tx svg{color:var(--leise)}
+@media (max-height:780px){
+  .st-guthaben{margin-top:30px}
+  .st-meldung + .st-guthaben{margin-top:18px}
+  .betrag.start .gross{font-size:60px;line-height:62px}
+  .st-teilung{margin-top:16px}
+  .st-wartet{margin-top:12px}
+  .st-aktionen{margin-top:28px}
+  .st-liste .st-abschnitt{margin-top:24px}
+  section > .st-abschnitt{margin-top:18px}
+  .dt-betrag{margin-top:12px}
+  .dt-status{margin-top:16px}
+}

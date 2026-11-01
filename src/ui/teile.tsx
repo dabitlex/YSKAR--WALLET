@@ -6,10 +6,10 @@ import { betragStellen, betragAnzeige, dezimalZeichen } from '../wallet/betrag.t
 import { useEinstellungen } from '../wallet/einstellungen.ts';
 import { vierer, kurzAdresse } from '../wallet/adresse.ts';
 import { kuerzel, useKontakte } from '../wallet/kontakte.ts';
-import type { Zahlung } from '../wallet/zahlungen.ts';
+import { bestaetigungen, nichtGelistet, type Zahlung } from '../wallet/zahlungen.ts';
 import * as tresor from '../wallet/tresor.ts';
 import { tippGefuehl, fehlerGefuehl, beiZurueck } from '../geraet/geraet.ts';
-import { useNav, REITER, type Reiter } from '../zustand.tsx';
+import { useDaten, useNav, REITER, type Reiter } from '../zustand.tsx';
 import { YMarke, YBaender, ZahlZeichen } from './zeichen.tsx';
 import zeichenBild from '../bilder/zeichen.svg';
 
@@ -297,6 +297,7 @@ export function useZeit() {
 export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () => void; mitUhr?: boolean }) {
   const t = useT();
   const { name } = useKontakte();
+  const { spitze } = useDaten();
   const zeit = useZeit();
   const ein = z.art !== 'aus';
   const belohnung = z.art === 'belohnung' || z.art === 'pool';
@@ -305,9 +306,16 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
   const titel = z.art === 'belohnung' ? t.zahlung.belohnung : z.art === 'pool' ? t.zahlung.pool
     : kontakt ?? kurzAdresse(z.gegen, '?');
   const wartet = z.hoehe === null;
+  const weg = nichtGelistet(z);
   const wann = z.zeit === null ? '' : mitUhr ? zeit.uhr(z.zeit) : zeit.kurz(z.zeit);
-  const zusatz = [wann, z.notiz ? t.zahlung.notiz(z.notiz) : belohnung ? t.zahlung.block(zeit.zahl(z.hoehe ?? 0)) : '']
-    .filter(Boolean).join(' · ');
+  // Zweite Angabe (4.2): Notiz, sonst bei Mining der Block (in der Aktivitaet beim Pool die Zahl der Miner),
+  // in der Aktivitaet bei Zahlungen die Bestaetigungen.
+  const n = bestaetigungen(z, spitze);
+  const extra = z.notiz ? t.zahlung.notiz(z.notiz)
+    : z.art === 'pool' && mitUhr && z.anteile ? t.zahlung.miner(zeit.zahl(z.anteile))
+    : belohnung ? t.zahlung.block(zeit.zahl(z.hoehe ?? 0))
+    : mitUhr && n > 0 ? t.zahlung.bestaetigungen(zeit.zahl(n)) : '';
+  const zusatz = [wann, extra].filter(Boolean).join(' · ');
   // Zeichen nach Art der Zahlung (Designsystem 4.2): verjuengte Pfeile, Pool-Anteil als drei zusammenlaufende Baender.
   const art = z.art === 'pool' ? 'pool' : z.art === 'belohnung' ? 'belohnung' : ein ? 'ein' : 'aus';
   const ton = wartet ? 'bern' : belohnung ? 'block' : ein ? 'ein' : 'aus';
@@ -317,7 +325,8 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
       <div className="mitte">
         <b>{titel}</b>
         <small>{wartet
-          ? <><YBaender stand={['erledigt', 'wartet', 'offen']} label={t.zahlung.wartet} /><span className="wartet">{t.zahlung.wartetKurz}</span>{wann && <span>{wann}</span>}</>
+          ? <><YBaender stand={['erledigt', 'wartet', 'offen']} label={weg ? t.zahlung.nichtGelistet : t.zahlung.wartetBlock} />
+              <span className="wartet">{weg ? t.zahlung.nichtGelistet : t.zahlung.wartetBlock}</span></>
           : zusatz}</small>
       </div>
       <span className="rechts">
