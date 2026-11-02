@@ -1,129 +1,178 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useT, type Woerterbuch } from '../i18n/index.ts';
-import { useNav, useWallet, type Ort } from '../zustand.tsx';
+import { useNav, type Ort } from '../zustand.tsx';
 import { einstellen } from '../wallet/einstellungen.ts';
 import { imBrowserOeffnen } from '../geraet/geraet.ts';
-import { S, QrBild, useZurueck } from '../ui/teile.tsx';
-import zeichenBild from '../bilder/zeichen.svg';
+import { S, useZurueck } from '../ui/teile.tsx';
+import { LeuchtZeichen, YMarke, YStatus, type Teilstand } from '../ui/zeichen.tsx';
+import walletDe from '../bilder/einf/wallet-de.webp';
+import walletEn from '../bilder/einf/wallet-en.webp';
+import sendenDe from '../bilder/einf/senden-de.webp';
+import sendenEn from '../bilder/einf/senden-en.webp';
+import aktivitaetDe from '../bilder/einf/aktivitaet-de.webp';
+import aktivitaetEn from '../bilder/einf/aktivitaet-en.webp';
+import einstellungenDe from '../bilder/einf/einstellungen-de.webp';
+import einstellungenEn from '../bilder/einf/einstellungen-en.webp';
 
 /*
-  Einfuehrung in die Wallet: acht Karten im Story-Stil.
+  Einfuehrung in die Wallet: elf Karten.
 
-  Jede Karte laeuft 6 Sekunden, dann kommt die naechste. Tippen links geht
-  zurueck, rechts weiter, gedrueckt halten pausiert. Dazu sichtbare Pfeile
-  und ein X. Der Knopf einer Karte fuehrt direkt zur passenden Funktion.
+  Der Nutzer blaettert selbst: Pfeile, Tippen links/rechts, Ueberspringen
+  oder X. Nichts laeuft von allein weiter. Der Knopf einer Karte fuehrt
+  direkt zur passenden Funktion; die letzte Karte schliesst den Rundgang ab.
 
-  Die Bilder sind flache Ausschnitte der echten Bildschirme mit
-  Beispielwerten -- keine fremden Waehrungen, keine erfundenen Zahlen.
+  Alle Bilder zeigen feste Demo-Daten: Ausschnitte aus Aufnahmen einer
+  Testwallet (src/bilder/einf/) und eigene Grafiken. Keine eigene Adresse,
+  kein echter QR-Code, nie echte Woerter.
 */
 
-export const DAUER_MS = 6000;
 const KANAL = 'https://t.me/yskar_official';
+const ANZAHL = 11;
+/** Feste Demo-Adresse fuer die Grafiken (keine echte Wallet). */
+const DEMO = 'ysr1q2ry…r4mzl';
 
-/* ---------------------------------------------------------------- Muenze */
+const AUFNAHMEN = {
+  wallet: { de: walletDe, en: walletEn },
+  senden: { de: sendenDe, en: sendenEn },
+  aktivitaet: { de: aktivitaetDe, en: aktivitaetEn },
+  einstellungen: { de: einstellungenDe, en: einstellungenEn },
+};
+type Aufnahme = keyof typeof AUFNAHMEN;
+/** Rechteck in Anteilen des aufgenommenen Bildschirms (412 × 915): x, y, Breite, Hoehe. */
+type Feld = [number, number, number, number];
+const SEITE = 915 / 412;
 
-/** Die YSKAR-Muenze, leicht gekippt, mit geriffelter Kante und Schatten am Boden. */
-export function Muenze3D() {
-  const riffel: ReactNode[] = [];
-  for (let i = 0; i < 120; i++) {
-    const a = (2 * Math.PI * i) / 120;
-    riffel.push(<line key={i} x1={100 + 93 * Math.cos(a)} y1={100 + 93 * Math.sin(a)} x2={100 + 98 * Math.cos(a)} y2={100 + 98 * Math.sin(a)}
-                      stroke="#0A1F5C" strokeOpacity={0.45} strokeWidth={1} />);
-  }
-  const kante: ReactNode[] = [];
-  for (let i = 16; i > 0; i--) kante.push(<ellipse key={i} cx={100 + i} cy={100} rx={78} ry={98} fill={i % 2 ? '#0A1F5C' : '#1B4FD1'} />);
+/* --------------------------------------------------------------- Bausteine */
+
+/**
+ * Ausschnitt einer Aufnahme in voller Kartenbreite; `mark` hebt das Wichtige
+ * hervor. Er passt sich der freien Hoehe an (Container-Einheiten der Buehne).
+ */
+function Ausschnitt({ bild, a: [x, y, w, h], mark, klein }: { bild: string; a: Feld; mark?: Feld; klein?: boolean }) {
+  const verhaeltnis = w / (h * SEITE);
+  const stil: CSSProperties = { aspectRatio: `${w} / ${h * SEITE}`, width: `min(100%, ${klein ? 340 : 360}px, ${(klein ? 36 : 100) * verhaeltnis}cqh)` };
   return (
-    <svg className="ef-muenze" viewBox="-20 -10 260 270" role="img" aria-label="YSKAR">
-      <defs>
-        <linearGradient id="ef-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#8FE3FF" /><stop offset=".35" stopColor="#2F7BFF" /><stop offset=".7" stopColor="#1B4FD1" /><stop offset="1" stopColor="#0E2E8A" /></linearGradient>
-        <radialGradient id="ef-flaeche" cx=".38" cy=".3" r=".9"><stop offset="0" stopColor="#1A2C5E" /><stop offset=".55" stopColor="#0A1330" /><stop offset="1" stopColor="#03060F" /></radialGradient>
-        <linearGradient id="ef-fase" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#BFEFFF" stopOpacity=".9" /><stop offset=".5" stopColor="#2F7BFF" stopOpacity=".2" /><stop offset="1" stopColor="#000" stopOpacity=".8" /></linearGradient>
-        <linearGradient id="ef-glanz" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".10" /><stop offset=".45" stopColor="#fff" stopOpacity="0" /></linearGradient>
-        <filter id="ef-praeg" x="-20%" y="-20%" width="140%" height="140%">
-          <feOffset in="SourceAlpha" dx="-1.5" dy="-1.5" result="o1" /><feFlood floodColor="#BFEFFF" floodOpacity=".55" /><feComposite in2="o1" operator="in" result="hell" />
-          <feOffset in="SourceAlpha" dx="2" dy="2.5" result="o2" /><feFlood floodColor="#000" floodOpacity=".75" /><feComposite in2="o2" operator="in" result="dunkel" />
-          <feMerge><feMergeNode in="dunkel" /><feMergeNode in="hell" /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
-        <filter id="ef-boden" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="9" /></filter>
-      </defs>
-      <ellipse cx="108" cy="222" rx="70" ry="11" fill="#000" fillOpacity=".65" filter="url(#ef-boden)" />
-      {kante}
-      <g transform="translate(22 0) scale(.78 1)">
-        <circle cx="100" cy="100" r="98" fill="url(#ef-ring)" />
-        {riffel}
-        <circle cx="100" cy="100" r="86" fill="url(#ef-flaeche)" />
-        <circle cx="100" cy="100" r="86" fill="none" stroke="url(#ef-fase)" strokeWidth="2.2" />
-        <image href={zeichenBild} x="56" y="54" width="88" height="88" filter="url(#ef-praeg)" />
-        <circle cx="100" cy="100" r="86" fill="url(#ef-glanz)" />
-      </g>
-    </svg>
+    <div className="ef-aus" style={stil} aria-hidden="true">
+      <img src={bild} alt="" draggable={false} style={{ width: `${100 / w}%`, left: `${-x / w * 100}%`, top: `${-y / h * 100}%` }} />
+      {mark && <i className="ef-mark" style={{ left: `${(mark[0] - x) / w * 100}%`, top: `${(mark[1] - y) / h * 100}%`, width: `${mark[2] / w * 100}%`, height: `${mark[3] / h * 100}%` }} />}
+    </div>
   );
 }
 
-/* ---------------------------------------------------------------- Bilder */
-
-const Mini = ({ children }: { children: ReactNode }) => <div className="ef-mini">{children}</div>;
-const Paar = ({ l, r }: { l: string; r: string }) => <div><span>{l}</span><b>{r}</b></div>;
-
-function Bild({ nr, t, adresse }: { nr: number; t: Woerterbuch; adresse: string }) {
-  const e = t.einf;
-  switch (nr) {
-    case 0: return <Muenze3D />;
-    case 1: {
-      const w = ['river', 'smile', 'orbit', '', '', '', 'canvas', '', '', '', '', ''];
-      return <div className="ef-woerter" aria-hidden="true">{w.map((x, i) => <span key={i} className={x ? '' : 'zu'}><b>{i + 1}.</b>{x || '•••••'}</span>)}</div>;
+/** Ein QR-artiges Muster als Bild -- bewusst nicht lesbar, nur Demo. */
+function DemoQr() {
+  const pfad = useMemo(() => {
+    const n = 25; let s = 7, d = '';
+    const zufall = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+    const finder = (x: number, y: number) => (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      if (finder(x, y)) {
+        const fx = x < 7 ? x : x - (n - 7), fy = y < 7 ? y : y - (n - 7);
+        if (fx === 0 || fx === 6 || fy === 0 || fy === 6 || (fx >= 2 && fx <= 4 && fy >= 2 && fy <= 4)) d += `M${x} ${y}h1v1h-1z`;
+      } else if (Math.abs(x - 12) < 3.5 && Math.abs(y - 12) < 3.5) { /* Platz fuer das Zeichen */ }
+      else if (zufall() > .52) d += `M${x} ${y}h1v1h-1z`;
     }
-    case 2: return (
-      <Mini>
-        <div className="ef-t">{t.start.empfangen}</div>
-        <div className="ef-qr"><QrBild text={`yskar:${adresse}`} label={e.k3.titel} /></div>
-        <div className="ef-chip">{adresse.slice(0, 12)}…{adresse.slice(-6)}</div>
-        <div className="ef-p"><div><span>{e.bild.anfordern}</span><b className="blau">{t.allg.optional.replace(/[()]/g, '')}</b></div></div>
-      </Mini>
-    );
-    case 3: return (
-      <Mini>
-        <div className="ef-k">{e.bild.duSendest}</div>
-        <div className="ef-b">25<i>,50</i><u>YSR</u></div>
-        <div className="ef-p"><Paar l={e.bild.empfaenger} r="ysr1q2ry…mzl" /><Paar l={e.bild.gebuehr} r="0,00000174" /><Paar l={e.bild.gesamt} r="25,50000174" /></div>
-        <div className="ef-sch"><span><S n="doppel" g={18} /></span>{e.bild.schieben}</div>
-      </Mini>
-    );
-    case 4: return (
-      <div className="ef-stapel">
-        <div className="ef-note"><img src={zeichenBild} alt="" /><span><b>{e.bild.neuerEingang}</b>+12,30 YSR · ysr1q2ry…mzl</span></div>
-        <Mini>
-          <div className="ef-t links">{t.verlauf.titel}</div>
-          <div className="ef-p">
-            <div className="ef-zl"><span className="ef-i bern"><S n="hoch" g={14} /></span><span className="ef-m"><b>ysr1k8d3…w0a5 <em>{e.bild.wartet}</em></b><small>{e.bild.geradeEben}</small></span><span className="ef-w">−25,50</span></div>
-            <div className="ef-zl"><span className="ef-i gruen"><S n="runter" g={14} /></span><span className="ef-m"><b>ysr1q2ry…mzl</b><small>{e.bild.imBlock}</small></span><span className="ef-w gruen">+12,30</span></div>
-          </div>
-        </Mini>
+    return d;
+  }, []);
+  return (
+    <div className="qrplatte">
+      <svg viewBox="0 0 25 25" shapeRendering="crispEdges" aria-hidden="true"><path fill="#06112A" d={pfad} /></svg>
+      <span className="qr-logo" aria-hidden="true"><YMarke g={26} farbe="var(--blau-hell)" /></span>
+    </div>
+  );
+}
+
+/** Das Y fuellt sich in drei Stufen und beginnt dann von vorn (eigene Uhr, unabhaengig vom Blaettern). */
+function StatusAnimation({ b }: { b: Woerterbuch['einf']['bild'] }) {
+  const still = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [phase, setPhase] = useState(still ? 2 : 0);
+  useEffect(() => {
+    if (still) return;
+    const dauer = [1400, 1400, 2400];
+    const u = setTimeout(() => setPhase(p => (p + 1) % 3), dauer[phase]);
+    return () => clearTimeout(u);
+  }, [phase, still]);
+  const stand: [Teilstand, Teilstand, Teilstand][] = [['erledigt', 'wartet', 'offen'], ['erledigt', 'erledigt', 'offen'], ['erledigt', 'erledigt', 'erledigt']];
+  const unter = [b.unterwegs, b.eingetragen, b.bestaetigt][phase];
+  return (
+    <div className="ef-spalte">
+      <div className="ef-stand">
+        <YStatus g={120} stand={stand[phase]} label={`${b.anAnna} · ${unter}`} />
+        <div><div className="ef-betrag">12<i>,50</i></div><div className="ef-klein">{b.anAnna}<br />{unter}</div></div>
       </div>
-    );
-    case 5: return (
-      <Mini>
-        <div className="ef-finger"><S n="finger" g={40} w={1.6} /></div>
-        <div className="ef-t">{e.bild.entsperren}</div>
-        <div className="ef-punkte"><i /><i /><i /><i className="l" /><i className="l" /><i className="l" /></div>
-        <div className="ef-p"><div><span>{t.einst.finger}</span><span className="ef-sw" /></div><div><span>{t.einst.sperre}</span><b className="blau">{t.einst.min1Kurz}</b></div></div>
-      </Mini>
-    );
-    case 6: return (
-      <Mini>
-        <div className="ef-welt"><S n="welt" g={22} /></div>
-        <div className="ef-k">{t.qr.frage}</div>
-        <div className="ef-t gross">lab.yskar.app?</div>
-        <div className="ef-p"><Paar l={t.sig.adresse} r={`${adresse.slice(0, 8)}…${adresse.slice(-6)}`} /><Paar l={t.sig.laeuftAb} r={t.sig.inMin(4)} /></div>
-        <div className="ef-knopf">{t.sig.anmelden}</div>
-      </Mini>
-    );
-    default: return (
-      <div className="ef-tg">
-        <div><span className="a"><img src={zeichenBild} alt="" /></span><span><b>YSKAR</b><small>{e.bild.kanal}</small></span><span className="o"><S n="flieger" g={20} /></span></div>
-        <div><span className="a"><img src={zeichenBild} alt="" /></span><span><b>YSKAR Community</b><small>{e.bild.gruppe}</small></span><span className="o"><S n="blase" g={20} /></span></div>
+      <div className="ef-zeilen glas">
+        {[b.angenommen, b.imBlock, b.weitere].map((x, i) => <span key={i} className={stand[phase][i]}><i />{x}</span>)}
       </div>
-    );
+    </div>
+  );
+}
+
+const Akzent = ({ k }: { k: { titel: string; akzent: string } }) => <>{k.titel} <em>{k.akzent}</em></>;
+
+/* ----------------------------------------------------------------- Bilder */
+
+function Bild({ nr, t, sprache }: { nr: number; t: Woerterbuch; sprache: 'de' | 'en' }) {
+  const b = t.einf.bild;
+  const aufnahme = (n: Aufnahme) => AUFNAHMEN[n][sprache];
+  const mitte = (inhalt: ReactNode) => <div className="ef-zent">{inhalt}</div>;
+  switch (nr) {
+    case 0: return mitte(<Ausschnitt bild={aufnahme('wallet')} a={[0, .02, 1, .51]} mark={[.035, .405, .93, .1]} />);
+    case 1: return mitte(
+      <div className="ef-spalte">
+        <div className="ef-qr glas">
+          <DemoQr />
+          <span className="ef-mono">{DEMO}</span>
+          <span className="ef-eingang"><S n="runter" g={14} w={2.2} />+12,30 YSR</span>
+        </div>
+        <span className="ef-chip">{b.anfordern} <b>{b.optional}</b></span>
+      </div>);
+    case 2: return mitte(
+      <div className="ef-spalte voll">
+        <Ausschnitt bild={aufnahme('senden')} a={[0, .09, 1, .2]} klein />
+        <Ausschnitt bild={aufnahme('senden')} a={[.02, .88, .96, .09]} mark={[.03, .887, .94, .066]} />
+        <span className="ef-marke">{b.tippen}</span>
+      </div>);
+    case 3: return mitte(<StatusAnimation b={b} />);
+    case 4: return mitte(<Ausschnitt bild={aufnahme('aktivitaet')} a={[0, .02, 1, .46]} mark={[.03, .172, .94, .098]} />);
+    case 5: return mitte(
+      <div className="ef-spalte voll">
+        {[['A', 'Anna', DEMO], ['BK', 'Bäckerei Kern', b.zuletzt], ['L', 'Lena', b.empfangenHeute]].map(([k, n, u], i) => (
+          <div key={n} className={`ef-kontakt glas ${i === 1 ? 'hell' : ''}`}>
+            <span className="av">{k}</span><span className="m">{n}<small className={i === 0 ? 'ef-mono' : ''}>{u}</small></span>
+            {i === 1 && <span className="los">{b.senden}</span>}
+          </div>))}
+        <span className="ef-chip"><S n="schloss" g={14} />{b.nurHier}</span>
+      </div>);
+    case 6: return mitte( // Nur verdeckte Platzhalter -- nie Woerter.
+      <div className="ef-spalte voll">
+        <div className="ef-woerter glas">
+          {Array.from({ length: 12 }, (_, i) => <span key={i}><b>{i + 1}</b><i style={{ width: `${[52, 38, 60, 44, 34, 56, 40, 62, 46, 36, 54, 42][i]}%` }} /></span>)}
+          <em className="ef-schloss"><S n="schluessel" g={20} /></em>
+        </div>
+        <div className="ef-hinweis"><S n="warnung" g={18} /><span><b>{b.schluessel}</b>{b.nieTeilen}</span></div>
+      </div>);
+    case 7: return mitte(
+      <div className="ef-sperre glas">
+        <LeuchtZeichen baender={['an', 'halb', 'aus']} klasse="ef-sperre-zeichen" />
+        <div className="ef-punkte"><i className="v" /><i className="v" /><i className="v" /><i /><i /><i /></div>
+        <div className="ef-tabelle">
+          <div><span><S n="finger" g={16} />{b.finger}</span><b className="blau">{b.an}</b></div>
+          <div><span><S n="uhr" g={16} />{b.sperre}</span><b>{b.minute}</b></div>
+        </div>
+      </div>);
+    case 8: return mitte( // Das Y als Siegel unter einer signierten Demo-Nachricht.
+      <div className="ef-siegel glas">
+        <div className="ef-klein">{b.nachricht}</div>
+        <div className="ef-satz">{b.nachrichtText}</div>
+        <div className="ef-siegel-mitte"><i /><LeuchtZeichen baender={['an', 'an', 'an']} /><i /></div>
+        <div className="ef-paar"><span>{b.signiertMit}</span><b className="ef-mono">{DEMO}</b></div>
+        <div className="ef-paar"><span>{b.signatur}</span><b className="ef-mono blau">3f9a…c21e</b></div>
+      </div>);
+    case 9: return mitte(<Ausschnitt bild={aufnahme('einstellungen')} a={[0, .065, 1, .5]} mark={[.03, .33, .94, .215]} />);
+    default: return ( // Abschluss: das Zeichen setzt sich noch einmal zusammen, wie beim Start der Wallet.
+      <div className="ef-zent">
+        <div className="ef-ende-zeichen"><LeuchtZeichen baender={['an', 'an', 'an']} /></div>
+      </div>);
   }
 }
 
@@ -132,84 +181,75 @@ function Bild({ nr, t, adresse }: { nr: number; t: Woerterbuch; adresse: string 
 export function Einfuehrung() {
   const t = useT();
   const nav = useNav();
-  const wallet = useWallet();
-  const karten = [t.einf.k1, t.einf.k2, t.einf.k3, t.einf.k4, t.einf.k5, t.einf.k6, t.einf.k7, t.einf.k8];
+  const karten = [t.einf.k1, t.einf.k2, t.einf.k3, t.einf.k4, t.einf.k5, t.einf.k6, t.einf.k7, t.einf.k8, t.einf.k9, t.einf.k10, t.einf.k11];
   const [nr, setNr] = useState(0);
-  const [pause, setPause] = useState(false);
-  const [fortschritt, setFortschritt] = useState(0);   // 0..1 der aktuellen Karte
-  const gelaufen = useRef(0);
-  const druck = useRef<{ zeit: number; x: number } | null>(null);
+  const druck = useRef<number | null>(null);
+  const sprache = t.code.startsWith('de') ? 'de' : 'en';
+  const ende = nr === ANZAHL - 1;
 
   useEffect(() => { einstellen({ einfuehrungGesehen: true }); }, []);
   const schliessen = useCallback(() => nav.zurueck(), [nav]);
   useZurueck(schliessen);
 
-  const gehe = useCallback((n: number) => {
-    if (n < 0) n = 0;
-    if (n > 7) { schliessen(); return; }
-    gelaufen.current = 0; setFortschritt(0); setNr(n);
-  }, [schliessen]);
+  const gehe = useCallback((n: number) => setNr(Math.max(0, Math.min(ANZAHL - 1, n))), []);
 
-  // Die Uhr der aktuellen Karte. Laeuft nicht, solange pausiert ist.
-  useEffect(() => {
-    if (pause) return;
-    let letzte = performance.now(), rahmen = 0;
-    const schritt = (jetzt: number) => {
-      gelaufen.current += jetzt - letzte; letzte = jetzt;
-      const f = Math.min(1, gelaufen.current / DAUER_MS);
-      setFortschritt(f);
-      if (f >= 1) { gehe(nr + 1); return; }
-      rahmen = requestAnimationFrame(schritt);
-    };
-    rahmen = requestAnimationFrame(schritt);
-    return () => cancelAnimationFrame(rahmen);
-  }, [nr, pause, gehe]);
-
-  // Kurz tippen: links zurueck, rechts weiter. Gedrueckt halten: Pause.
-  const runter = (x: number) => { druck.current = { zeit: Date.now(), x }; setPause(true); };
+  // Kurz tippen: links zurueck, rechts weiter. Nichts blaettert von allein.
+  const runter = (x: number) => { druck.current = x; };
   const hoch = (breite: number) => {
-    const d = druck.current; druck.current = null; setPause(false);
-    if (!d || Date.now() - d.zeit > 250) return;
-    gehe(d.x < breite / 2 ? nr - 1 : nr + 1);
+    const x = druck.current; druck.current = null;
+    if (x === null) return;
+    gehe(x < breite / 2 ? nr - 1 : nr + 1);
   };
 
   const ziel = (o: Ort) => nav.ersetze(o);
   const aktion = () => {
     switch (nr) {
-      case 0: gehe(1); break;
-      case 1: ziel({ n: 'woerterZeigen' }); break;
-      case 2: ziel({ n: 'empfangen' }); break;
-      case 3: ziel({ n: 'senden' }); break;
-      case 4: nav.reiter('einstellungen'); break;
-      case 5: ziel({ n: 'sicherheit' }); break;
-      case 6: ziel({ n: 'signieren' }); break;
-      default: imBrowserOeffnen(KANAL); schliessen();
+      case 0: case 3: gehe(nr + 1); break;
+      case 1: ziel({ n: 'empfangen' }); break;
+      case 2: ziel({ n: 'senden' }); break;
+      case 4: nav.reiter('verlauf'); break;
+      case 5: nav.reiter('kontakte'); break;
+      case 6: ziel({ n: 'woerterZeigen' }); break;
+      case 7: ziel({ n: 'sicherheit' }); break;
+      case 8: ziel({ n: 'signieren' }); break;
+      case 9: nav.reiter('einstellungen'); break;
+      default: nav.reiter('start');
     }
   };
 
   const k = karten[nr];
   return (
-    <div className="ef" role="dialog" aria-modal="true" aria-label={t.einf.titel}>
+    <div className={`ef ${ende ? 'ende' : ''}`} role="dialog" aria-modal="true" aria-label={t.einf.titel}>
       <div className="ef-balken" aria-hidden="true">
-        {karten.map((_, i) => <i key={i}><b style={{ width: `${i < nr ? 100 : i === nr ? fortschritt * 100 : 0}%` }} /></i>)}
+        {karten.map((_, i) => <i key={i}><b style={{ width: i <= nr ? '100%' : '0%' }} /></i>)}
       </div>
-      <button type="button" className="ef-zu sinkt" aria-label={t.allg.schliessen} onClick={schliessen}><S n="kreuz" g={20} w={2.4} /></button>
+      <div className="ef-kopf">
+        <span><YMarke g={16} farbe="var(--blau-hell)" />{t.einf.titel} · {t.einf.von(nr + 1, ANZAHL)}</span>
+        {!ende && <button type="button" className="ef-ueber sinkt" onClick={schliessen}>{t.einf.ueberspringen}</button>}
+        <button type="button" className="ef-zu sinkt" aria-label={t.allg.schliessen} onClick={schliessen}><S n="kreuz" g={20} w={2.4} /></button>
+      </div>
 
       <div className="ef-flaeche"
            onPointerDown={e => runter(e.clientX - e.currentTarget.getBoundingClientRect().left)}
            onPointerUp={e => hoch(e.currentTarget.getBoundingClientRect().width)}
-           onPointerLeave={() => { if (druck.current) { druck.current = null; setPause(false); } }}>
-        <div key={nr} className="ef-bild"><Bild nr={nr} t={t} adresse={wallet.adresse ?? ''} /></div>
+           onPointerLeave={() => { druck.current = null; }}>
+        <div key={nr} className="ef-bild"><Bild nr={nr} t={t} sprache={sprache} /></div>
       </div>
 
       <div key={`t${nr}`} className="ef-text" aria-live="polite">
-        <h2>{k.titel}</h2>
+        <h2><Akzent k={k} /></h2>
         <p>{k.text}</p>
         <div className="ef-unten">
           <button type="button" className="ef-aktion sinkt" onClick={aktion}>{k.knopf}</button>
-          <button type="button" className="ef-pfeil sinkt" aria-label={t.einf.zurueck} disabled={nr === 0} onClick={() => gehe(nr - 1)}><S n="zurueck" g={20} w={2.2} /></button>
-          <button type="button" className="ef-pfeil sinkt" aria-label={t.einf.weiter} disabled={nr === 7} onClick={() => gehe(nr + 1)}><S n="weiter" g={20} w={2.2} /></button>
+          {!ende && <>
+            <button type="button" className="ef-pfeil sinkt" aria-label={t.einf.zurueck} disabled={nr === 0} onClick={() => gehe(nr - 1)}><S n="zurueck" g={20} w={2.2} /></button>
+            <button type="button" className="ef-pfeil sinkt" aria-label={t.einf.weiter} onClick={() => gehe(nr + 1)}><S n="weiter" g={20} w={2.2} /></button>
+          </>}
         </div>
+        {ende && <div className="ef-ende-fuss">
+          <button type="button" className="ef-verweis sinkt" onClick={() => gehe(nr - 1)}><S n="zurueck" g={16} w={2.2} />{t.einf.zurueck}</button>
+          <button type="button" className="ef-verweis sinkt" onClick={() => { imBrowserOeffnen(KANAL); schliessen(); }}><S n="flieger" g={16} />{t.einf.bild.telegram}</button>
+        </div>}
       </div>
     </div>
   );
@@ -222,8 +262,8 @@ export function EinfuehrungKarte() {
   return (
     <div className="ef-karte auf">
       <button type="button" className="ef-karte-los" onClick={() => nav.gehe({ n: 'einfuehrung' })}>
-        <span className="ef-karte-text"><b>{t.einf.karteTitel}</b><span>{t.einf.karteText} ›</span></span>
-        <span className="ef-karte-bild"><img src={zeichenBild} alt="" /></span>
+        <span className="ef-karte-text"><b>{t.einf.karteTitel} <em>{t.einf.karteAkzent}</em></b><span>{t.einf.karteText} ›</span></span>
+        <span className="ef-karte-bild"><LeuchtZeichen baender={['an', 'an', 'an']} /></span>
       </button>
       <button type="button" className="ef-karte-zu" aria-label={t.allg.schliessen} onClick={() => einstellen({ einfuehrungGesehen: true })}><S n="kreuz" g={14} w={2.4} /></button>
     </div>
