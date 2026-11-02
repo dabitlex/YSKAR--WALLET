@@ -23,24 +23,42 @@ export const VERLAUF_MAX = 20;
 
 const text = (v: unknown): v is string => typeof v === 'string';
 const zahl = (v: unknown): v is string => text(v) && /^\d{1,40}$/.test(v);
+/**
+ * Betraege und Nonces kommen als Text -- Guthaben und Nonce des Kontos aber
+ * direkt aus Datenbankspalten vom Typ bigint, also als JSON-Zahl. Beides
+ * gilt; gemerkt und weitergegeben wird immer Text.
+ */
+const ganz = (v: unknown): string | null =>
+  zahl(v) ? v : typeof v === 'number' && Number.isSafeInteger(v) && v >= 0 ? String(v) : null;
 
-function eintragOk(e: unknown): e is VerlaufEintrag {
-  const x = e as VerlaufEintrag;
-  return !!x && text(x.txid) && typeof x.height === 'number' && ['reward', 'pool', 'in', 'out'].includes(x.kind)
-    && zahl(x.amount) && zahl(x.fee);
+function eintrag(e: unknown): VerlaufEintrag | null {
+  const x = e as VerlaufEintrag | null;
+  if (!x || !text(x.txid) || typeof x.height !== 'number' || !['reward', 'pool', 'in', 'out'].includes(x.kind)) return null;
+  const amount = ganz(x.amount), fee = ganz(x.fee);
+  return amount === null || fee === null ? null : { ...x, amount, fee };
 }
-function wartendOk(w: unknown): w is Wartend {
-  const x = w as Wartend;
-  return !!x && text(x.txid) && (x.kind === 'in' || x.kind === 'out') && text(x.from) && zahl(x.amount) && zahl(x.fee) && zahl(x.nonce);
+function wartend(w: unknown): Wartend | null {
+  const x = w as Wartend | null;
+  if (!x || !text(x.txid) || (x.kind !== 'in' && x.kind !== 'out') || !text(x.from)) return null;
+  const amount = ganz(x.amount), fee = ganz(x.fee), nonce = ganz(x.nonce);
+  return amount === null || fee === null || nonce === null ? null : { ...x, amount, fee, nonce };
+}
+/** Alle oder keiner: ein unbrauchbarer Eintrag verwirft den ganzen Stand. */
+function alle<T>(liste: unknown[], f: (x: unknown) => T | null): T[] | null {
+  const aus: T[] = [];
+  for (const x of liste) { const y = f(x); if (y === null) return null; aus.push(y); }
+  return aus;
 }
 
 export function saeubern(roh: unknown): LetzterStand | null {
   const s = roh as LetzterStand | null;
   const k = s?.konto;
   if (!s || !text(s.adresse) || typeof s.zeit !== 'number' || !k || k.address !== s.adresse
-    || !zahl(k.balance) || !zahl(k.nonce) || !Array.isArray(k.history) || !Array.isArray(k.pending)) return null;
-  if (!k.history.every(eintragOk) || !k.pending.every(wartendOk)) return null;
-  return s;
+    || !Array.isArray(k.history) || !Array.isArray(k.pending)) return null;
+  const balance = ganz(k.balance), nonce = ganz(k.nonce);
+  const history = alle(k.history, eintrag), pending = alle(k.pending, wartend);
+  if (balance === null || nonce === null || history === null || pending === null) return null;
+  return { ...s, konto: { ...k, balance, nonce, nextNonce: ganz(k.nextNonce) ?? nonce, history, pending } };
 }
 
 export const letzterStandLager = lager<LetzterStand | null>('yskar.letzterstand', null, saeubern);

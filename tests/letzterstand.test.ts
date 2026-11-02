@@ -30,4 +30,22 @@ test('Letzter Stand: Unbrauchbares wird verworfen', () => {
   assert.equal(saeubern({ ...gut, konto: { ...konto(), balance: '-5' } }), null);
   assert.equal(saeubern({ ...gut, konto: { ...konto(), history: [{ txid: 'x' }] } }), null);
   assert.equal(saeubern({ ...gut, zeit: 'gestern' }), null);
+  assert.equal(saeubern({ ...gut, konto: { ...konto(), balance: -5 } }), null);
+  assert.equal(saeubern({ ...gut, konto: { ...konto(), balance: 1.5 } }), null);
+});
+
+test('Letzter Stand: Guthaben und Nonce als JSON-Zahl (bigint-Spalten des Spiegels)', () => {
+  // So liefert /api/v2/account echte Konten: balance und nonce als Zahl, Betraege als Text.
+  const echt = JSON.parse(JSON.stringify({ ...konto(), balance: 128450000000, nonce: 4, nextNonce: '5' }));
+  standMerken(echt, 1700000000);
+  // Neustart nachstellen: der Stand kommt aus localStorage, nicht aus dem Arbeitsspeicher.
+  const roh = JSON.parse(JSON.stringify(letzterStandLager.lesen()));
+  const s = saeubern(roh);
+  assert.ok(s, 'echter Stand darf nicht verworfen werden');
+  assert.equal(s.konto.balance, '128450000000'); assert.equal(s.konto.nonce, '4'); assert.equal(s.konto.nextNonce, '5');
+  const ohneNaechste = saeubern({ ...roh, konto: { ...roh.konto, nextNonce: undefined } });
+  assert.equal(ohneNaechste?.konto.nextNonce, '4');
+  const zahlen = saeubern({ ...roh, konto: { ...roh.konto, pending: [{ ...roh.konto.pending[0], amount: 5, fee: 1, nonce: 2 }] } });
+  assert.equal(zahlen?.konto.pending[0].amount, '5');
+  letzterStandLager.leeren();
 });
