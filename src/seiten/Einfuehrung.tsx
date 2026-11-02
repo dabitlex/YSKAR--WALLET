@@ -116,7 +116,7 @@ function Bild({ nr, t, sprache }: { nr: number; t: Woerterbuch; sprache: 'de' | 
   const aufnahme = (n: Aufnahme) => AUFNAHMEN[n][sprache];
   const mitte = (inhalt: ReactNode) => <div className="ef-zent">{inhalt}</div>;
   switch (nr) {
-    case 0: return mitte(<Ausschnitt bild={aufnahme('wallet')} a={[0, .02, 1, .51]} mark={[.035, .405, .93, .1]} />);
+    case 0: return mitte(<Ausschnitt bild={aufnahme('wallet')} a={[0, .02, 1, .51]} mark={[.035, .384, .93, .122]} />);
     case 1: return mitte(
       <div className="ef-spalte">
         <div className="ef-qr glas">
@@ -133,7 +133,7 @@ function Bild({ nr, t, sprache }: { nr: number; t: Woerterbuch; sprache: 'de' | 
         <span className="ef-marke">{b.tippen}</span>
       </div>);
     case 3: return mitte(<StatusAnimation b={b} />);
-    case 4: return mitte(<Ausschnitt bild={aufnahme('aktivitaet')} a={[0, .02, 1, .46]} mark={[.03, .172, .94, .098]} />);
+    case 4: return mitte(<Ausschnitt bild={aufnahme('aktivitaet')} a={[0, .02, 1, .46]} mark={[.03, .161, .94, .101]} />);
     case 5: return mitte(
       <div className="ef-spalte voll">
         {[['A', 'Anna', DEMO], ['BK', 'Bäckerei Kern', b.zuletzt], ['L', 'Lena', b.empfangenHeute]].map(([k, n, u], i) => (
