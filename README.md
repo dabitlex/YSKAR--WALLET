@@ -18,9 +18,9 @@
 
 <p align="center">
   <img src="store/screenshots/en-US/1.png" width="19%" alt="Wallet">
-  <img src="store/screenshots/en-US/2.png" width="19%" alt="Receive">
-  <img src="store/screenshots/en-US/4.png" width="19%" alt="Contact">
-  <img src="store/screenshots/en-US/5.png" width="19%" alt="History">
+  <img src="store/screenshots/en-US/2.png" width="19%" alt="Review before sending">
+  <img src="store/screenshots/en-US/3.png" width="19%" alt="Activity">
+  <img src="store/screenshots/en-US/5.png" width="19%" alt="Contact">
   <img src="store/screenshots/en-US/7.png" width="19%" alt="Introduction">
 </p>
 
@@ -42,6 +42,8 @@
 **Contacts and history**
 - Contacts with names – all payments with one person in a single, chat-like history.
 - Pending payments and confirmations at a glance.
+- Mining income (block rewards and pool shares) shows up in your history.
+- Without a connection you see your last known balance; sending waits until you are back online.
 - Optional notification for every incoming payment that is in a block.
 
 **Security**
@@ -53,7 +55,7 @@
 - Prove with a signed message that an address is yours, and verify other people's signatures.
 - Sign in to YSKAR sites with a QR code. A signature cannot move YSR.
 
-**Easy to learn** – an 8-step introduction explains every feature. English and German.
+**Easy to learn** – an 11-step introduction explains every feature. English and German.
 
 No ads, no tracking, no account with us.
 
@@ -111,10 +113,10 @@ Die YSKAR Wallet ist die Android-Wallet für YSR, die Währung der YSKAR-Blockch
 - Deine Wallet entsteht auf deinem Handy. Niemand bei YSKAR hat Zugriff auf deinen Schlüssel. Mit 12 Wörtern stellst du sie auf jedem Gerät wieder her; die Wörter liegen mit deiner PIN verschlüsselt im geschützten Speicher von Android und wandern nicht in Cloud-Sicherungen.
 - Senden per Adresse, Kontakt oder QR-Code. Vor dem Senden siehst du Empfänger, Betrag und Netzgebühr noch einmal – dann schieben und bestätigen.
 - Empfangen per QR-Code oder Adresse, auf Wunsch mit einem bestimmten Betrag. Beträge exakt bis zur 8. Nachkommastelle; in der Übersicht auf Wunsch mit 4 oder 2 Stellen.
-- Kontakte mit Namen und allen Zahlungen in einem Verlauf wie in einem Chat. Wartende Zahlungen und Bestätigungen auf einen Blick, auf Wunsch eine Benachrichtigung bei jedem Eingang.
+- Kontakte mit Namen und allen Zahlungen in einem Verlauf wie in einem Chat. Wartende Zahlungen und Bestätigungen auf einen Blick, Mining-Erträge (Blockbelohnung und Pool-Anteil) im Verlauf, auf Wunsch eine Benachrichtigung bei jedem Eingang. Ohne Netz siehst du deinen letzten bekannten Stand; Senden wartet, bis die Verbindung steht.
 - PIN, Fingerabdruck und automatische Sperre. Keine Bildschirmfotos, solange die 12 Wörter zu sehen sind. Eigene Tastatur der App – keine Eingabe läuft über die Tastatur-App des Handys.
 - Nachrichten signieren und Signaturen prüfen, Anmelden per QR-Code auf YSKAR-Seiten. Eine Signatur kann keine YSR bewegen.
-- Eine Einführung in 8 Schritten erklärt alle Funktionen. Deutsch und Englisch.
+- Eine Einführung in 11 Schritten erklärt alle Funktionen. Deutsch und Englisch.
 
 Keine Werbung, kein Tracking, kein Konto bei uns.
 

@@ -14,6 +14,8 @@ SENDEN UND EMPFANGEN
 KONTAKTE UND VERLAUF
 • Kontakte mit Namen – alle Zahlungen mit einer Person übersichtlich in einem Verlauf.
 • Wartende Zahlungen und Bestätigungen auf einen Blick.
+• Mining-Erträge (Blockbelohnung und Pool-Anteil) erscheinen im Verlauf.
+• Ohne Netz siehst du deinen letzten bekannten Stand.
 • Auf Wunsch eine Benachrichtigung bei jedem Eingang.
 • Kontakte bleiben auf deinem Gerät.
 
@@ -27,7 +29,7 @@ SIGNIEREN UND ANMELDEN
 • Melde dich per QR-Code auf YSKAR-Seiten an. Eine Signatur kann keine YSR bewegen.
 
 EINFACH ZU LERNEN
-• Eine kurze Einführung in 8 Schritten erklärt alle Funktionen.
+• Eine kurze Einführung in 11 Schritten erklärt alle Funktionen.
 • Deutsch und Englisch.
 
 Keine Werbung, kein Tracking, kein Konto bei uns.
