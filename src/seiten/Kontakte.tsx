@@ -242,7 +242,7 @@ export function Kontakt({ adresse }: { adresse: string }) {
             <button key={z.txid} type="button" className={`blase ${ein ? 'l' : 'r'}`} onClick={() => nav.gehe({ n: 'detail', zahlung: z })}>
               <span className="summe">{ein ? '+' : '−'}<Stellen text={anzeige(z.betrag)} /> <small>YSR</small></span>
               {z.notiz && <span className="text">{z.notiz}</span>}
-              <span className={`zeit ${wartet ? 'wartet' : ''}`}>{z.zeit ? `${zeit.uhr(z.zeit)} · ` : ''}{wartet ? t.zahlung.wartetBlock : t.zahlung.bestaetigungen(zeit.zahl(bestaetigungen(z, spitze)))}</span>
+              <span className={`zeit ${wartet ? 'wartet' : ''}`}>{[z.zeit ? zeit.uhr(z.zeit) : '', wartet ? t.zahlung.wartetBlock : spitze === null ? '' : t.zahlung.bestaetigungen(zeit.zahl(bestaetigungen(z, spitze)))].filter(Boolean).join(' · ')}</span>
             </button>];
         })}
         <div ref={ende} />

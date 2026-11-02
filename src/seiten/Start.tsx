@@ -4,7 +4,7 @@ import { einstellen, useEinstellungen } from '../wallet/einstellungen.ts';
 import { nichtGelistet } from '../wallet/zahlungen.ts';
 import { kopieren, tippGefuehl } from '../geraet/geraet.ts';
 import { useZahlungen } from '../ui/daten.ts';
-import { S, Betrag, Kasten, Platzhalterzeilen, Zahlungszeile, useAnzeige, useMeldung, useWer } from '../ui/teile.tsx';
+import { S, Betrag, Kasten, Platzhalterzeilen, Zahlungszeile, useAnzeige, useMeldung, useWer, useZeit } from '../ui/teile.tsx';
 import { YMarke, YBaender } from '../ui/zeichen.tsx';
 import { EinfuehrungKarte } from './Einfuehrung.tsx';
 
@@ -20,7 +20,8 @@ export function Start() {
   const t = useT();
   const nav = useNav();
   const wallet = useWallet();
-  const { konto, offline } = useDaten();
+  const { konto, offline, ausSpeicher } = useDaten();
+  const zeit = useZeit();
   const { wartend, verlauf } = useZahlungen();
   const { verborgen, einfuehrungGesehen } = useEinstellungen();
   const melde = useMeldung();
@@ -49,9 +50,9 @@ export function Start() {
         </span>
       </div>
 
-      {offline && <div className="st-meldung" role="status"><Kasten art="warn" symbol="warnung"><b>{t.start.offlineTitel}</b> <span className="leise">{t.start.offlineText}</span></Kasten></div>}
+      {offline && <div className="st-meldung" role="status"><Kasten art="warn" symbol="warnung"><b>{t.start.offlineTitel}</b> <span className="leise">{konto ? t.start.offlineText : t.start.offlineOhneStand}</span></Kasten></div>}
 
-      <div className={`st-guthaben auf ${offline ? 'alt' : ''}`}>
+      <div className={`st-guthaben auf ${offline || ausSpeicher !== null ? 'alt' : ''}`}>
         <span className="sf-lab">{t.start.guthaben}</span>
         {verborgen
           ? <div className="betrag start"><div className="gross" aria-label={t.start.zeigen}>••••<i>,••</i></div></div>
@@ -61,6 +62,7 @@ export function Start() {
         <span className="sf-einheit"><YMarke g={13} farbe="var(--leise)" />YSR</span>
         <span className="st-teilung" aria-hidden="true"><i /><i /></span>
         {stand === null && !offline && !verborgen && <span className="sf-klein st-laedt-text" role="status">{t.start.laedt}</span>}
+        {ausSpeicher !== null && <span className="sf-klein st-laedt-text" role="status">{t.start.standVom(`${zeit.tag(ausSpeicher)}, ${zeit.uhr(ausSpeicher)}`)}</span>}
         {erste && (
           <button type="button" className="st-wartet sinkt" onClick={() => nav.gehe({ n: 'detail', zahlung: erste })}>
             <YBaender stand={['erledigt', 'wartet', 'offen']} label={nichtGelistet(erste) ? t.zahlung.nichtGelistet : t.zahlung.wartetBlock} />

@@ -316,7 +316,8 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
   const extra = z.notiz ? t.zahlung.notiz(z.notiz)
     : z.art === 'pool' && mitUhr && z.anteile ? t.zahlung.miner(zeit.zahl(z.anteile))
     : belohnung ? t.zahlung.block(zeit.zahl(z.hoehe ?? 0))
-    : mitUhr && n > 0 ? t.zahlung.bestaetigungen(zeit.zahl(n)) : '';
+    // Ohne bekannte Hoehe der Kette (z. B. gemerkter Stand ohne Netz) keine geratene Zahl.
+    : mitUhr && n > 0 && spitze !== null ? t.zahlung.bestaetigungen(zeit.zahl(n)) : '';
   const zusatz = [wann, extra].filter(Boolean).join(' · ');
   // Zeichen nach Art der Zahlung (Designsystem 4.2): verjuengte Pfeile, Pool-Anteil als drei zusammenlaufende Baender.
   const art = z.art === 'pool' ? 'pool' : z.art === 'belohnung' ? 'belohnung' : ein ? 'ein' : 'aus';

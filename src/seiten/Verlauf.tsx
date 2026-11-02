@@ -146,7 +146,7 @@ export function Verlauf() {
         {teil('alle', t.verlauf.alle)}{teil('ein', t.verlauf.eingang)}{teil('aus', t.verlauf.ausgang)}{teil('mining', t.verlauf.mining)}
       </div>
 
-      {offline && <div className="st-meldung" role="status"><Kasten art="warn" symbol="warnung"><b>{t.start.offlineTitel}</b> <span className="leise">{t.start.offlineText}</span></Kasten></div>}
+      {offline && <div className="st-meldung" role="status"><Kasten art="warn" symbol="warnung"><b>{t.start.offlineTitel}</b> <span className="leise">{konto ? t.start.offlineText : t.start.offlineOhneStand}</span></Kasten></div>}
       {konto?.pendingSource === 'unavailable' && filter !== 'mining' && <p className="sf-xs st-hinweis">{t.verlauf.mempoolUnbekannt}</p>}
 
       {offene.length > 0 && (

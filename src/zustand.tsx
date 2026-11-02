@@ -7,6 +7,7 @@ import { kontakteLager } from './wallet/kontakte.ts';
 import { anforderungenLager } from './wallet/anforderungen.ts';
 import { einstellungenLager } from './wallet/einstellungen.ts';
 import { gesendetLager, gesendetAufraeumen, useGesendet } from './wallet/gesendet.ts';
+import { letzterStandLager, standLesen, standMerken } from './wallet/letzterstand.ts';
 import * as speicher from './geraet/speicher.ts';
 import { beiSichtbarkeit } from './geraet/geraet.ts';
 import { fehlerMerken } from './geraet/plattform.ts';
@@ -137,7 +138,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     await tresor.loeschen();
     await bioAusschalten();
     tresor.richtigePin();
-    kontakteLager.leeren(); anforderungenLager.leeren(); gesendetLager.leeren(); einstellungenLager.leeren();
+    kontakteLager.leeren(); anforderungenLager.leeren(); gesendetLager.leeren(); einstellungenLager.leeren(); letzterStandLager.leeren();
     setAdresse(null); setFrisch(null); setPhase('kein_tresor');
   }, []);
 
@@ -161,6 +162,12 @@ interface DatenZustand {
   spitze: number | null;
   /** Der letzte Abruf ist gescheitert; was da ist, kann veraltet sein. */
   offline: boolean;
+  /**
+   * Unix-Sekunden: konto stammt aus dem gemerkten letzten Stand, ein frischer
+   * Abruf ist seit dem Start noch nicht gelungen. Nur zum Anzeigen -- Senden
+   * wartet darauf, dass dieser Wert null wird.
+   */
+  ausSpeicher: number | null;
   /** Wartende Zahlungen: vom Knoten gemeldete plus eigene, die er (noch) nicht nennt. */
   wartende: Wartend[];
   /** Guthaben abzueglich der eigenen wartenden Zahlungen. */
@@ -178,6 +185,7 @@ export function DatenProvider({ children }: { children: ReactNode }) {
   const [konto, setKonto] = useState<Konto | null>(null);
   const [spitze, setSpitze] = useState<number | null>(null);
   const [offline, setOffline] = useState(false);
+  const [ausSpeicher, setAusSpeicher] = useState<number | null>(null);
   const eigene = useGesendet();
   const laeuft = useRef(false);
 
@@ -187,7 +195,7 @@ export function DatenProvider({ children }: { children: ReactNode }) {
     try {
       const [k, kopf] = await Promise.all([kontoLaden(adresse), kopfLaden().catch(() => null)]);
       if (k.address !== adresse) throw new Error('Antwort fuer eine andere Adresse');
-      setKonto(k);
+      setKonto(k); setAusSpeicher(null); standMerken(k);
       if (kopf && typeof kopf.height === 'number') setSpitze(kopf.height);
       setOffline(false);
       gesendetAufraeumen(new Set(k.history.map(e => e.txid)), BigInt(k.nonce));
@@ -198,7 +206,9 @@ export function DatenProvider({ children }: { children: ReactNode }) {
   }, [adresse]);
 
   useEffect(() => {
-    setKonto(null); setOffline(false);
+    // Bis der erste Abruf da ist: der gemerkte letzte Stand dieser Adresse, nur zur Anzeige.
+    const gemerkt = adresse ? standLesen(adresse) : null;
+    setKonto(gemerkt?.konto ?? null); setAusSpeicher(gemerkt?.zeit ?? null); setOffline(false);
     if (!adresse) return;
     neuLaden();
     const uhr = setInterval(() => { if (document.visibilityState === 'visible') neuLaden(); }, TAKT);
@@ -220,8 +230,8 @@ export function DatenProvider({ children }: { children: ReactNode }) {
     const stand = BigInt(konto?.balance ?? '0');
     let nonce = BigInt(konto?.nextNonce ?? konto?.nonce ?? '0');
     for (const p of raus) { const n = BigInt(p.nonce) + 1n; if (n > nonce) nonce = n; }
-    return { konto, spitze, offline, wartende, verfuegbar: stand > gebunden ? stand - gebunden : 0n, naechsteNonce: nonce, neuLaden };
-  }, [konto, spitze, offline, eigene, adresse, neuLaden]);
+    return { konto, spitze, offline, ausSpeicher, wartende, verfuegbar: stand > gebunden ? stand - gebunden : 0n, naechsteNonce: nonce, neuLaden };
+  }, [konto, spitze, offline, ausSpeicher, eigene, adresse, neuLaden]);
 
   return <DatenCtx.Provider value={wert}>{children}</DatenCtx.Provider>;
 }

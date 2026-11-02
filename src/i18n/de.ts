@@ -80,6 +80,8 @@ export const de = {
     offlineTitel: 'Keine Verbindung.', offlineText: 'Der Stand kann veraltet sein. Senden ist erst wieder möglich, wenn die Verbindung steht.',
     wartetAn: (wer: string) => `an ${wer} · wartet auf Block`, wartetVon: (wer: string) => `von ${wer} · wartet auf Block`,
     wartenMehrere: (n: number) => `${n} Zahlungen warten auf einen Block`,
+    standVom: (wann: string) => `Letzter Stand: ${wann}`,
+    offlineOhneStand: 'Dein Guthaben lässt sich ohne Netz nicht laden. Senden ist erst wieder möglich, wenn die Verbindung steht.',
     sammelVon: (wer: string) => `Anteil von ${wer} · wartet auf Block`,
     zuletzt: 'Zuletzt', aktionen: 'Aktionen',
   },
@@ -149,6 +151,7 @@ export const de = {
     hoehe: (h: string) => `Aktuelle Höhe ${h}`, hoeheKnoten: (h: string) => `Aktuelle Höhe ${h} · vom Knoten`,
     fassungUnbekannt: 'Der Knoten ist gerade nicht erreichbar. Ohne seine Auskunft ist unklar, welche Form der Zahlung der nächste Block verlangt. Senden geht wieder, sobald die Verbindung steht.',
     kontoLaedt: 'Der Kontostand wird noch geladen.',
+    ohneNetz: 'Ohne Verbindung kann nicht gesendet werden.',
     zuViel: 'Dafür reicht das Guthaben nicht.', staub: 'Der Betrag ist zu klein.',
     // 3 -- Pruefen
     pruefen: 'Prüfen', gesamt: 'Gesamt', anKurz: 'An',

@@ -51,7 +51,7 @@ export function Detail({ zahlung }: { zahlung: Zahlung }) {
   const titel = wartet ? (weg ? t.detail.statusNichtGelistet : t.detail.statusWartet) : t.detail.imBlock(zeit.zahl(z.hoehe!));
   const unter = wartet
     ? (weg ? t.detail.statusNichtGelistetText : z.mempool === true ? t.detail.statusImMempool : z.mempool === null ? t.detail.statusUnbekannt : t.detail.s2Text)
-    : t.zahlung.bestaetigungen(zeit.zahl(n));
+    : spitze === null ? '' : t.zahlung.bestaetigungen(zeit.zahl(n));
 
   const text = betragGenau(z.betrag, t.code, 8, 2);
   const i = text.lastIndexOf(dezimalZeichen(t.code));
