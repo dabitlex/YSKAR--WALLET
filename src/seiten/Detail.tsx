@@ -56,7 +56,8 @@ export function Detail({ zahlung }: { zahlung: Zahlung }) {
   const text = betragGenau(z.betrag, t.code, 8, 2);
   const i = text.lastIndexOf(dezimalZeichen(t.code));
   const wem = z.art === 'pool' ? `YSR · ${t.zahlung.pool}` : z.art === 'belohnung' ? `YSR · ${t.zahlung.belohnung}`
-    : ein ? t.detail.vonWem(wer(z.gegen)) : t.detail.anWem(wer(z.gegen));
+    : z.betragOffen ? t.detail.sammelVon(wer(z.gegen))
+    : ein ? t.detail.vonWem(wer(z.gegen)) : t.detail.anWem(z.mehrere ? t.zahlung.mehrereKlein : wer(z.gegen));
 
   return (
     <div className="seite sf">
@@ -67,7 +68,9 @@ export function Detail({ zahlung }: { zahlung: Zahlung }) {
       </div>
 
       <div className="dt-betrag">
-        <span className={`sf-zahl dt ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}{i < 0 ? text : <>{text.slice(0, i)}<span className="nk">{text.slice(i)}</span></>}</span>
+        {z.betragOffen
+          ? <span className="sf-zahl dt offen">{t.zahlung.anteilOffen}</span>
+          : <span className={`sf-zahl dt ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}{i < 0 ? text : <>{text.slice(0, i)}<span className="nk">{text.slice(i)}</span></>}</span>}
         <span className="sf-klein">{wem}</span>
       </div>
 
@@ -83,6 +86,8 @@ export function Detail({ zahlung }: { zahlung: Zahlung }) {
           <div className="sf-linie"><span>{t.detail.block}</span>
             <span className="ziffern">#{zeit.zahl(z.hoehe)}{z.art === 'pool' && z.anteile ? ` · ${t.detail.anteile(z.anteile)}` : ''}</span></div>
         )}
+        {z.betragOffen && <div className="sf-linie"><span>{t.detail.betrag}</span><span>{t.detail.anteilOffen}</span></div>}
+        {z.mehrere && <div className="sf-linie"><span>{t.detail.an}</span><span>{t.detail.empfaengerMehrere}</span></div>}
         {z.gegen && (
           <div className="sf-linie oben"><span>{ein ? t.detail.von : t.detail.an}</span><Vierer adresse={z.gegen} klasse="sf-adresse" /></div>
         )}

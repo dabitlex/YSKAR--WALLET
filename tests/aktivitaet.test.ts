@@ -41,3 +41,27 @@ test('Bestaetigungen: der Block zaehlt als erste, wartend null', () => {
   assert.equal(bestaetigungen(ausEintrag(eintrag('in', '1', 100)), null), 1);
   assert.equal(bestaetigungen(ausWartend(wartend), 103), 0);
 });
+
+/*
+  Sammelzahlung (Typ 3, Fassung 6), Antworten wie dabitlex/YSKAR 92b4893
+  (ReadApi.ts): Ausgang ohne einzelnen Empfaenger, wartender Eingang nur mit
+  der Summe aller Empfaenger -- dieser Betrag darf nicht als eigener gelten.
+*/
+const sammelWartend = (kind: Wartend['kind'], to: string | null, amount: string): Wartend =>
+  ({ txid: 'c'.repeat(64), kind, from: 'ysr1qabsender', to, amount, fee: '9000', nonce: '1', memo: null });
+
+test('Sammelzahlung: Ausgang im Block ohne Gegenpartei heisst mehrere Empfaenger', () => {
+  const z = ausEintrag({ ...eintrag('out', '900000000'), counterparty: null });
+  assert.equal(z.mehrere, true); assert.equal(z.betrag, 900000000n); assert.equal(z.betragOffen, undefined);
+  assert.equal(ausEintrag({ ...eintrag('in', '5'), counterparty: 'ysr1qabsender' }).mehrere, false);
+  assert.equal(ausEintrag({ ...eintrag('pool', '5'), counterparty: null }).mehrere, false);
+});
+
+test('Sammelzahlung: wartender Eingang zeigt keinen Betrag, wartender Ausgang die Summe', () => {
+  const ein = ausWartend(sammelWartend('in', null, '50000000000'));
+  assert.equal(ein.betragOffen, true); assert.equal(ein.betrag, 0n); assert.equal(ein.gegen, 'ysr1qabsender'); assert.equal(ein.mehrere, false);
+  const aus = ausWartend(sammelWartend('out', null, '700000000'));
+  assert.equal(aus.mehrere, true); assert.equal(aus.betragOffen, false); assert.equal(aus.betrag, 700000000n);
+  const normal = ausWartend(sammelWartend('in', 'ysr1qich', '42'));
+  assert.equal(normal.betragOffen, false); assert.equal(normal.mehrere, false); assert.equal(normal.betrag, 42n);
+});

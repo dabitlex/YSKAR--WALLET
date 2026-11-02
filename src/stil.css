@@ -178,6 +178,7 @@ h1,h2,p{margin:0}
 .zeile .rechts small{font-size:12px;color:var(--leise)}
 .zeile .wert{font-family:var(--schrift);font-variant-numeric:tabular-nums;font-size:15.5px;font-weight:500;white-space:nowrap}
 .zeile .wert.plus{color:var(--gruen)}
+.zeile .wert.offen{color:var(--leise);font-size:13.5px;font-weight:400}
 .zeile > svg.pfeil{color:var(--blass);flex-shrink:0}
 .kachel{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .kachel.aus{background:rgba(47,123,255,.14);color:var(--blau-hell)}
@@ -888,6 +889,7 @@ section > .st-abschnitt{margin-top:26px}
 .dt-betrag{display:flex;flex-direction:column;align-items:center;margin-top:22px;flex-shrink:0;min-width:0}
 .sf-zahl.dt{font-size:52px;line-height:56px}.sf-zahl.dt .nk{font-size:24px}
 .sf-zahl.dt.plus{color:var(--gruen)}
+.sf-zahl.dt.offen{font-size:30px;line-height:56px;color:var(--leise)}
 .dt-betrag .sf-klein{margin-top:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dt-status{margin-top:24px;padding:16px 18px;flex-direction:row;gap:14px;align-items:center}
 .dt-status > svg{flex-shrink:0}

@@ -306,7 +306,7 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
   const kontakt = z.gegen ? name(z.gegen) : null;
   const anzeige = useAnzeige();
   const titel = z.art === 'belohnung' ? t.zahlung.belohnung : z.art === 'pool' ? t.zahlung.pool
-    : kontakt ?? kurzAdresse(z.gegen, '?');
+    : z.mehrere ? t.zahlung.mehrere : kontakt ?? kurzAdresse(z.gegen, '?');
   const wartet = z.hoehe === null;
   const weg = nichtGelistet(z);
   const wann = z.zeit === null ? '' : mitUhr ? zeit.uhr(z.zeit) : zeit.kurz(z.zeit);
@@ -332,7 +332,9 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
           : zusatz}</small>
       </div>
       <span className="rechts">
-        <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}<Stellen text={anzeige(z.betrag)} /></span>
+        {z.betragOffen
+          ? <span className="wert offen">{t.zahlung.anteilOffen}</span>
+          : <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}<Stellen text={anzeige(z.betrag)} /></span>}
       </span>
     </button>
   );

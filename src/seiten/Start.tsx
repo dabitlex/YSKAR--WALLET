@@ -65,7 +65,8 @@ export function Start() {
           <button type="button" className="st-wartet sinkt" onClick={() => nav.gehe({ n: 'detail', zahlung: erste })}>
             <YBaender stand={['erledigt', 'wartet', 'offen']} label={nichtGelistet(erste) ? t.zahlung.nichtGelistet : t.zahlung.wartetBlock} />
             <span>{wartend.length > 1 ? t.start.wartenMehrere(wartend.length)
-              : <><b>{anzeige(erste.betrag)}</b> {erste.art === 'aus' ? t.start.wartetAn(wer(erste.gegen)) : t.start.wartetVon(wer(erste.gegen))}</>}</span>
+              : erste.betragOffen ? t.start.sammelVon(wer(erste.gegen))
+              : <><b>{anzeige(erste.betrag)}</b> {erste.art === 'aus' ? t.start.wartetAn(erste.mehrere ? t.zahlung.mehrereKlein : wer(erste.gegen)) : t.start.wartetVon(wer(erste.gegen))}</>}</span>
           </button>
         )}
       </div>

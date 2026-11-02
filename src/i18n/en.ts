@@ -81,6 +81,7 @@ export const en: Woerterbuch = {
     offlineTitel: 'No connection.', offlineText: 'The balance may be out of date. Sending is possible again once the connection is back.',
     wartetAn: wer => `to ${wer} · waiting for a block`, wartetVon: wer => `from ${wer} · waiting for a block`,
     wartenMehrere: n => `${n} payments waiting for a block`,
+    sammelVon: wer => `Share from ${wer} · waiting for a block`,
     zuletzt: 'Recent', aktionen: 'Actions',
   },
   zahlung: {
@@ -89,6 +90,7 @@ export const en: Woerterbuch = {
     wartet: 'waiting for confirmation', wartetKurz: 'pending', bestaetigt: 'confirmed',
     block: h => `Block #${h}`, notiz: n => `“${n}”`,
     wartetBlock: 'Waiting for a block', nichtGelistet: 'No longer at the node',
+    mehrere: 'Several recipients', mehrereKlein: 'several recipients', anteilOffen: 'Share follows',
     miner: n => `${n} miners`, bestaetigungen: n => (n === '1' ? '1 confirmation' : `${n} confirmations`),
   },
   verlauf: {
@@ -119,6 +121,9 @@ export const en: Woerterbuch = {
     imBlock: h => `Included in block #${h}`,
     endgueltig: 'Every further block makes it harder to reverse. There is no fixed finality in the network.',
     anWem: w => `YSR to ${w}`, vonWem: w => `YSR from ${w}`,
+    sammelVon: w => `Batch payment from ${w}`,
+    empfaengerMehrere: 'Several (batch payment)',
+    betrag: 'Your share', anteilOffen: 'Known once the payment is in a block',
     block: 'Block',
   },
   senden: {

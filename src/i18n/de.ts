@@ -80,6 +80,7 @@ export const de = {
     offlineTitel: 'Keine Verbindung.', offlineText: 'Der Stand kann veraltet sein. Senden ist erst wieder möglich, wenn die Verbindung steht.',
     wartetAn: (wer: string) => `an ${wer} · wartet auf Block`, wartetVon: (wer: string) => `von ${wer} · wartet auf Block`,
     wartenMehrere: (n: number) => `${n} Zahlungen warten auf einen Block`,
+    sammelVon: (wer: string) => `Anteil von ${wer} · wartet auf Block`,
     zuletzt: 'Zuletzt', aktionen: 'Aktionen',
   },
   zahlung: {
@@ -88,6 +89,7 @@ export const de = {
     wartet: 'wartet auf Bestätigung', wartetKurz: 'wartet', bestaetigt: 'bestätigt',
     block: (h: string) => `Block #${h}`, notiz: (n: string) => `„${n}“`,
     wartetBlock: 'Wartet auf Block', nichtGelistet: 'Nicht mehr beim Knoten',
+    mehrere: 'Mehrere Empfänger', mehrereKlein: 'mehrere Empfänger', anteilOffen: 'Anteil folgt',
     miner: (n: string) => `${n} Miner`, bestaetigungen: (n: string) => (n === '1' ? '1 Bestätigung' : `${n} Bestätigungen`),
   },
   verlauf: {
@@ -118,6 +120,9 @@ export const de = {
     imBlock: (h: string) => `In Block #${h} aufgenommen`,
     endgueltig: 'Mit jedem weiteren Block wird sie schwerer rückgängig zu machen. Eine feste Endgültigkeit gibt es im Netz nicht.',
     anWem: (w: string) => `YSR an ${w}`, vonWem: (w: string) => `YSR von ${w}`,
+    sammelVon: (w: string) => `Sammelzahlung von ${w}`,
+    empfaengerMehrere: 'Mehrere (Sammelzahlung)',
+    betrag: 'Dein Anteil', anteilOffen: 'Steht fest, sobald die Zahlung im Block ist',
     block: 'Block',
   },
   senden: {

@@ -20,6 +20,14 @@ export interface Zahlung {
    * true/false nach seiner Liste, null = nicht abrufbar oder unbekannt.
    */
   mempool?: boolean | null;
+  /** Sammelzahlung (Typ 3, Fassung 6) an mehrere Empfaenger: der Knoten nennt keinen einzelnen. */
+  mehrere?: boolean;
+  /**
+   * Wartender Eingang aus einer Sammelzahlung: Der Knoten meldet nur die Summe
+   * aller Empfaenger, nicht den eigenen Anteil. betrag ist dann 0 und wird
+   * nicht gezeigt; der Anteil steht fest, sobald die Zahlung im Block ist.
+   */
+  betragOffen?: boolean;
 }
 
 const gross = (s: string | null | undefined): bigint => { try { return BigInt(s ?? '0'); } catch { return 0n; } };
@@ -35,13 +43,19 @@ export function ausEintrag(e: VerlaufEintrag): Zahlung {
     notiz: belohnung ? '' : notizAusHex(e.memo),
     zeit: e.timestamp && /^\d+$/.test(e.timestamp) ? Number(e.timestamp) : null,
     hoehe: e.height, anteile: e.shares,
+    // Ausgang ohne Gegenpartei: Sammelzahlung an mehrere Empfaenger.
+    mehrere: !belohnung && e.kind === 'out' && !e.counterparty,
   };
 }
 
 export function ausWartend(w: Wartend, zeit: number | null = null): Zahlung {
+  // to fehlt nur bei einer Sammelzahlung mit mehreren Empfaengern (Typ 3, Fassung 6).
+  const sammel = !w.to;
+  const offen = sammel && w.kind === 'in';
   return {
     txid: w.txid, art: w.kind === 'in' ? 'ein' : 'aus', gegen: w.kind === 'in' ? w.from : w.to,
-    betrag: gross(w.amount), gebuehr: gross(w.fee), notiz: notizAusHex(w.memo), zeit, hoehe: null,
+    betrag: offen ? 0n : gross(w.amount), gebuehr: gross(w.fee), notiz: notizAusHex(w.memo), zeit, hoehe: null,
+    mehrere: sammel && w.kind === 'out', betragOffen: offen,
   };
 }
 
