@@ -480,7 +480,7 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
           </span>
           {einheit}
           <span className="sf-verfuegbar">
-            {t.senden.verfuegbar} <b className="ziffern">{betragText(guthaben, t.code)}</b> · <button type="button" className="sf-link" aria-pressed={alles} onClick={() => setAlles(true)}>{t.senden.alles}</button>
+            {t.senden.verfuegbar} <b className="ziffern">{daten.konto ? betragText(guthaben, t.code) : '–'}</b> · <button type="button" className="sf-link" aria-pressed={alles} onClick={() => setAlles(true)}>{t.senden.alles}</button>
           </span>
           {meldung && <span className="gutzeile rot sf-meldung"><S n="warnung" g={15} />{meldung}</span>}
         </div>
@@ -518,7 +518,7 @@ export function Senden({ an, betrag: vorBetrag, notiz: vorNotiz, scan }: { an?: 
           : <button type="button" className="sf-link sf-notizlink" onClick={() => setNotizOffen(true)}><S n="stift" g={14} />{t.senden.notizHinzu}</button>}
 
         <div className="fuell" />
-        {daten.konto === null && <p className="sf-xs mittig">{t.senden.kontoLaedt}</p>}
+        {daten.konto === null && !daten.offline && <p className="sf-xs mittig">{t.senden.kontoLaedt}</p>}
         <Ziffernfeld label={t.senden.betragLabel} onTaste={z => { setAlles(false); setBetrag(b => tippeBetrag(b, z, zeichen, DECIMALS)); }} />
         <button type="button" className="knopf sinkt sf-weiter" disabled={!bereit} onClick={zumPruefen}>{t.allg.weiter}</button>
       </div>

@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import { useT } from '../i18n/index.ts';
 import { dezimalZeichen } from '../wallet/betrag.ts';
 import { LOESCHEN, ADRESS_ZEICHEN, grossAmAnfang } from '../wallet/tasten.ts';
-import { tippGefuehl, einfuegen as ausZwischenablage } from '../geraet/geraet.ts';
+import { einfuegen as ausZwischenablage } from '../geraet/geraet.ts';
 import { S, obenauflegen, useZurueck } from './teile.tsx';
 
 /*
@@ -194,7 +194,7 @@ function Tastatur({ art, wert, onTaste, leiste, weiter, gross, onEinfuegen, onZu
   useLayoutEffect(() => { melde(ref.current?.offsetHeight ?? 0); });
 
   const hoch = art === 'text' && ebene === 'abc' && (umschalt ?? grossAmAnfang(wert, gross));
-  const druck = (z: string) => { tippGefuehl(); onTaste(z); if (z !== LOESCHEN) setUmschalt(null); };
+  const druck = (z: string) => { onTaste(z); if (z !== LOESCHEN) setUmschalt(null); };
   const naechstes = weiter ?? onZu;
 
   // Eine angeschlossene Tastatur tippt in dasselbe Feld.
@@ -264,12 +264,12 @@ function Tastatur({ art, wert, onTaste, leiste, weiter, gross, onEinfuegen, onZu
         <div className="treihe">{r[1].length < breite && luecke(.5, 'l')}{[...r[1]].map(zeichentaste)}{r[1].length < breite && luecke(.5, 'r')}</div>
         <div className="treihe">
           <Taste klasse={`dunkel ${hoch ? 'an' : ''}`} breit={1.5} label={t.tast.gross} gedrueckt={hoch} zeige={<S n="gross" g={22} w={1.9} />}
-                 onDruck={() => { tippGefuehl(); setUmschalt(!hoch); }} />
+                 onDruck={() => setUmschalt(!hoch)} />
           {[...r[2]].map(zeichentaste)}
           {weg()}
         </div>
         <div className="treihe">
-          <Taste klasse="dunkel klein-schrift" breit={1.5} label={t.tast.zeichen} zeige="123" onDruck={() => { tippGefuehl(); setEbene('123'); }} />
+          <Taste klasse="dunkel klein-schrift" breit={1.5} label={t.tast.zeichen} zeige="123" onDruck={() => setEbene('123')} />
           {zeichentaste(',')}
           <Taste klasse="leertaste" breit={breite - 3.5} label={t.tast.leer} zeige="" onDruck={() => druck(' ')} />
           {zeichentaste('.')}
@@ -283,7 +283,7 @@ function Tastatur({ art, wert, onTaste, leiste, weiter, gross, onEinfuegen, onZu
         <div className="treihe">{[...ZEICHEN[1]].map(zeichentaste)}</div>
         <div className="treihe">{[...ZEICHEN[2]].map(zeichentaste)}{weg(1)}</div>
         <div className="treihe">
-          <Taste klasse="dunkel klein-schrift" breit={1.5} label={t.tast.buchstaben} zeige="ABC" onDruck={() => { tippGefuehl(); setEbene('abc'); }} />
+          <Taste klasse="dunkel klein-schrift" breit={1.5} label={t.tast.buchstaben} zeige="ABC" onDruck={() => setEbene('abc')} />
           {zeichentaste('_')}
           <Taste klasse="leertaste" breit={6.5} label={t.tast.leer} zeige="" onDruck={() => druck(' ')} />
           {zeichentaste('=')}

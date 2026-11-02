@@ -67,7 +67,7 @@ h1,h2,p{margin:0}
 .kopf{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;flex-shrink:0}
 .kopf h1{font-size:30px;line-height:36px;font-weight:500;letter-spacing:-.022em;flex:1;min-width:0}
 .kopf-zurueck{display:flex;align-items:center;gap:12px;min-height:44px;flex-shrink:0}
-.kopf-zurueck h1{font-size:20px;font-weight:500;letter-spacing:-.02em;flex:1;min-width:0}
+.kopf-zurueck h1{flex:1;min-width:0;font-size:13px;line-height:18px;font-weight:500;color:var(--leise);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kopf-rechts{display:flex;gap:10px;flex-shrink:0}
 
 /* ---------- Tasten ---------- */
@@ -768,7 +768,6 @@ div.ez:active{background:transparent}
   .sf-fehlerkopf{margin-top:20px}
   .sf-abschnitt{margin-top:20px}
 }
-.pinseite .kopf-zurueck h1{font-size:13px;line-height:18px;font-weight:500;letter-spacing:0;color:var(--leise);text-align:center;padding-right:56px}
 
 /* ---------- Wallet, Aktivitaet, Zahlung (Designsystem 4.2, Phase B2) ---------- */
 .seite.st{gap:0}
@@ -975,3 +974,19 @@ section > .st-abschnitt{margin-top:26px}
   .ew-titel{margin-top:24px;font-size:38px;line-height:42px}
   .wortkarte .wortliste div{height:32px}
 }
+
+/* ---------- Zustaende (Designsystem 4.2, Phase B7) ---------- */
+@keyframes schimmer{0%,100%{opacity:.55}50%{opacity:1}}
+.st-platzhalter{display:flex;align-items:center;height:70px;margin-top:10px}
+.st-platzhalter i{display:block;width:180px;height:44px;border-radius:14px;background:rgba(238,242,248,.07);animation:schimmer 1.4s ease-in-out infinite}
+.st-laedt-text{margin-top:18px}
+.platzhalter{display:flex;flex-direction:column}
+.platzhalter > div{display:flex;align-items:center;gap:14px;min-height:64px}
+.platzhalter i{display:block;border-radius:6px;background:rgba(238,242,248,.07);animation:schimmer 1.4s ease-in-out infinite}
+.platzhalter > div > i:first-child{width:40px;height:40px;border-radius:14px;flex-shrink:0}
+.platzhalter span{flex:1;display:flex;flex-direction:column;gap:7px}
+.platzhalter span i:first-child{width:46%;height:12px}
+.platzhalter span i:last-child{width:30%;height:10px}
+.platzhalter > div > i:last-child{width:64px;height:12px}
+.st-laden{margin-top:20px}
+.seite.st > .st-meldung{margin-top:14px}

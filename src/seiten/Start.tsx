@@ -4,7 +4,7 @@ import { einstellen, useEinstellungen } from '../wallet/einstellungen.ts';
 import { nichtGelistet } from '../wallet/zahlungen.ts';
 import { kopieren, tippGefuehl } from '../geraet/geraet.ts';
 import { useZahlungen } from '../ui/daten.ts';
-import { S, Betrag, Kasten, Zahlungszeile, useAnzeige, useMeldung, useWer } from '../ui/teile.tsx';
+import { S, Betrag, Kasten, Platzhalterzeilen, Zahlungszeile, useAnzeige, useMeldung, useWer } from '../ui/teile.tsx';
 import { YMarke, YBaender } from '../ui/zeichen.tsx';
 import { EinfuehrungKarte } from './Einfuehrung.tsx';
 
@@ -56,10 +56,11 @@ export function Start() {
         {verborgen
           ? <div className="betrag start"><div className="gross" aria-label={t.start.zeigen}>••••<i>,••</i></div></div>
           : stand === null
-            ? <div className="st-laedt">{offline ? '–' : t.start.laedt}</div>
+            ? (offline ? <div className="st-laedt">–</div> : <span className="st-platzhalter" aria-hidden="true"><i /></span>)
             : <Betrag wert={stand} uebersicht klasse="start" />}
         <span className="sf-einheit"><YMarke g={13} farbe="var(--leise)" />YSR</span>
         <span className="st-teilung" aria-hidden="true"><i /><i /></span>
+        {stand === null && !offline && !verborgen && <span className="sf-klein st-laedt-text" role="status">{t.start.laedt}</span>}
         {erste && (
           <button type="button" className="st-wartet sinkt" onClick={() => nav.gehe({ n: 'detail', zahlung: erste })}>
             <YBaender stand={['erledigt', 'wartet', 'offen']} label={nichtGelistet(erste) ? t.zahlung.nichtGelistet : t.zahlung.wartetBlock} />
@@ -83,7 +84,7 @@ export function Start() {
           {liste.length > 0 && <button type="button" className="verweis" onClick={() => nav.reiter('verlauf')}>{t.start.alle}</button>}
         </div>
         {liste.length === 0
-          ? <div className="leerstand">{konto ? t.start.leer : offline ? '–' : t.start.laedt}</div>
+          ? (konto ? <div className="leerstand">{t.start.leer}</div> : offline ? <div className="leerstand">–</div> : <Platzhalterzeilen />)
           : <div className="liste">{liste.map(z => <Zahlungszeile key={z.txid} z={z} onTipp={() => nav.gehe({ n: 'detail', zahlung: z })} />)}</div>}
       </div>
     </div>

@@ -8,7 +8,7 @@ import { isValidAddress } from '../kern/address.ts';
 import { fehlerMerken } from '../geraet/plattform.ts';
 import { useZahlungen } from '../ui/daten.ts';
 import { tippeText } from '../wallet/tasten.ts';
-import { S, Zahlungszeile, Stellen, useAnzeige, useZeit } from '../ui/teile.tsx';
+import { S, Kasten, Platzhalterzeilen, Zahlungszeile, Stellen, useAnzeige, useZeit } from '../ui/teile.tsx';
 import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
 type Filter = 'alle' | 'ein' | 'aus' | 'mining';
@@ -36,7 +36,7 @@ export function Verlauf() {
   const anzeige = useAnzeige();
   const tast = useTastatur();
   const { adresse } = useWallet();
-  const { konto } = useDaten();
+  const { konto, offline } = useDaten();
   const { wartend, verlauf } = useZahlungen();
   const { kontakte } = useKontakte();
   const [filter, setFilter] = useState<Filter>('alle');
@@ -146,6 +146,7 @@ export function Verlauf() {
         {teil('alle', t.verlauf.alle)}{teil('ein', t.verlauf.eingang)}{teil('aus', t.verlauf.ausgang)}{teil('mining', t.verlauf.mining)}
       </div>
 
+      {offline && <div className="st-meldung" role="status"><Kasten art="warn" symbol="warnung"><b>{t.start.offlineTitel}</b> <span className="leise">{t.start.offlineText}</span></Kasten></div>}
       {konto?.pendingSource === 'unavailable' && filter !== 'mining' && <p className="sf-xs st-hinweis">{t.verlauf.mempoolUnbekannt}</p>}
 
       {offene.length > 0 && (
@@ -165,9 +166,12 @@ export function Verlauf() {
         </section>
       ))}
 
-      {bestaetigt.length === 0 && offene.length === 0 && !laedt &&
-        <div className="leerstand">{fehler ? t.verlauf.fehler : filter !== 'alle' || frage ? t.verlauf.nichts : t.verlauf.leer}</div>}
-      {laedt && <div className="leerstand"><div className="dreher" style={{ margin: '0 auto' }} /></div>}
+      {/* Erste Seite des Kontos noch nicht da: laden, nicht "keine Zahlungen". */}
+      {vomKonto && !konto
+        ? (offline ? <div className="leerstand">{t.verlauf.fehler}</div> : <div className="st-laden"><Platzhalterzeilen n={5} /></div>)
+        : bestaetigt.length === 0 && offene.length === 0 && !laedt &&
+          <div className="leerstand">{fehler ? t.verlauf.fehler : filter !== 'alle' || frage ? t.verlauf.nichts : t.verlauf.leer}</div>}
+      {laedt && (bestaetigt.length === 0 ? <div className="st-laden"><Platzhalterzeilen n={5} /></div> : <div className="leerstand"><div className="dreher" style={{ margin: '0 auto' }} /></div>)}
       {cursor && !laedt && <button type="button" className="knopf zweit sinkt st-mehr" onClick={nachladen}>{t.verlauf.mehr}</button>}
     </div>
   );

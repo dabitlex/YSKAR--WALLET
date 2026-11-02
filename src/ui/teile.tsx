@@ -218,7 +218,7 @@ export function KopfZurueck({ titel, zurueck, rechts, mitte }: { titel?: string;
     <div className="kopf-zurueck">
       <button type="button" className="klein sinkt" aria-label={t.allg.zurueck} onClick={zurueck}><S n="zurueck" w={2.2} /></button>
       {mitte ?? <h1>{titel}</h1>}
-      {rechts}
+      {rechts ?? <span className="sf-platz" />}
     </div>
   );
 }
@@ -283,7 +283,7 @@ export function useZeit() {
     return {
       uhr: (s: number) => uhr.format(new Date(s * 1000)),
       /** "heute, 09:12" / "gestern" / "3. Okt." */
-      kurz: (s: number) => { const n = tageHer(s); return n === 0 ? `${t.allg.heute.toLowerCase()}, ${uhr.format(new Date(s * 1000))}` : n === 1 ? t.allg.gestern.toLowerCase() : tagKurz.format(new Date(s * 1000)); },
+      kurz: (s: number) => { const n = tageHer(s); return n === 0 ? `${t.allg.heute.toLowerCase()}, ${uhr.format(new Date(s * 1000))}` : n === 1 ? `${t.allg.gestern.toLowerCase()}, ${uhr.format(new Date(s * 1000))}` : tagKurz.format(new Date(s * 1000)); },
       /** Ueberschrift eines Tages: "Heute" / "Gestern" / "3. Oktober" */
       tag: (s: number) => { const n = tageHer(s); const d = new Date(s * 1000); return n === 0 ? t.allg.heute : n === 1 ? t.allg.gestern : d.getFullYear() === new Date().getFullYear() ? tagLang.format(d) : jahr.format(d); },
       zahl: (n: number) => zahl.format(n),
@@ -335,6 +335,15 @@ export function Zahlungszeile({ z, onTipp, mitUhr }: { z: Zahlung; onTipp: () =>
         <span className={`wert ${ein ? 'plus' : ''}`}>{ein ? '+' : '−'}<Stellen text={anzeige(z.betrag)} /></span>
       </span>
     </button>
+  );
+}
+
+/** Laden (4.2): graue Zeilen an der Stelle der Zahlungen, bis die erste Antwort da ist. */
+export function Platzhalterzeilen({ n = 3 }: { n?: number }) {
+  return (
+    <div className="platzhalter" aria-hidden="true">
+      {Array.from({ length: n }, (_, i) => <div key={i}><i /><span><i /><i /></span><i /></div>)}
+    </div>
   );
 }
 
@@ -460,7 +469,7 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck, kopf, o
 
   const tipp = (z: string) => {
     if (stand !== 'frei' || warten > 0 || pin.length >= 6) return;
-    tippGefuehl();
+    // Ziffern sind normale Eingaben: keine Vibration (Haptik-Regel). Nur eine falsche PIN warnt.
     setFehler('');
     const neu = pin + z;
     setPin(neu);
@@ -494,7 +503,7 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck, kopf, o
           : <span />}
         <button type="button" className="taste sinkt" disabled={gesperrt} onClick={() => tipp('0')}>0</button>
         <button type="button" className="taste leer sinkt" aria-label={t.pin.loeschen} disabled={gesperrt || !pin}
-                onClick={() => { if (!frei) return; tippGefuehl(); setPin(p => p.slice(0, -1)); }}><S n="weg" g={28} w={1.8} /></button>
+                onClick={() => { if (!frei) return; setPin(p => p.slice(0, -1)); }}><S n="weg" g={28} w={1.8} /></button>
       </div>
       {fuss ?? <div style={{ height: 44 }} />}
     </div>
