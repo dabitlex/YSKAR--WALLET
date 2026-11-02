@@ -129,7 +129,7 @@ function Bild({ nr, t, sprache }: { nr: number; t: Woerterbuch; sprache: 'de' | 
     case 2: return mitte(
       <div className="ef-spalte voll">
         <Ausschnitt bild={aufnahme('senden')} a={[0, .09, 1, .2]} klein />
-        <Ausschnitt bild={aufnahme('senden')} a={[.02, .88, .96, .09]} mark={[.03, .887, .94, .066]} />
+        <Ausschnitt bild={aufnahme('senden')} a={[.02, .885, .96, .1]} mark={[.025, .896, .95, .08]} />
         <span className="ef-marke">{b.tippen}</span>
       </div>);
     case 3: return mitte(<StatusAnimation b={b} />);
