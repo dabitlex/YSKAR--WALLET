@@ -6,10 +6,6 @@ export const de = {
     kopiert: 'Kopiert', einfuegen: 'Aus der Zwischenablage einfügen', scannen: 'QR-Code scannen',
     heute: 'Heute', gestern: 'Gestern', optional: '(optional)',
   },
-  lader: {
-    wallet: 'Wallet wird geladen …', netz: 'Verbindung zum Netz …', guthaben: 'Guthaben wird abgerufen …',
-    fortschritt: 'Ladefortschritt',
-  },
   willkommen: {
     titel1: 'Deine YSR.', titel2: 'Dein Schlüssel.',
     text: 'Diese Wallet entsteht auf deinem Gerät. Senden, empfangen und den Verlauf im Blick behalten, mehr braucht es nicht.',
@@ -26,6 +22,7 @@ export const de = {
     ungleich: 'Die beiden Eingaben stimmen nicht überein. Fang noch einmal an.',
     schwach: 'Diese PIN ist zu leicht zu erraten. Wähle eine andere.',
     eingeben: 'PIN eingeben', oeffnen: 'um deine Wallet zu öffnen',
+    willkommen: 'Willkommen', zurueck: 'zurück.',
     falsch: 'Falsche PIN',
     gebremst: (s: number) => `Zu viele Versuche. Warte ${s} Sekunden.`,
     vergessen: 'PIN vergessen?',

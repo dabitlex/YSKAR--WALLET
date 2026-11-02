@@ -7,10 +7,6 @@ export const en: Woerterbuch = {
     kopiert: 'Copied', einfuegen: 'Paste from clipboard', scannen: 'Scan QR code',
     heute: 'Today', gestern: 'Yesterday', optional: '(optional)',
   },
-  lader: {
-    wallet: 'Loading wallet …', netz: 'Connecting to the network …', guthaben: 'Fetching balance …',
-    fortschritt: 'Loading progress',
-  },
   willkommen: {
     titel1: 'Your YSR.', titel2: 'Your key.',
     text: 'This wallet is created on your device. Send, receive and keep an eye on your history. Nothing more.',
@@ -27,6 +23,7 @@ export const en: Woerterbuch = {
     ungleich: 'The two entries do not match. Start again.',
     schwach: 'This PIN is too easy to guess. Choose another one.',
     eingeben: 'Enter PIN', oeffnen: 'to open your wallet',
+    willkommen: 'Welcome', zurueck: 'back.',
     falsch: 'Wrong PIN',
     gebremst: s => `Too many attempts. Wait ${s} seconds.`,
     vergessen: 'Forgot PIN?',

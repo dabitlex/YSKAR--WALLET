@@ -264,21 +264,45 @@ h1,h2,p{margin:0}
 @media (max-height:780px){.taste{height:46px;font-size:24px}.tasten{gap:8px}.pinseite{gap:14px}}
 @media (max-height:610px){.taste{height:42px;font-size:23px}.pinseite{gap:12px}}
 
-/* ---------- Lader ---------- */
-.lader-seite{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--grund);z-index:50;transition:opacity .3s;overflow:hidden}
-.lader-seite .marke{position:relative;width:240px;height:240px;animation:atmen 1.6s cubic-bezier(.2,.7,.2,1) both}
-.lader-seite .marke img{width:100%;height:100%;filter:drop-shadow(0 0 28px rgba(47,123,255,.45))}
-@keyframes atmen{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:none}}
-.lader-seite .schein{animation:schein-auf 1.6s ease-out both}
-@keyframes schein-auf{from{opacity:0}to{opacity:.18}}
+/* ---------- Startbildschirm (Splash A) ---------- */
+/* Grundfarbe = Android-Startfenster (res/values/colors.xml "grund"): kein Sprung beim Uebergang vom System in die App. */
+.startbild{position:absolute;inset:0;z-index:50;overflow:hidden}
+.startbild-grund{position:absolute;inset:0;background:#03060F}
+.startbild-schein,.pinseite.mit-zeichen{background:radial-gradient(110% 55% at 50% 22%,#0E1D40 0%,#0A1122 40%,#03060F 82%)}
+.startbild-schein{position:absolute;inset:0;opacity:0}
+.startbild-zeichen{position:absolute;left:50%;top:calc(50% - 10px);width:min(36vw,150px);aspect-ratio:1;transform-origin:center;translate:-50% -50%}
+.startbild-zeichen .ebene{position:absolute;inset:0}
+.startbild-zeichen .leucht{width:100%;height:100%;filter:drop-shadow(0 15px 33px rgba(27,79,209,.45))}
+.startbild-wort{position:absolute;left:0;right:0;top:calc(50% - 10px + min(18vw,75px) + 34px);text-align:center;font-size:17px;font-weight:600;color:var(--text);opacity:0}
 @keyframes name-rein{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
-.lader-seite .motto{position:absolute;left:0;right:0;bottom:calc(var(--unten) + 150px);text-align:center;font-family:var(--ziffern);font-size:13px;color:var(--leise);animation:schein-auf 1s .6s both;opacity:1}
-.lader-seite.geht{opacity:0;pointer-events:none}
-.lader{position:absolute;left:0;right:0;bottom:calc(var(--unten) + 72px);display:flex;flex-direction:column;align-items:center;gap:14px;opacity:0;transition:opacity .35s}
-.lader.sichtbar{opacity:1}
-.lader-text{font-size:14px;font-weight:500;color:var(--leise);min-height:21px}
-.rille{width:208px;height:4px;border-radius:2px;background:var(--flaeche);overflow:hidden}
-.rille div{width:0;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--blau-tief),var(--blau-hell));transition:width .6s cubic-bezier(.3,.7,.3,1)}
+
+/* ---------- Das leuchtende Zeichen (Startbildschirm, Sperre) ---------- */
+/* Jedes Band: ruhende Grundflaeche, darueber Licht und Fehlerfarbe -- gewechselt wird nur die Deckkraft. */
+.leucht{display:block;overflow:visible}
+.leucht .grund{fill:rgba(242,246,255,.06);stroke:rgba(99,216,255,.2);stroke-width:1;vector-effect:non-scaling-stroke}
+.leucht .licht{opacity:0;stroke:rgba(255,255,255,.38);stroke-width:1;vector-effect:non-scaling-stroke;transition:opacity .18s var(--kurve)}
+.leucht .fehler{opacity:0;transition:opacity .15s var(--kurve)}
+.leucht .band.halb .licht{opacity:.42}
+.leucht .band.an .licht{opacity:1}
+.leucht .band.rot .fehler{opacity:1}
+
+/* ---------- Sperre (Hybrid 1): Zeichen, Typografie; Tasten und Punkte bleiben die der PIN-Eingabe ---------- */
+.pinseite.mit-zeichen .logo-platz .leucht{width:min(42vw,20vh,100cqh);height:auto;aspect-ratio:1;transition:filter .2s var(--kurve);filter:drop-shadow(0 15px 33px rgba(27,79,209,.3))}
+@container (max-height:64px){.pinseite.mit-zeichen .logo-platz .leucht{display:none}}
+.pinseite.mit-zeichen h1{font-size:30px;line-height:36px;font-weight:400;font-stretch:84%;letter-spacing:-.03em}
+.pinseite.mit-zeichen h1 em{font-style:normal;color:var(--blau-hell)}
+.pinseite.mit-zeichen p.unter{font-size:12.5px;margin-top:-8px}
+.sperre-adresse{display:inline-flex;align-items:center;gap:8px}
+.sperre-adresse i{width:6px;height:6px;border-radius:50%;background:var(--blau-hell);opacity:.7}
+.pinseite.mit-zeichen .punkte span.voll{background:#F2F6FF;box-shadow:0 0 10px rgba(99,216,255,.35)}
+.pinseite.mit-zeichen .punkte.gut span{background:var(--gruen);box-shadow:none}
+.pinseite.mit-zeichen .punkte.falsch span{background:var(--rot);box-shadow:0 0 10px rgba(255,143,132,.35)}
+/* Beim Start: der Inhalt kommt nach, das Zeichen bringt der Startbildschirm mit. */
+.pinseite.kommt,.pinseite.da{animation:none}
+.pinseite.kommt .logo-platz .leucht{visibility:hidden}
+.pinseite.kommt > :not(.logo-platz){animation:sperre-rein .3s .15s var(--kurve) both}
+@keyframes sperre-rein{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.pinseite.kommt > :not(.logo-platz){animation:none}}
 
 /* ---------- Einstieg ---------- */
 .hero{display:flex;align-items:center;justify-content:center;flex-shrink:0;min-height:120px}

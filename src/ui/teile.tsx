@@ -10,7 +10,7 @@ import { bestaetigungen, nichtGelistet, type Zahlung } from '../wallet/zahlungen
 import * as tresor from '../wallet/tresor.ts';
 import { tippGefuehl, fehlerGefuehl, beiZurueck } from '../geraet/geraet.ts';
 import { useDaten, useNav, REITER, type Reiter } from '../zustand.tsx';
-import { YMarke, YBaender, ZahlZeichen } from './zeichen.tsx';
+import { YMarke, YBaender, ZahlZeichen, LeuchtZeichen, baenderFuerPin } from './zeichen.tsx';
 import zeichenBild from '../bilder/zeichen.svg';
 
 /* ----------------------------------------------------------------- Symbole */
@@ -430,8 +430,13 @@ export type PinAntwort = 'ok' | 'falsch' | 'gebremst' | { fehler: string };
  * Sechs Ziffern ueber das eigene Tastenfeld. Die Systemtastatur bleibt zu:
  * So liest keine fremde Tastatur-App mit.
  */
-export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck, kopf, oben }: {
-  titel: string; unter?: string; logo?: boolean;
+export function PinFeld({ titel, unter, logo, auftritt, onPin, bio, fuss, zurueck, kopf, oben }: {
+  titel: ReactNode; unter?: ReactNode;
+  /** Sperre: das leuchtende Zeichen ueber dem Titel; es folgt der Eingabe (nur Anzeige). */
+  logo?: boolean;
+  /** Sperre beim Start: 'kommt' = Inhalt blendet ein, das Zeichen bringt der Startbildschirm (ui/startbild.tsx);
+   *  'da' = danach, ohne die Einblendung der Seite ein zweites Mal abzuspielen. */
+  auftritt?: 'kommt' | 'da';
   /** Titel in der Kopfzeile neben "Zurueck" (nur mit `zurueck`). */
   kopf?: string;
   /** Steht oben unter der Kopfzeile; Titel und Punkte folgen direkt darunter, die Tasten unten (Senden bestaetigen, 4.2). */
@@ -481,11 +486,11 @@ export function PinFeld({ titel, unter, logo, onPin, bio, fuss, zurueck, kopf, o
   const gesperrt = warten > 0;
   const frei = stand === 'frei' && warten <= 0;
   return (
-    <div className="seite pinseite">
+    <div className={`seite pinseite ${logo ? 'mit-zeichen' : ''} ${auftritt ?? ''}`}>
       {zurueck && <div style={{ alignSelf: 'stretch', margin: '0 -12px' }}><KopfZurueck titel={kopf ?? ''} zurueck={zurueck} /></div>}
       {/* Der freie Platz liegt oben: mit Logo fuellt es ihn, ohne bleibt er leer. Titel und Punkte stehen dicht ueber den Tasten.
           Mit `oben` steht alles oben, und der freie Platz liegt ueber den Tasten. */}
-      {oben ? <div className="pin-oben">{oben}</div> : logo ? <div className="logo-platz"><Muenze groesse="mittel" /></div> : <div className="fuell" />}
+      {oben ? <div className="pin-oben">{oben}</div> : logo ? <div className="logo-platz"><LeuchtZeichen baender={baenderFuerPin(pin.length, stand)} /></div> : <div className="fuell" />}
       <h1>{titel}</h1>
       {unter && <p className="unter">{unter}</p>}
       <div className={`punkte ${stand === 'gut' ? 'gut' : ''} ${stand === 'falsch' ? 'falsch' : ''}`} role="img" aria-label={t.pin.stellen(pin.length)}>
