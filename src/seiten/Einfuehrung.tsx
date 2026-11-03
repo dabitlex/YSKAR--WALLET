@@ -4,7 +4,7 @@ import { useNav, type Ort } from '../zustand.tsx';
 import { einstellen } from '../wallet/einstellungen.ts';
 import { imBrowserOeffnen } from '../geraet/geraet.ts';
 import { S, useZurueck } from '../ui/teile.tsx';
-import { LeuchtZeichen, YMarke, YStatus, type Teilstand } from '../ui/zeichen.tsx';
+import { LeuchtZeichen, YMarke, YStatus, ZahlZeichen, type Teilstand } from '../ui/zeichen.tsx';
 import walletDe from '../bilder/einf/wallet-de.webp';
 import walletEn from '../bilder/einf/wallet-en.webp';
 import sendenDe from '../bilder/einf/senden-de.webp';
@@ -122,7 +122,7 @@ function Bild({ nr, t, sprache }: { nr: number; t: Woerterbuch; sprache: 'de' | 
         <div className="ef-qr glas">
           <DemoQr />
           <span className="ef-mono">{DEMO}</span>
-          <span className="ef-eingang"><S n="runter" g={14} w={2.2} />+12,30 YSR</span>
+          <span className="ef-eingang"><ZahlZeichen art="ein" g={14} />+12,30 YSR</span>
         </div>
         <span className="ef-chip">{b.anfordern} <b>{b.optional}</b></span>
       </div>);

@@ -5,7 +5,7 @@ import { nichtGelistet } from '../wallet/zahlungen.ts';
 import { kopieren, tippGefuehl } from '../geraet/geraet.ts';
 import { useZahlungen } from '../ui/daten.ts';
 import { S, Betrag, Platzhalterzeilen, Zahlungszeile, useAnzeige, useMeldung, useWer, useZeit } from '../ui/teile.tsx';
-import { YMarke, YBaender } from '../ui/zeichen.tsx';
+import { YMarke, YBaender, ZahlZeichen } from '../ui/zeichen.tsx';
 import { EinfuehrungKarte } from './Einfuehrung.tsx';
 
 /** "ysr1…3h8q": nur zum Wiedererkennen. Kopiert wird immer die volle Adresse. */
@@ -71,10 +71,10 @@ export function Start() {
 
       <nav className="st-aktionen st-zwei auf" aria-label={t.start.aktionen} style={{ animationDelay: '.06s' }}>
         <button type="button" className={`knopf sinkt ${neu ? 'zweit' : ''}`} disabled={sendenAus} onClick={() => nav.gehe({ n: 'senden' })}>
-          <S n="hoch" g={20} w={1.9} />{t.start.senden}
+          <ZahlZeichen art="aus" g={20} />{t.start.senden}
         </button>
         <button type="button" className={`knopf sinkt ${neu ? '' : 'zweit'}`} onClick={() => nav.gehe({ n: 'empfangen' })}>
-          <S n="runter" g={20} w={1.9} />{t.start.empfangen}
+          <ZahlZeichen art="ein" g={20} />{t.start.empfangen}
         </button>
       </nav>
 

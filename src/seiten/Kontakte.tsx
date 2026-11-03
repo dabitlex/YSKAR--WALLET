@@ -15,6 +15,7 @@ import { fehlerMerken } from '../geraet/plattform.ts';
 import { useZahlungen } from '../ui/daten.ts';
 import { S, Kopf, Bild, Kasten, Blatt, useMeldung, useZeit, Stellen, useAnzeige } from '../ui/teile.tsx';
 import { Scanner } from '../ui/scanner.tsx';
+import { ZahlZeichen } from '../ui/zeichen.tsx';
 import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
 /* ------------------------------------------------------------------ Liste */
@@ -249,8 +250,8 @@ export function Kontakt({ adresse }: { adresse: string }) {
       </div>
 
       <div className="fussleiste">
-        <button type="button" className="knopf sinkt" style={{ fontSize: 16 }} onClick={() => nav.gehe({ n: 'senden', an: adresse })}><S n="hoch" w={2.2} /><span>{t.kontakte.senden}</span></button>
-        <button type="button" className="knopf zweit sinkt" onClick={() => nav.gehe({ n: 'empfangen', fuer: adresse })}><S n="runter" w={2.2} /><span>{t.kontakte.anfordern}</span></button>
+        <button type="button" className="knopf sinkt" style={{ fontSize: 16 }} onClick={() => nav.gehe({ n: 'senden', an: adresse })}><ZahlZeichen art="aus" g={20} /><span>{t.kontakte.senden}</span></button>
+        <button type="button" className="knopf zweit sinkt" onClick={() => nav.gehe({ n: 'empfangen', fuer: adresse })}><ZahlZeichen art="ein" g={20} /><span>{t.kontakte.anfordern}</span></button>
       </div>
 
       {gewaehlt && (
