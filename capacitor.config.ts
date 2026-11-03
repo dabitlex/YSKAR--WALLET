@@ -16,7 +16,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   android: {
     allowMixedContent: false,
-    backgroundColor: '#03060F',
+    backgroundColor: '#0F1012',
   },
   plugins: {
     // Dunkle App: helle Symbole in Statusleiste und Gestenbalken. Android

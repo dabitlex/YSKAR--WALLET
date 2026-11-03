@@ -16,17 +16,18 @@
 
 :root{
   color-scheme:dark;
-  /* Flaechen (Designsystem: --bg, --s1, --s2, --line, --line2). Deckend gerechnet ueber dem Grund. */
-  --grund:#05070B; --senke:#080C14; --tief:#05070B; --karte:#0C1018; --flaeche:#131822; --nav:#0D121C; --blatt:#0D121C;
-  --rand:rgba(238,242,248,.07); --linie:rgba(238,242,248,.07); --rand-hell:rgba(238,242,248,.11);
-  --glas:rgba(255,255,255,.035); --glas2:rgba(255,255,255,.055);
-  /* Text: --tx, --tx2, --tx3 (Kontrast auf der Karte 17,1 / 8,4 / 5,5 : 1). */
-  --text:#EEF2F8; --lesen:#C9D0DC; --leise:#A3ACBD; --blass:#8089A0;
-  /* Marke. Hauptknopf in Deep Blue (Weiss darauf 6,8:1), Cyan fuer Fokus und Status. */
-  --blau:#2F7BFF; --blau-druck:#1640AE; --blau-hell:#63D8FF; --blau-flaeche:#10244F; --blau-punkt:#63D8FF; --blau-tief:#1B4FD1;
-  --gruen:#7CE8BC; --gruen-voll:#1F9E6E; --gruen-flaeche:#0B2A1E;
-  --bern:#F5BE6B; --bern-flaeche:#2B2112; --bern-text:#F7E3C2;
-  --rot:#FF8F84; --rot-voll:#C8372F; --rot-flaeche:#33181A;
+  /* Konzept "Ruhe" (03.11.2026): drei Flaechen -- Grund, Flaeche (--karte), Flaeche hoch (--flaeche).
+     Die alten Namen bleiben, damit jede Regel weiter greift; sie zeigen jetzt auf die neue Palette. */
+  --grund:#0F1012; --senke:#0F1012; --tief:#0F1012; --karte:#1C1D21; --flaeche:#2A2B30; --nav:#0F1012; --blatt:#1C1D21;
+  --rand:rgba(255,255,255,.07); --linie:rgba(255,255,255,.07); --rand-hell:rgba(255,255,255,.1);
+  --glas:#1C1D21; --glas2:#2A2B30;
+  /* Text: hell, zweitrangig, leise (leise auf Flaeche hoch noch 4,8 : 1). */
+  --text:#F3F3F4; --lesen:#B4B6BC; --leise:#94979F; --blass:#94979F; --aus:#5E6169;
+  /* Hauptknoepfe sind hell (--text). Blau nur fuer aktive Schalter (--blau-tief); Akzente und Fokus hell. */
+  --blau:#2F6BF0; --blau-druck:#2557C8; --blau-hell:#F3F3F4; --blau-flaeche:#1C1D21; --blau-punkt:#F3F3F4; --blau-tief:#2F6BF0;
+  --gruen:#5FD39B; --gruen-voll:#1F9E6E; --gruen-flaeche:#12261C;
+  --bern:#F0B35B; --bern-flaeche:#2A2216; --bern-text:#F2E2C6;
+  --rot:#FF7A6E; --rot-voll:#C8372F; --rot-flaeche:#2E1A19;
   /* Kein farbiger Schein mehr (4.2): Tiefe nur durch Flaechen und Raender. */
   --schein:none;
   --schrift:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;

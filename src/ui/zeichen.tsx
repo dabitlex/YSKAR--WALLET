@@ -45,9 +45,10 @@ export function LeuchtZeichen({ baender, klasse, stil, bandRefs, glanzRef }: {
   return (
     <svg className={`leucht ${klasse ?? ''}`} style={stil} viewBox={LOGO_ANSICHT} aria-hidden="true" focusable="false">
       <defs>
-        <linearGradient id={`${id}l`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#9BE8FF" /><stop offset=".55" stopColor="#63D8FF" /><stop offset="1" stopColor="#2F7BFF" /></linearGradient>
-        <linearGradient id={`${id}r`} x1="1" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#63D8FF" /><stop offset="1" stopColor="#1B4FD1" /></linearGradient>
-        <linearGradient id={`${id}s`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#2F7BFF" /><stop offset="1" stopColor="#1B4FD1" /></linearGradient>
+        {/* Konzept "Ruhe": das Zeichen matt weiss, nur ein Hauch Verlauf fuer die Tiefe der Baender. */}
+        <linearGradient id={`${id}l`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#FFFFFF" /><stop offset="1" stopColor="#E6E7EA" /></linearGradient>
+        <linearGradient id={`${id}r`} x1="1" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F3F3F4" /><stop offset="1" stopColor="#D8D9DC" /></linearGradient>
+        <linearGradient id={`${id}s`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#E6E7EA" /><stop offset="1" stopColor="#CDCED2" /></linearGradient>
         <linearGradient id={`${id}f`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFB0A6" /><stop offset="1" stopColor="#C8372F" /></linearGradient>
         {glanzRef && <>
           <linearGradient id={`${id}g`} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset=".5" stopColor="#fff" stopOpacity=".5" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient>
