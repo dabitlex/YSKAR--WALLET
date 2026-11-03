@@ -223,8 +223,12 @@ export function KopfZurueck({ titel, zurueck, rechts, mitte }: { titel?: string;
   );
 }
 
-export function Kasten({ art, symbol, children }: { art: 'warn' | 'ruhig' | 'rot'; symbol: SymbolName; children: ReactNode }) {
-  return <div className={`kasten ${art}`}><S n={symbol} /><div>{children}</div></div>;
+/**
+ * Hinweis (Konzept "Ruhe"): eine Zeile mit Zeichen. Eine Flaeche bekommen nur
+ * Fehler (rot) und was wirklich wichtig ist (`wichtig`, z. B. die 12 Woerter).
+ */
+export function Kasten({ art, symbol, wichtig, children }: { art: 'warn' | 'ruhig' | 'rot'; symbol: SymbolName; wichtig?: boolean; children: ReactNode }) {
+  return <div className={`kasten ${art} ${wichtig ? 'wichtig' : ''}`}><S n={symbol} /><div>{children}</div></div>;
 }
 
 /** Vier ruhige Farbtoene, fest je Name -- derselbe Kontakt sieht ueberall gleich aus. */
@@ -574,7 +578,7 @@ export function Schieber({ text, label, onFertig, gesperrt }: { text: string; la
       <div className="pfeile" aria-hidden="true"><S n="weiter" g={18} /></div>
       <div className="knauf" aria-hidden="true" style={{ transform: `translateX(${lage}px)` }}
            onPointerDown={runter} onPointerMove={bewegt} onPointerUp={los} onPointerCancel={los}>
-        {art === 'fertig' ? <S n="haken" g={24} w={2.4} /> : <YMarke g={28} farbe="#fff" />}
+        {art === 'fertig' ? <S n="haken" g={24} w={2.4} /> : <YMarke g={28} />}
       </div>
       <input type="range" className="nur-leser" min={0} max={100} step={25} value={stufe} aria-label={label}
              aria-valuetext={t.senden.schiebenStufe(stufe / 25)}

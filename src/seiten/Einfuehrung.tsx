@@ -77,7 +77,7 @@ function DemoQr() {
   return (
     <div className="qrplatte">
       <svg viewBox="0 0 25 25" shapeRendering="crispEdges" aria-hidden="true"><path fill="#06112A" d={pfad} /></svg>
-      <span className="qr-logo" aria-hidden="true"><YMarke g={26} farbe="var(--blau-hell)" /></span>
+      <span className="qr-logo" aria-hidden="true"><YMarke g={26} farbe="var(--grund)" /></span>
     </div>
   );
 }

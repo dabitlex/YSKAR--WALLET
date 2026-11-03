@@ -1069,3 +1069,215 @@ section > .st-abschnitt{margin-top:26px}
 .platzhalter > div > i:last-child{width:64px;height:12px}
 .st-laden{margin-top:20px}
 .seite.st > .st-meldung{margin-top:14px}
+
+/* =====================================================================
+   Konzept "Ruhe" (freigegeben 03.11.2026) -- Bausteine.
+   Drei Flaechen, Hauptknopf hell, keine Leuchtschatten, keine Verlaeufe.
+   Schrift 13/15/17/22/28/56, Radien 12/18/28. Diese Schicht steht bewusst
+   am Ende und gleicht die Regeln darueber an; Vorschau: Design-Artboard
+   "YSKAR Wallet - Konzept Ruhe", Blatt "2 Gestaltung".
+   ===================================================================== */
+.app{background:var(--grund)}
+:focus-visible{outline-color:var(--text)}
+
+/* Kopf: ueberall gleich hoch, Titel 28/600, mittiger Titel 17/600 */
+.kopf,.kopf-zurueck,.sf-kopf,.st-kopf{min-height:48px}
+.kopf h1{font-size:28px;line-height:34px;font-weight:600;letter-spacing:-.015em}
+.kopf-zurueck h1,.sf-titel{font-size:17px;line-height:22px;font-weight:600;color:var(--text)}
+.klein{border-radius:12px;background:var(--karte);box-shadow:none}
+.klein:active{background:var(--flaeche)}
+.klein.leer{background:transparent;color:var(--lesen)}
+
+/* Knoepfe: hell fuehrt, Flaeche begleitet, Gefahr rot auf dunkel */
+.knopf{border-radius:18px;background:var(--text);color:var(--grund);font-size:15px;font-weight:600;box-shadow:none;border:0}
+.knopf:active{background:#DADBDE}
+.knopf:disabled{background:var(--karte);color:var(--aus)}
+.knopf.zweit{background:var(--karte);color:var(--text);border:0;box-shadow:none;min-height:56px;font-size:15px}
+.knopf.zweit:active{background:var(--flaeche)}
+.knopf.zweit:disabled{background:var(--karte);color:var(--aus)}
+.knopf.hell{background:var(--text);color:var(--grund)}
+.knopf.hell .pfeilkreis{background:var(--grund);color:var(--text)}
+.knopf.gefahr{background:var(--rot-flaeche);color:var(--rot)}
+.knopf.gefahr.zweit{background:var(--rot-flaeche);border:0;color:var(--rot)}
+.knopf.gefahr:active{background:#3A2120}
+.knopf.text{color:var(--lesen);font-weight:600}
+.verweis,.sf-link{color:var(--lesen);font-weight:600}
+.tonknopf,.tonknopf.grau{background:var(--karte);border:0;color:var(--text);border-radius:18px;font-weight:600}
+.grosskreis{background:var(--karte);border:0;color:var(--text)}
+
+/* Flaechen und Hinweise */
+.karte{background:var(--karte);border:0;border-radius:18px}
+.blatt .karte,.blatt .feld,.blatt .wort{background:var(--flaeche)}
+.kasten{background:none;box-shadow:none;border-radius:0;padding:2px 2px;color:var(--lesen);font-size:13px;line-height:1.5}
+.kasten.warn,.kasten.ruhig,.kasten.rot{background:none;box-shadow:none}
+.kasten.warn svg{color:var(--bern)}
+.kasten.ruhig svg{color:var(--lesen)}
+.kasten strong,.kasten b{color:var(--text);font-weight:600}
+.kasten.rot,.kasten.wichtig{border-radius:18px;padding:14px 16px}
+.kasten.rot{background:var(--rot-flaeche)}
+.kasten.rot svg{color:var(--rot)}
+.kasten.wichtig.warn{background:var(--bern-flaeche)}
+.kasten.wichtig.warn b,.kasten.wichtig.warn strong{color:var(--bern)}
+.kasten.gruen{background:none;color:var(--lesen)}
+.band{border:0;border-radius:12px}
+.pille.bern,.pille.gruen,.pille.blau,.pille.rot{border:0}
+.pille.blau{background:var(--flaeche);color:var(--text)}
+
+/* Felder, Suche, Chips, Segmente, Schalter */
+.feld,.feld-huelle{background:var(--karte);border:0;border-radius:18px}
+.feld.tippfeld.aktiv,.feld-huelle.aktiv,.suche .tippfeld.aktiv,.sf-adressfeld.aktiv{box-shadow:inset 0 0 0 1.5px rgba(243,243,244,.7)}
+.wort.tippfeld.aktiv{border-color:rgba(243,243,244,.7)}
+.suche .tippfeld,.kt-suche .tippfeld{background:var(--karte);box-shadow:none;border-radius:18px}
+.chip{border-radius:12px;box-shadow:none;background:var(--karte);color:var(--lesen);height:36px}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--grund);font-weight:600}
+.segment{border-radius:12px;background:var(--karte);box-shadow:none}
+.segment button{height:34px;border-radius:8px;font-size:13px}
+.segment button[aria-pressed="true"]{background:var(--flaeche);color:var(--text);font-weight:600}
+.schalter span{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.18)}
+.schalter span::after{background:var(--leise)}
+.schalter[aria-checked="true"] span{background:var(--blau)}
+
+/* Zeilen: Zeichen ohne Kasten, Personen rund, Betraege ruhig */
+.zeile:active{background:rgba(255,255,255,.04)}
+.zeile .mitte b{font-weight:600}
+.zeile .wert{font-weight:400;font-size:15px}
+.kachel.art{width:24px;height:24px;border-radius:0;background:none;color:var(--leise)}
+.kachel.art.aus,.kachel.art.ein,.kachel.art.block,.kachel.art.bern{background:none;color:var(--leise)}
+.kachel.art.gross{width:56px;height:56px;border-radius:18px;background:var(--karte);color:var(--text)}
+.kachel.klein-kachel{background:none;color:var(--lesen);width:24px}
+.bild{border-radius:50%;background:var(--flaeche);font-weight:600}
+.sf-chip .bild,.kontaktkopf .bild,.sf-empfaenger .bild{border-radius:50%}
+.liste .zeile,.sf-kontakte .zeile{border-radius:12px}
+
+/* Leiste unten: ohne Rand und Schatten auf dem Grund */
+.schleier{display:none}
+.nav{left:0;right:0;bottom:0;height:calc(var(--unten) + 72px);padding:6px 8px calc(var(--unten) + 10px);border-radius:0;background:var(--grund);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.nav button{border-radius:12px;font-size:11px;font-weight:600;color:var(--leise)}
+.nav button[aria-current="page"]{color:var(--text)}
+.nav button[aria-current="page"]::after{display:none}
+.seite.mit-nav{padding-bottom:calc(var(--unten) + 96px)}
+
+/* Dekor der alten Fassung: Baender und Leuchtlinien entfallen */
+.st-teilung,.band-linie,.ep-teilung,.ew-band{display:none}
+.schritte i{width:14px;height:3px;border-radius:2px;clip-path:none;background:var(--flaeche)}
+.schritte i.an{background:var(--text)}
+.y3 i{clip-path:none;border-radius:2px;width:12px;height:4px;background:var(--flaeche)}
+.y3 i.erledigt{background:var(--text)}
+
+/* PIN und Sperre: kein Schein, helle Punkte */
+.pinseite.mit-zeichen,.startbild-schein{background:var(--grund)}
+.startbild-grund{background:var(--grund)}
+.startbild-zeichen .leucht,.pinseite.mit-zeichen .logo-platz .leucht{filter:none}
+.leucht .grund{fill:rgba(255,255,255,.06);stroke:rgba(255,255,255,.1)}
+.pinseite h1,.pinseite.mit-zeichen h1{font-size:28px;line-height:34px;font-weight:600;font-stretch:96%;letter-spacing:-.015em}
+.pinseite.mit-zeichen h1 em{color:var(--leise)}
+.pinseite.mit-zeichen p.unter,.pinseite p.unter{font-size:15px}
+.sperre-adresse i{background:var(--leise)}
+.punkte span{box-shadow:inset 0 0 0 1.5px var(--leise)}
+.pinseite.mit-zeichen .punkte span.voll,.punkte span.voll{background:var(--text);box-shadow:none}
+.pinseite.mit-zeichen .punkte.falsch span{background:var(--rot);box-shadow:none}
+.taste{border-radius:18px}
+.taste.finger{color:var(--text)}
+
+/* Marke: helle Kachel mit dunklem Zeichen statt Muenze mit Ring */
+.muenze{background:var(--text);border-radius:30%;box-shadow:none}
+.muenze img{left:20%;top:20%;width:60%;height:60%;filter:brightness(0)}
+.qrplatte{border-radius:18px}
+.ep-qr .qr-logo{border-radius:12px;background:var(--grund)}
+.ep-qr .qr-logo img,.qr-logo img{filter:brightness(0) invert(1)}
+
+/* Einstieg und Woerter */
+.gross-titel,.ew-titel{font-weight:600;letter-spacing:-.025em}
+.gross-titel .lt,.ew-titel span{color:var(--leise)}
+.titel2,.sf-t1,.sf-fehlerkopf h1{font-size:28px;line-height:34px;font-weight:600;letter-spacing:-.015em}
+.sprachknopf{background:var(--karte);border:0;border-radius:12px}
+.wort{background:var(--karte);border:0;border-radius:12px}
+.wortraster.eins .wort,.ew-woerter .wortraster.eins .wort{border-radius:18px;background:var(--karte)}
+.ew-woerter .wort{background:var(--karte);box-shadow:none;border-radius:12px}
+.ew-woerter .wort.tippfeld.aktiv{box-shadow:inset 0 0 0 1.5px rgba(243,243,244,.7)}
+.wortkarte-knopf{background:var(--text);color:var(--grund);box-shadow:none;border-radius:12px;font-weight:600}
+.wortkarte .wortliste i{background:var(--flaeche)}
+.auswahlzeile{background:var(--karte);border:0;border-radius:18px}
+.auswahlzeile .kachel{border-radius:12px}
+
+/* Senden */
+.sf-chip{background:var(--karte);box-shadow:none;border-radius:12px}
+.sf-chip-zeichen{background:var(--flaeche)}
+.sf-adressfeld{background:var(--karte);box-shadow:none;border-radius:18px}
+.betragblock .alles{border:0;background:var(--flaeche);color:var(--text);border-radius:8px;letter-spacing:.02em}
+.sf-stufen{background:none;box-shadow:none;padding:0;gap:8px}
+.sf-stufen button{background:var(--karte);border-radius:18px;color:var(--lesen);font-weight:600}
+.sf-stufen button[aria-checked="true"]{background:var(--karte);color:var(--text);box-shadow:inset 0 0 0 1.5px var(--text)}
+.sf-stufen button[aria-checked="true"] small{color:var(--lesen)}
+.sf-ohne{background:var(--karte);box-shadow:none;border-radius:18px}
+.sf-zahl .nk,.betrag .gross i{color:var(--leise)}
+.vierer span.rand{color:var(--text);font-weight:500}
+.schieber{border-radius:18px;background:var(--karte);box-shadow:none}
+.schieber .spur{border-radius:18px;background:rgba(255,255,255,.06)}
+.knauf{border-radius:12px;background:var(--text);color:var(--grund);box-shadow:none}
+.schieber.gesperrt .knauf{background:var(--flaeche);color:var(--aus)}
+.sf-schritt.erledigt > i,.sf-schritt > i{clip-path:none;border-radius:2px}
+.stufe .punkt.fertig{background:var(--text);color:var(--grund)}
+.sf-warnkachel{border-radius:18px}
+
+/* Aktivitaet und Zahlung */
+.dt-status{background:none;border:0;padding:4px 2px}
+.ef-karte-los{background:var(--karte);box-shadow:none;border-radius:18px}
+
+/* Kontakt-Verlauf: Gesendetes hell, Empfangenes auf Flaeche, Anforderung als Umriss */
+.blase.r{background:var(--text);color:var(--grund)}
+.blase.r .zeit{opacity:.75}
+.blase.r .zeit.wartet{color:#7A4D0B;opacity:1}
+.blase.l{background:var(--karte);border:0}
+.blase.frage{border:1.5px solid var(--flaeche)}
+
+/* Blaetter von unten */
+.blatt{background:var(--karte);border:0;border-radius:28px 28px 0 0}
+.blatt::before{background:var(--flaeche)}
+.blatt h2{font-size:22px;font-weight:600}
+.blatt .ez-gruppe,.blatt .chip{background:var(--flaeche)}
+
+/* Einstellungen */
+.ez-gruppe{background:var(--karte);box-shadow:none;border:0;border-radius:18px}
+.ez-gruppe.gefahr{box-shadow:none}
+.ez-sicherheit{background:var(--karte);box-shadow:none;border-radius:18px}
+.ez-sicherheit-ico{background:var(--flaeche);color:var(--text);border-radius:12px}
+.ez-sicherheit .ez-text b{font-weight:600}
+.ez-chips span{background:var(--flaeche);color:var(--lesen);border-radius:8px}
+.ez-schutz-punkt > span:first-child{color:var(--text)}
+.profilkarte{background:var(--karte);border:0}
+.ez-ghd{font-weight:400}
+
+/* Eigene Tastatur */
+.tastatur{background:var(--karte);border-top:0;box-shadow:none}
+.ttaste{background:var(--flaeche)}
+.ttaste:active,.ttaste.unten{background:#3A3B41}
+.ttaste.dunkel{background:rgba(255,255,255,.04)}
+.ttaste[data-z].unten::after{background:var(--flaeche);box-shadow:0 8px 18px rgba(0,0,0,.5)}
+.tknopf.vorschlag.genau{background:var(--flaeche);box-shadow:none}
+
+/* Scanner: ruhiger Rahmen */
+.scanner{background:#0A0A0C}
+.scanner .oben .klein{background:rgba(255,255,255,.1)}
+
+/* Einfuehrung: matt, Hervorhebung hell statt cyan */
+.ef,.ef.ende{background:var(--grund)}
+.ef-text h2{font-weight:600;font-stretch:96%;letter-spacing:-.02em}
+.ef-text h2 em{color:var(--leise)}
+.ef-aktion{background:var(--text);color:var(--grund);border-radius:18px;font-weight:600;box-shadow:none}
+.ef-pfeil{background:var(--karte);box-shadow:none;border-radius:18px}
+.ef-zu{background:var(--karte);border-radius:12px}
+.ef-aus{border-radius:18px;background:var(--grund);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.ef-mark{border-radius:18px;box-shadow:0 0 0 1.5px rgba(243,243,244,.75),0 0 0 6px rgba(243,243,244,.08)}
+.ef-marke,.ef-chip{background:var(--karte);box-shadow:none;color:var(--lesen)}
+.ef-chip b{color:var(--text)}
+.ef .glas{background:var(--karte);box-shadow:none}
+.ef-sperre .ef-sperre-zeichen,.ef-siegel-mitte .leucht,.ef-ende-zeichen .leucht,.ef-karte-bild .leucht{filter:none}
+.ef-siegel-mitte i,.ef-siegel-mitte i:last-child{background:var(--flaeche)}
+.ef-kontakt.hell{box-shadow:0 0 0 1.5px rgba(243,243,244,.6)}
+.ef-kontakt .av{background:var(--flaeche);color:var(--text)}
+.ef-kontakt .los{background:var(--text);color:var(--grund)}
+.ef-eingang{background:var(--karte);box-shadow:none}
+.ef-schloss{background:var(--karte);box-shadow:none;color:var(--text)}
+.ef-hinweis{box-shadow:none}
+.ef-punkte i.v{background:var(--text);box-shadow:none}

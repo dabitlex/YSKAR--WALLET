@@ -378,7 +378,7 @@ export function WoerterZeigen() {
         <span className="sf-platz" />
       </div>
       <Wortkarte woerter={woerter} offen={offen} umschalten={() => setOffen(o => !o)} />
-      <Kasten art="warn" symbol="warnung"><strong>{t.woerter.warnStark}</strong> {t.woerter.warnText}</Kasten>
+      <Kasten art="warn" symbol="warnung" wichtig><strong>{t.woerter.warnStark}</strong> {t.woerter.warnText}</Kasten>
       <div className="fuell" />
       <button type="button" className="knopf sinkt" onClick={nav.zurueck}>{t.allg.fertig}</button>
     </div>

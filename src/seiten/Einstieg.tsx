@@ -139,7 +139,7 @@ export function Einstieg() {
         <h1 className="sf-t1">{t.woerter.titel}</h1>
         <p className="ew-unter">{t.woerter.text}</p>
         <Wortkarte woerter={woerter} offen={offen} umschalten={() => setOffen(o => !o)} />
-        <div className="ew-warn"><Kasten art="warn" symbol="warnung"><b>{t.woerter.warnStark}</b><br /><span className="leise">{t.woerter.warnText}</span></Kasten></div>
+        <div className="ew-warn"><Kasten art="warn" symbol="warnung" wichtig><b>{t.woerter.warnStark}</b><br /><span className="leise">{t.woerter.warnText}</span></Kasten></div>
         <div className="fuell" />
         <button type="button" className="knopf sinkt" disabled={!offen} onClick={() => { setOffen(false); setSchritt('pruefen'); }}>{t.woerter.weiter}</button>
       </div>
