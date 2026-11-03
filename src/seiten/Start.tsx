@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useT } from '../i18n/index.ts';
 import { useDaten, useNav, useWallet } from '../zustand.tsx';
 import { einstellen, useEinstellungen } from '../wallet/einstellungen.ts';
@@ -48,8 +48,30 @@ export function Start() {
   const anzeige = useAnzeige();
   const wer = useWer();
   const stand = konto ? BigInt(konto.balance) : null;
-  // Hoechstens vier, damit die Wallet auf einen Bildschirm passt; der Rest steht in der Aktivitaet.
-  const liste = [...wartend, ...verlauf].slice(0, 4);
+  // Die Wallet scrollt nie: "Zuletzt" zeigt so viele Zahlungen, wie Platz haben, hoechstens vier.
+  // Der Rest steht in der Aktivitaet.
+  const untenRef = useRef<HTMLDivElement>(null);
+  const [platz, setPlatz] = useState(4);
+  useLayoutEffect(() => {
+    const u = untenRef.current;
+    if (!u) return;
+    const messen = () => {
+      const kopf = u.querySelector('.st-abschnitt');
+      const zeile = u.querySelector('.st-liste .liste > *');
+      if (!kopf || !zeile) return;
+      const ur = u.getBoundingClientRect();
+      const frei = ur.height - parseFloat(getComputedStyle(u).paddingBottom) - (kopf.getBoundingClientRect().bottom - ur.top + u.scrollTop);
+      const hoehe = zeile.getBoundingClientRect().height || 64;
+      setPlatz(Math.max(1, Math.min(4, Math.floor((frei - 6) / hoehe))));
+    };
+    messen();
+    const ro = new ResizeObserver(messen);
+    ro.observe(u);
+    // Nach dem Hereingleiten der Liste noch einmal: waehrend der Bewegung stimmen die Masse nicht.
+    const spaeter = setTimeout(messen, 600);
+    return () => { ro.disconnect(); clearTimeout(spaeter); };
+  }, [einfuehrungGesehen, wartend.length, verlauf.length]);
+  const liste = [...wartend, ...verlauf].slice(0, platz);
   // Neue Wallet: nichts da, nichts unterwegs -- dann fuehrt Empfangen.
   const neu = konto !== null && stand === 0n && verlauf.length === 0 && wartend.length === 0;
   // Sendepause vor Fassung 6: aus der bekannten Blockhoehe, so wie die Senden-Seite rechnet.
@@ -140,7 +162,7 @@ export function Start() {
   </>;
 
   return (
-    <div className="seite mit-nav st st-flaechen">
+    <div className="seite mit-nav st st-flaechen fest">
       <div className="st-oben">
         <div className="st-kopf">
           <button type="button" className="st-adresse sinkt" aria-label={t.start.adresseKopieren}
@@ -198,7 +220,7 @@ export function Start() {
         </div>
       </div>
 
-      <div className="st-unten">
+      <div className="st-unten" ref={untenRef}>
         {!einfuehrungGesehen && <div className="st-einf"><EinfuehrungKarte /></div>}
 
         <div className="st-liste auf" style={{ animationDelay: '.1s' }}>
