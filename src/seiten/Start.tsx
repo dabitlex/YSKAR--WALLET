@@ -79,7 +79,7 @@ export function Start() {
       </nav>
 
       {offline
-        ? <div className="st-zeile bern" role="status"><S n="warnung" g={18} w={1.75} /><span>{konto ? t.start.offlineZeile : t.start.offlineOhneStand}</span></div>
+        ? <div className="st-zeile bern" role="status"><S n="warnung" g={18} w={1.75} /><span>{konto ? t.start.offlineZeile : `${t.start.offlineTitel} ${t.start.offlineOhneStand}`}</span></div>
         : erste && (
           <button type="button" className="st-wartet sinkt" onClick={() => nav.gehe({ n: 'detail', zahlung: erste })}>
             <YBaender stand={['erledigt', 'wartet', 'offen']} label={nichtGelistet(erste) ? t.zahlung.nichtGelistet : t.zahlung.wartetBlock} />
