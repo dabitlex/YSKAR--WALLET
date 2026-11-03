@@ -1313,3 +1313,32 @@ section > .st-abschnitt{margin-top:26px}
   .st-zeile,.st-wartet{margin-top:16px}
   .st-liste .st-abschnitt{margin-top:24px}
 }
+
+/* ------------------------------------------------------------------
+   Wallet: zwei Flaechen und das Band dazwischen (Konzept "Ruhe").
+   Oberer Teil und "Zuletzt" haben runde Ecken und werfen einen leichten
+   Schatten; das graue Band liegt dahinter und reicht unter beide
+   Rundungen. Ohne Meldung bleibt ein schmaler Streifen sichtbar.
+   ------------------------------------------------------------------ */
+.seite.st-flaechen{padding-left:0;padding-right:0}
+.st-oben{position:relative;z-index:2;display:flex;flex-direction:column;flex-shrink:0;padding:0 24px 24px;background:var(--grund);border-radius:0 0 30px 30px;box-shadow:0 12px 22px -10px rgba(0,0,0,.75),0 1px 0 rgba(255,255,255,.035)}
+.st-band{position:relative;z-index:1;flex-shrink:0;margin:-30px 0;padding:38px 0;background:linear-gradient(180deg,#303136 0%,var(--flaeche) 55%,#25262B 100%)}
+.st-band-innen{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s cubic-bezier(.2,0,0,1)}
+.st-band.an .st-band-innen{grid-template-rows:1fr}
+.st-band-inhalt{min-height:0;overflow:hidden;display:flex;align-items:center;gap:12px;padding:0 24px}
+.st-band-meldung{flex:1;min-width:0;display:flex;align-items:center;gap:14px;min-height:52px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;border-radius:14px}
+.st-band-sym{width:24px;flex-shrink:0;display:grid;place-items:center;color:var(--lesen)}
+.st-band-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.st-band-text b{font-weight:500;font-size:15px;line-height:20px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.st-band-text small{font-size:13px;line-height:18px;color:var(--leise);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-band-zeile{display:flex;align-items:center;gap:8px;min-width:0}
+.st-band-zeile > span:last-child{overflow:hidden;text-overflow:ellipsis}
+.st-band-pfeil{flex-shrink:0;color:var(--leise)}
+.st-band-aktion{flex-shrink:0;min-height:40px;padding:0 16px;border:0;border-radius:12px;background:var(--text);color:var(--grund);font:inherit;font-size:14px;font-weight:600}
+.st-band.bern .st-band-sym,.st-band.bern .st-band-text b{color:var(--bern)}
+.st-band.gruen .st-band-sym{color:var(--gruen)}
+.st-band.rot .st-band-sym,.st-band.rot .st-band-text b{color:var(--rot)}
+.st-unten{position:relative;z-index:2;flex:1 0 auto;display:flex;flex-direction:column;padding:0 24px;background:var(--grund);border-radius:30px 30px 0 0;box-shadow:0 -12px 22px -10px rgba(0,0,0,.75),0 -1px 0 rgba(255,255,255,.035)}
+.st-unten > .st-liste:first-child .st-abschnitt,.st-unten .st-liste .st-abschnitt{margin-top:26px}
+.st-unten .st-einf{margin-top:24px}
+@media (prefers-reduced-motion:reduce){.st-band-innen{transition:none}}
