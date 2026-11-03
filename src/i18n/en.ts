@@ -83,6 +83,7 @@ export const en: Woerterbuch = {
     wartenMehrere: n => `${n} payments waiting for a block`,
     standVom: wann => `Last known: ${wann}`,
     offlineOhneStand: 'Your balance cannot be loaded without a connection. Sending is possible again once you are connected.',
+    offlineZeile: 'No connection · sending waits until it is back',
     sammelVon: wer => `Share from ${wer} · waiting for a block`,
     zuletzt: 'Recent', aktionen: 'Actions',
   },

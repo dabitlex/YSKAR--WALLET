@@ -1281,3 +1281,37 @@ section > .st-abschnitt{margin-top:26px}
 .ef-schloss{background:var(--karte);box-shadow:none;color:var(--text)}
 .ef-hinweis{box-shadow:none}
 .ef-punkte i.v{background:var(--text);box-shadow:none}
+
+/* Wallet (Konzept "Ruhe", Variante C) */
+.st-kopf{gap:6px}
+.st-adresse{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 6px 0 2px;border:0;background:none;color:var(--leise);font:inherit;font-size:13px;border-radius:12px}
+.st-adresse .mono{font-size:13px}
+.st-knoepfe{display:flex;gap:2px}
+.st-guthaben{margin-top:52px}
+.st-lab{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 8px;border:0;background:none;border-radius:12px;color:var(--leise);font:inherit;font-size:13px;line-height:18px}
+.st-wert{display:flex;align-items:center;justify-content:center;gap:10px;max-width:100%;min-width:0;margin-top:6px;color:var(--text)}
+.st-wert > svg{flex-shrink:0}
+.st-guthaben.alt .st-wert{color:var(--lesen)}
+.st-guthaben .betrag.start{margin-top:0;min-width:0}
+.betrag.start .gross{font-size:56px;line-height:62px;font-weight:400;font-stretch:96%;letter-spacing:-.035em}
+.betrag.start .gross i{font-size:1em;letter-spacing:-.035em;color:var(--leise)}
+.st-guthaben.alt .betrag.start .gross{color:var(--lesen)}
+.st-laedt{min-height:62px;margin-top:0}
+.st-platzhalter{height:62px;margin-top:0}
+.st-aktionen.st-zwei{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;justify-content:stretch;margin-top:40px}
+.st-zwei .knopf{min-height:56px;gap:8px;padding:0 12px}
+.st-zeile{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:24px;padding:0 8px;font-size:13px;line-height:18px;color:var(--lesen);text-align:center;flex-shrink:0}
+.st-zeile svg{flex-shrink:0}
+.st-zeile.bern{color:var(--bern)}
+.st-wartet{margin:20px auto 0;justify-content:center;color:var(--lesen)}
+.st-einf{margin-top:24px}
+.st-liste .st-abschnitt{margin-top:32px}
+.seite.st .leerstand b{color:var(--text);font-weight:600}
+.seite.st .leerstand span{display:inline-block;max-width:280px;margin-top:6px;font-size:13px;color:var(--leise)}
+@media (max-height:780px){
+  .st-guthaben{margin-top:28px}
+  .betrag.start .gross{font-size:50px;line-height:56px}
+  .st-aktionen.st-zwei{margin-top:28px}
+  .st-zeile,.st-wartet{margin-top:16px}
+  .st-liste .st-abschnitt{margin-top:24px}
+}

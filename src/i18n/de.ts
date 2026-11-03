@@ -82,6 +82,7 @@ export const de = {
     wartenMehrere: (n: number) => `${n} Zahlungen warten auf einen Block`,
     standVom: (wann: string) => `Letzter Stand: ${wann}`,
     offlineOhneStand: 'Dein Guthaben lässt sich ohne Netz nicht laden. Senden ist erst wieder möglich, wenn die Verbindung steht.',
+    offlineZeile: 'Keine Verbindung · Senden ruht so lange',
     sammelVon: (wer: string) => `Anteil von ${wer} · wartet auf Block`,
     zuletzt: 'Zuletzt', aktionen: 'Aktionen',
   },
