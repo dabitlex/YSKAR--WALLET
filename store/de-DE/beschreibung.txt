@@ -13,6 +13,7 @@ SENDEN UND EMPFANGEN
 
 KONTAKTE UND VERLAUF
 • Kontakte mit Namen – alle Zahlungen mit einer Person übersichtlich in einem Verlauf.
+• Ein ruhiges Band unter Senden und Empfangen zeigt, was gerade passiert – wartende Zahlung, Bestätigung, keine Verbindung.
 • Wartende Zahlungen und Bestätigungen auf einen Blick.
 • Mining-Erträge (Blockbelohnung und Pool-Anteil) erscheinen im Verlauf.
 • Ohne Netz siehst du deinen letzten bekannten Stand.

@@ -13,6 +13,7 @@ SEND AND RECEIVE
 
 CONTACTS AND HISTORY
 • Contacts with names – all payments with one person in a single, clear history.
+• A calm status band below Send and Receive shows what is happening – a waiting payment, a confirmation, no connection.
 • Pending payments and confirmations at a glance.
 • Mining income (block rewards and pool shares) shows up in your history.
 • Without a connection you see your last known balance.
