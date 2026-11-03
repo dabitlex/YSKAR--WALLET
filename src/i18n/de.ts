@@ -298,8 +298,6 @@ export const de = {
     notizWoerter: 'Mit den 12 Wörtern stellst du die Wallet auf jedem Gerät wieder her. Wer sie hat, hat das Guthaben.',
     sichtUnter: 'Keine Bildschirmfotos, verdeckt in der App-Übersicht',
     notizSicht: 'Bei den 12 Wörtern ist der Sichtschutz immer an, auch wenn du diesen Schalter ausschaltest.',
-    ehrlich: 'Ehrlich gesagt:',
-    ehrlichText: 'Sechs Ziffern sind eine Million Möglichkeiten. Wer die verschlüsselten Daten mit Root-Zugriff kopiert, kann sie durchprobieren. Der eigentliche Schutz sind deine aufgeschriebenen 12 Wörter.',
   },
   tast: {
     name: 'Tastatur', loeschen: 'Letztes Zeichen löschen', leer: 'Leerzeichen', gross: 'Großbuchstabe',

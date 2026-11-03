@@ -999,8 +999,6 @@ section > .st-abschnitt{margin-top:26px}
 .ez-schutz-punkt > span:first-child{color:var(--blau-hell);display:flex;flex-shrink:0;margin-top:1px}
 .ez-schutz-punkt b{display:block;font-weight:500;margin-bottom:3px}
 .ez-schutz-punkt small{display:block;font-size:13px;line-height:18px;color:var(--leise)}
-.ez-ehrlich{margin-top:24px;flex-shrink:0}
-.ez-ehrlich b{font-weight:500}
 @media (max-height:780px){
   .ez-ghd{margin-top:24px}
   .ez-sicherheit{margin-top:16px}

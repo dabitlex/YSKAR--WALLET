@@ -54,9 +54,8 @@ export function Einstellungen() {
   const daten = useDaten();
   const melde = useMeldung();
   const e = useEinstellungen();
-  const [blatt, setBlatt] = useState<null | 'sprache' | 'stellen' | 'meldung' | 'recht' | 'entfernen'>(null);
+  const [blatt, setBlatt] = useState<null | 'sprache' | 'stellen' | 'meldung' | 'recht'>(null);
   const [meldung, setMeldung] = useState<EingangStand | null>(null);
-  const [entfernenPin, setEntfernenPin] = useState(false);
   const tipps = useRef<{ n: number; zeit: number }>({ n: 0, zeit: 0 });
   useEffect(() => { if (eingangMoeglich()) eingangStand().then(setMeldung); }, []);
   // Nach dem Rueckweg aus den Android-Einstellungen den Stand neu lesen.
@@ -94,17 +93,6 @@ export function Einstellungen() {
     ].join('\n');
     if (await kopieren(text)) melde(t.einst.diagnoseKopiert);
   };
-
-  if (entfernenPin) {
-    return <PinFeld kopf={t.einst.entfernen} titel={t.pin.eingeben} unter={t.einst.entfernenPin} zurueck={() => setEntfernenPin(false)}
-      onPin={async (pin): Promise<PinAntwort> => {
-        const r = await wallet.pinPruefen(pin);
-        if (!r.ok) return r.grund;
-        if (eingangMoeglich()) await eingangAusschalten();
-        await wallet.vergessen();
-        return 'ok';
-      }} />;
-  }
 
   const meldungAn = !!meldung?.an && meldung.berechtigung === 'granted';
   const sperrKurz = (sek: number) => (sek === 0 ? t.einst.sperreSofort : t.einst.sperreNachText(sek === 60 ? t.einst.min1Kurz : t.einst.min5Kurz));
@@ -154,11 +142,6 @@ export function Einstellungen() {
         <Zeile text={t.einst.community} symbol="blase" onTipp={() => imBrowserOeffnen(LINKS.community)} />
         <Zeile text={t.einst.news} symbol="flieger" onTipp={() => imBrowserOeffnen(LINKS.news)} />
         <Zeile text={t.einst.recht} symbol="dokument" onTipp={() => setBlatt('recht')} />
-      </div>
-
-      <div className="ez-ghd rot">{t.einst.ghdGefahr}</div>
-      <div className="ez-gruppe gefahr">
-        <Zeile text={t.einst.entfernen} unter={t.einst.entfernenUnter} symbol="weg" rot onTipp={() => setBlatt('entfernen')} />
       </div>
 
       <button type="button" className="ez-fuss" onClick={versionTipp} aria-label={`${t.einst.version} ${__VERSION__}`}>
@@ -215,20 +198,11 @@ export function Einstellungen() {
           )}
         </Blatt>
       )}
-      {blatt === 'entfernen' && (
-        <Blatt titel={t.einst.entfernenTitel} onZu={() => setBlatt(null)}>
-          <Kasten art="rot" symbol="warnung">{t.einst.entfernenText}</Kasten>
-          <div className="stapel">
-            <button type="button" className="knopf gefahr sinkt" onClick={() => { setBlatt(null); setEntfernenPin(true); }}>{t.einst.entfernenJa}</button>
-            <button type="button" className="knopf zweit sinkt" onClick={() => setBlatt(null)}>{t.allg.abbrechen}</button>
-          </div>
-        </Blatt>
-      )}
     </div>
   );
 }
 
-/** Sicherheit: PIN, Fingerabdruck, automatisch sperren. */
+/** Sicherheit: PIN, Fingerabdruck, automatisch sperren -- und ganz unten die Gefahrenzone. */
 export function Sicherheit() {
   const t = useT();
   const nav = useNav();
@@ -236,8 +210,9 @@ export function Sicherheit() {
   const melde = useMeldung();
   const e = useEinstellungen();
   const [bio, setBio] = useState(bioAktiv());
-  const [blatt, setBlatt] = useState(false);
+  const [blatt, setBlatt] = useState<'sperre' | 'entfernen' | null>(null);
   const [pinFuerBio, setPinFuerBio] = useState(false);
+  const [entfernenPin, setEntfernenPin] = useState(false);
   const sperrText = (s: number) => (s === 0 ? t.einst.sofort : s === 60 ? t.einst.min1 : t.einst.min5);
   const sperrKurz = (s: number) => (s === 0 ? t.einst.sofort : s === 60 ? t.einst.min1Kurz : t.einst.min5Kurz);
 
@@ -256,6 +231,17 @@ export function Sicherheit() {
         const ok = await bioEinschalten(pin, t.bio.grund, t.allg.abbrechen);
         setBio(ok); if (!ok) melde(t.bio.nichtGeklappt);
         setPinFuerBio(false);
+        return 'ok';
+      }} />;
+  }
+
+  if (entfernenPin) {
+    return <PinFeld kopf={t.einst.entfernen} titel={t.pin.eingeben} unter={t.einst.entfernenPin} zurueck={() => setEntfernenPin(false)}
+      onPin={async (pin): Promise<PinAntwort> => {
+        const r = await wallet.pinPruefen(pin);
+        if (!r.ok) return r.grund;
+        if (eingangMoeglich()) await eingangAusschalten();
+        await wallet.vergessen();
         return 'ok';
       }} />;
   }
@@ -279,7 +265,7 @@ export function Sicherheit() {
       <div className="ez-gruppe">
         <Zeile text={t.einst.pinAendern} symbol="schloss" onTipp={() => nav.gehe({ n: 'pinAendern' })} />
         <Zeile text={t.einst.finger} symbol="finger" rechts={<Schalter an={bio} label={t.einst.finger} onUmschalten={fingerUmschalten} />} />
-        <Zeile text={t.einst.sperre} symbol="uhr" wert={sperrKurz(e.sperreNach)} onTipp={() => setBlatt(true)} />
+        <Zeile text={t.einst.sperre} symbol="uhr" wert={sperrKurz(e.sperreNach)} onTipp={() => setBlatt('sperre')} />
       </div>
       <p className="ez-hinweis">{t.einst.notizPin}</p>
       <p className="ez-hinweis">{t.einst.notizFinger}</p>
@@ -297,16 +283,28 @@ export function Sicherheit() {
       </div>
       <p className="ez-hinweis">{t.einst.notizSicht}</p>
 
-      <div className="ez-ehrlich"><Kasten art="warn" symbol="warnung"><b>{t.einst.ehrlich}</b> <span className="leise">{t.einst.ehrlichText}</span></Kasten></div>
+      <div className="ez-ghd rot">{t.einst.ghdGefahr}</div>
+      <div className="ez-gruppe gefahr">
+        <Zeile text={t.einst.entfernen} unter={t.einst.entfernenUnter} symbol="weg" rot onTipp={() => setBlatt('entfernen')} />
+      </div>
 
-      {blatt && (
-        <Blatt titel={t.einst.sperreTitel} onZu={() => setBlatt(false)}>
+      {blatt === 'sperre' && (
+        <Blatt titel={t.einst.sperreTitel} onZu={() => setBlatt(null)}>
           <p>{t.einst.sperreText}</p>
           <div className="ez-gruppe">
             {[0, 60, 300].map(s => (
-              <Zeile key={s} text={sperrText(s)} onTipp={() => { einstellen({ sperreNach: s }); setBlatt(false); }}
+              <Zeile key={s} text={sperrText(s)} onTipp={() => { einstellen({ sperreNach: s }); setBlatt(null); }}
                      rechts={e.sperreNach === s ? <span className="ez-symbol"><S n="haken" g={20} w={2.6} /></span> : <span />} />
             ))}
+          </div>
+        </Blatt>
+      )}
+      {blatt === 'entfernen' && (
+        <Blatt titel={t.einst.entfernenTitel} onZu={() => setBlatt(null)}>
+          <Kasten art="rot" symbol="warnung">{t.einst.entfernenText}</Kasten>
+          <div className="stapel">
+            <button type="button" className="knopf gefahr sinkt" onClick={() => { setBlatt(null); setEntfernenPin(true); }}>{t.einst.entfernenJa}</button>
+            <button type="button" className="knopf zweit sinkt" onClick={() => setBlatt(null)}>{t.allg.abbrechen}</button>
           </div>
         </Blatt>
       )}

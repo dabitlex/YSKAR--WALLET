@@ -293,8 +293,6 @@ export const en: Woerterbuch = {
     notizWoerter: 'With the 12 words you restore the wallet on any device. Whoever has them has the balance.',
     sichtUnter: 'No screenshots, hidden in the app overview',
     notizSicht: 'For the 12 words screen protection is always on, even if you turn this switch off.',
-    ehrlich: 'To be honest:',
-    ehrlichText: 'Six digits are a million possibilities. Someone who copies the encrypted data with root access can try them all. The real protection is your written-down 12 words.',
   },
   tast: {
     name: 'Keyboard', loeschen: 'Delete last character', leer: 'Space', gross: 'Capital letter',
