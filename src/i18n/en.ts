@@ -312,7 +312,7 @@ export const en: Woerterbuch = {
   einf: {
     titel: 'Introduction', zurueck: 'Previous card', weiter: 'Next card', ueberspringen: 'Skip', von: (n: number, m: number) => `${n} of ${m}`,
     karteTitel: 'Get to know your', karteAkzent: 'wallet.', karteText: '11 short steps',
-    k1: { titel: 'This is your', akzent: 'wallet.', text: 'See at a glance how many YSR you have. The three buttons below let you send, receive and scan – that is all you need day to day.', knopf: 'Next' },
+    k1: { titel: 'This is your', akzent: 'wallet.', text: 'See at a glance how many YSR you have. Below you send and receive, at the top right you scan a code – that is all you need day to day.', knopf: 'Next' },
     k2: { titel: 'Receive', akzent: 'YSR.', text: 'Want to get YSR? Show your QR code or send your address. It works like an account number and always stays the same.', knopf: 'Receive' },
     k3: { titel: 'Send', akzent: 'YSR.', text: 'Pick a recipient, enter the amount, check everything calmly. The payment only goes out once you slide all the way and enter your PIN – an accidental tap is never enough.', knopf: 'Send' },
     k4: { titel: 'The Y shows the', akzent: 'progress.', text: 'After sending, the Y fills step by step. Once it is complete, your payment has been confirmed several times – usually within 10 to 20 minutes.', knopf: 'Next' },

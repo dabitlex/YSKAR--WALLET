@@ -317,7 +317,7 @@ export const de = {
   einf: {
     titel: 'Einführung', zurueck: 'Vorige Karte', weiter: 'Nächste Karte', ueberspringen: 'Überspringen', von: (n: number, m: number) => `${n} von ${m}`,
     karteTitel: 'Lerne deine Wallet', karteAkzent: 'kennen.', karteText: '11 kurze Schritte',
-    k1: { titel: 'Das ist deine', akzent: 'Wallet.', text: 'Hier siehst du auf einen Blick, wie viele YSR du hast. Mit den drei Knöpfen darunter sendest, empfängst und scannst du – mehr brauchst du im Alltag nicht.', knopf: 'Weiter' },
+    k1: { titel: 'Das ist deine', akzent: 'Wallet.', text: 'Hier siehst du auf einen Blick, wie viele YSR du hast. Darunter sendest und empfängst du, oben rechts scannst du einen Code – mehr brauchst du im Alltag nicht.', knopf: 'Weiter' },
     k2: { titel: 'YSR', akzent: 'empfangen.', text: 'Du möchtest YSR bekommen? Zeig deinen QR-Code oder schick deine Adresse. Sie funktioniert wie eine Kontonummer und bleibt immer gleich.', knopf: 'Empfangen' },
     k3: { titel: 'YSR', akzent: 'senden.', text: 'Empfänger wählen, Betrag eingeben, in Ruhe prüfen. Erst wenn du den Regler ganz durchschiebst und deine PIN eingibst, geht die Zahlung los – ein versehentliches Tippen reicht nie.', knopf: 'Senden' },
     k4: { titel: 'Das Y zeigt den', akzent: 'Fortschritt.', text: 'Nach dem Senden füllt sich das Y Schritt für Schritt. Ist es vollständig, ist deine Zahlung mehrfach bestätigt – meist nach 10 bis 20 Minuten.', knopf: 'Weiter' },

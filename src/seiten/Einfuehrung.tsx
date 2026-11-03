@@ -116,7 +116,7 @@ function Bild({ nr, t, sprache }: { nr: number; t: Woerterbuch; sprache: 'de' | 
   const aufnahme = (n: Aufnahme) => AUFNAHMEN[n][sprache];
   const mitte = (inhalt: ReactNode) => <div className="ef-zent">{inhalt}</div>;
   switch (nr) {
-    case 0: return mitte(<Ausschnitt bild={aufnahme('wallet')} a={[0, .02, 1, .51]} mark={[.035, .384, .93, .122]} />);
+    case 0: return mitte(<Ausschnitt bild={aufnahme('wallet')} a={[0, .03, 1, .4]} mark={[.04, .272, .92, .077]} />);
     case 1: return mitte(
       <div className="ef-spalte">
         <div className="ef-qr glas">
@@ -128,12 +128,12 @@ function Bild({ nr, t, sprache }: { nr: number; t: Woerterbuch; sprache: 'de' | 
       </div>);
     case 2: return mitte(
       <div className="ef-spalte voll">
-        <Ausschnitt bild={aufnahme('senden')} a={[0, .09, 1, .2]} klein />
-        <Ausschnitt bild={aufnahme('senden')} a={[.02, .885, .96, .1]} mark={[.025, .896, .95, .08]} />
+        <Ausschnitt bild={aufnahme('senden')} a={[0, .09, 1, .23]} klein />
+        <Ausschnitt bild={aufnahme('senden')} a={[.02, .88, .96, .11]} mark={[.045, .893, .91, .086]} />
         <span className="ef-marke">{b.tippen}</span>
       </div>);
     case 3: return mitte(<StatusAnimation b={b} />);
-    case 4: return mitte(<Ausschnitt bild={aufnahme('aktivitaet')} a={[0, .02, 1, .46]} mark={[.03, .161, .94, .101]} />);
+    case 4: return mitte(<Ausschnitt bild={aufnahme('aktivitaet')} a={[0, .02, 1, .46]} mark={[.03, .158, .94, .108]} />);
     case 5: return mitte(
       <div className="ef-spalte voll">
         {[['A', 'Anna', DEMO], ['BK', 'Bäckerei Kern', b.zuletzt], ['L', 'Lena', b.empfangenHeute]].map(([k, n, u], i) => (
@@ -168,7 +168,7 @@ function Bild({ nr, t, sprache }: { nr: number; t: Woerterbuch; sprache: 'de' | 
         <div className="ef-paar"><span>{b.signiertMit}</span><b className="ef-mono">{DEMO}</b></div>
         <div className="ef-paar"><span>{b.signatur}</span><b className="ef-mono blau">3f9a…c21e</b></div>
       </div>);
-    case 9: return mitte(<Ausschnitt bild={aufnahme('einstellungen')} a={[0, .065, 1, .5]} mark={[.03, .33, .94, .215]} />);
+    case 9: return mitte(<Ausschnitt bild={aufnahme('einstellungen')} a={[0, .065, 1, .5]} mark={[.04, .324, .92, .235]} />);
     default: return ( // Abschluss: das Zeichen setzt sich noch einmal zusammen, wie beim Start der Wallet.
       <div className="ef-zent">
         <div className="ef-ende-zeichen"><LeuchtZeichen baender={['an', 'an', 'an']} /></div>
