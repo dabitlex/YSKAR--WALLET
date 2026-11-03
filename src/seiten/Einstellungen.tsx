@@ -98,7 +98,7 @@ export function Einstellungen() {
   const sperrKurz = (sek: number) => (sek === 0 ? t.einst.sperreSofort : t.einst.sperreNachText(sek === 60 ? t.einst.min1Kurz : t.einst.min5Kurz));
   return (
     <div className="seite mit-nav st">
-      <Kopf titel={t.einst.titel} />
+      <div className="haft"><Kopf titel={t.einst.titel} /></div>
 
       <button type="button" className="ez-sicherheit sinkt" onClick={() => nav.gehe({ n: 'sicherheit' })}>
         <span className="ez-sicherheit-kopf">

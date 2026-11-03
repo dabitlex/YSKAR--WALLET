@@ -48,7 +48,8 @@ export function Start() {
   const anzeige = useAnzeige();
   const wer = useWer();
   const stand = konto ? BigInt(konto.balance) : null;
-  const liste = [...wartend, ...verlauf].slice(0, 5);
+  // Hoechstens vier, damit die Wallet auf einen Bildschirm passt; der Rest steht in der Aktivitaet.
+  const liste = [...wartend, ...verlauf].slice(0, 4);
   // Neue Wallet: nichts da, nichts unterwegs -- dann fuehrt Empfangen.
   const neu = konto !== null && stand === 0n && verlauf.length === 0 && wartend.length === 0;
   // Sendepause vor Fassung 6: aus der bekannten Blockhoehe, so wie die Senden-Seite rechnet.

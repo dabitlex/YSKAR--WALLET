@@ -1342,3 +1342,19 @@ section > .st-abschnitt{margin-top:26px}
 .st-unten > .st-liste:first-child .st-abschnitt,.st-unten .st-liste .st-abschnitt{margin-top:26px}
 .st-unten .st-einf{margin-top:24px}
 @media (prefers-reduced-motion:reduce){.st-band-innen{transition:none}}
+
+/* ------------------------------------------------------------------
+   Kopf, der oben haftet (Aktivitaet, Kontakte, Einstellungen): Er reicht
+   bis unter die Systemleiste und deckt sie mit dem Grund ab; was darunter
+   wegscrollt, blendet weich aus. Die Navigation unten hat keine Linie mehr,
+   sondern dieselbe weiche Ueberblendung nach oben.
+   ------------------------------------------------------------------ */
+.haft{position:sticky;top:calc(-1 * (var(--oben) + 16px));z-index:5;flex-shrink:0;display:flex;flex-direction:column;
+  margin:calc(-1 * (var(--oben) + 16px)) -24px 0;padding:calc(var(--oben) + 16px) 24px 12px;background:var(--grund)}
+.haft::after{content:"";position:absolute;left:0;right:0;top:100%;height:22px;pointer-events:none;
+  background:linear-gradient(180deg,var(--grund) 0%,rgba(15,16,18,.72) 45%,rgba(15,16,18,0) 100%)}
+.nav{box-shadow:none;border-top:0}
+.nav::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:30px;pointer-events:none;
+  background:linear-gradient(0deg,var(--grund) 0%,rgba(15,16,18,.75) 40%,rgba(15,16,18,0) 100%)}
+@media (max-height:780px){.haft{top:calc(-1 * (var(--oben) + 12px));margin-top:calc(-1 * (var(--oben) + 12px));padding-top:calc(var(--oben) + 12px)}}
+@media (max-height:900px) and (min-height:781px){.st-flaechen .st-guthaben{margin-top:36px}.st-flaechen .st-zwei{margin-top:30px}}

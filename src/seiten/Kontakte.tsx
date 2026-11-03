@@ -49,6 +49,7 @@ export function Kontakte() {
 
   return (
     <div className="seite mit-nav st">
+      <div className="haft">
       <Kopf titel={t.kontakte.titel} rechts={
         <button type="button" className="klein sinkt" aria-label={t.kontakte.neu} onClick={() => nav.gehe({ n: 'kontaktBearbeiten' })}><S n="plus" g={19} w={1.6} /></button>} />
       {alle.length > 0 && (
@@ -59,6 +60,7 @@ export function Kontakte() {
                     leiste={suche !== '' && <button type="button" className="tknopf" onClick={() => setSuche('')}>{t.tast.leeren}</button>} />
         </div>
       )}
+      </div>
       {alle.length > 0 && <div className="sf-abschnitt st-abschnitt kt-abschnitt"><span className="sf-lab">{t.kontakte.alle(alle.length)}</span></div>}
       {liste.length > 0
         ? <div className="liste">

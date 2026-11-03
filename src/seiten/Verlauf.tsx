@@ -127,6 +127,7 @@ export function Verlauf() {
 
   return (
     <div className="seite mit-nav st">
+      <div className="haft">
       <div className="kopf">
         <h1>{t.verlauf.titel}</h1>
         <button type="button" className="klein sinkt" aria-pressed={suchOffen} aria-label={suchOffen ? t.verlauf.sucheZu : t.verlauf.suchen}
@@ -144,6 +145,7 @@ export function Verlauf() {
       )}
       <div className="segment vier" role="group" aria-label={t.verlauf.filter}>
         {teil('alle', t.verlauf.alle)}{teil('ein', t.verlauf.eingang)}{teil('aus', t.verlauf.ausgang)}{teil('mining', t.verlauf.mining)}
+      </div>
       </div>
 
       {offline && <div className="st-meldung" role="status"><Kasten art="warn" symbol="warnung"><b>{t.start.offlineTitel}</b> <span className="leise">{konto ? t.start.offlineText : t.start.offlineOhneStand}</span></Kasten></div>}
