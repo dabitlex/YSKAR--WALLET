@@ -273,6 +273,8 @@ export function useDaten(): DatenZustand {
 export type Ort =
   | { n: 'start' } | { n: 'kontakte' } | { n: 'verlauf' } | { n: 'einstellungen' }
   | { n: 'markets' } | { n: 'coin'; id: string }
+  | { n: 'portfolio' } | { n: 'watchlist' }
+  | { n: 'positionNeu' } | { n: 'positionBearbeiten'; id: string }
   | { n: 'senden'; an?: string; betrag?: bigint | null; notiz?: string | null; scan?: boolean }
   | { n: 'empfangen'; fuer?: string }
   | { n: 'detail'; zahlung: Zahlung }

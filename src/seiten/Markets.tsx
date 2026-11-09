@@ -180,6 +180,18 @@ export function Markets() {
       {!suchModus && <Ueberblick />}
 
       {!suchModus && (
+        <div className="mk-wege">
+          <button type="button" className="mk-weg sinkt" onClick={() => nav.gehe({ n: 'portfolio' })}>
+            <S n="kurve" g={18} w={1.75} /><span>{t.pf.titel}</span>
+          </button>
+          <button type="button" className="mk-weg sinkt" onClick={() => nav.gehe({ n: 'watchlist' })}>
+            <S n="haken" g={18} w={1.75} /><span>{t.wl.titel}</span>
+            {fav.ids.length > 0 && <i className="mk-weg-zahl">{fav.ids.length}</i>}
+          </button>
+        </div>
+      )}
+
+      {!suchModus && (
         <div className="mk-filter" role="tablist" aria-label={t.markt.titel}>
           {FILTER.map(f => (
             <button key={f} type="button" role="tab" className="chip sinkt"

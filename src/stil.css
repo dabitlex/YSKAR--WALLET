@@ -1549,3 +1549,93 @@ section > .st-abschnitt{margin-top:26px}
 .mk-hinweis span{display:flex;flex-direction:column;gap:3px;min-width:0}
 .mk-hinweis b{font-size:14px;font-weight:600;color:var(--text)}
 .mk-hinweis small{font-size:12px;line-height:17px;color:var(--leise)}
+
+/* =====================================================================
+   Portfolio und Watchlist (Phase 6).
+   YSR steht oben und getrennt -- es hat keinen Kurs und darf in keine
+   Fiat-Summe einfliessen. Das ist Gestaltung UND Rechnung zugleich.
+   ===================================================================== */
+.pf,.wl,.pb{padding-bottom:calc(var(--unten) + 32px)}
+
+/* Zugaenge in Markets */
+.mk-wege{display:flex;gap:10px;padding:0 20px 14px}
+.mk-weg{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;
+        border:0;border-radius:14px;background:var(--karte);color:var(--text);font:inherit;
+        font-size:14px;font-weight:600}
+.mk-weg-zahl{font-style:normal;min-width:20px;height:20px;padding:0 6px;border-radius:10px;
+             background:var(--blau);color:#FFF;font-size:11px;font-weight:600;
+             display:inline-flex;align-items:center;justify-content:center}
+
+/* YSR-Block: getoent, damit die Trennung sofort sichtbar ist */
+.pf-ysr{margin:4px 20px 14px;padding:16px 18px;border-radius:22px;background:var(--blau-flaeche)}
+.pf-lab{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:var(--leise)}
+.pf-tag{font-style:normal;padding:2px 7px;border-radius:6px;background:var(--flaeche);
+        font-size:10px;font-weight:600;color:var(--leise);letter-spacing:.02em}
+.pf-ysr b{display:block;margin-top:7px;font-family:var(--ziffern);font-size:26px;line-height:32px;
+          font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.pf-ysr b small{font-size:15px;font-weight:500;color:var(--leise)}
+.pf-hinweis{display:block;margin-top:9px;font-size:12px;line-height:17px;color:var(--leise)}
+
+/* Fiat-Teil */
+.pf-wert{margin:0 20px 14px;padding:16px 18px;border-radius:22px;background:var(--karte)}
+.pf-wert > b{display:block;margin-top:5px;font-family:var(--ziffern);font-size:30px;line-height:36px;
+             font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.pf-zeile2{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:13px;font-weight:600;
+           font-variant-numeric:tabular-nums}
+.pf-zeile2 .auf{color:var(--gruen)}.pf-zeile2 .ab{color:var(--rot)}
+.pf-start{color:var(--leise);font-weight:500}
+.pf-verlauf{margin-top:12px}
+
+.pf-leer{display:flex;flex-direction:column;align-items:center;gap:8px;padding:34px 24px}
+.pf-leer b{font-size:16px;color:var(--text)}
+.pf-leer span{font-size:13px;line-height:19px;color:var(--leise);text-align:center}
+.pf-leer .knopf{margin-top:12px;width:100%}
+
+/* Positionsliste */
+.pf-liste{display:flex;flex-direction:column;gap:10px;padding:0 20px}
+.pf-pos{position:relative;display:grid;grid-template-columns:1fr auto;gap:3px 10px;
+        padding:14px 16px 16px;border:0;border-radius:18px;background:var(--karte);
+        text-align:left;color:inherit;font:inherit}
+.pf-pos-kopf{display:flex;align-items:center;gap:8px;min-width:0}
+.pf-pos-kopf b{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-pos-menge{grid-column:1;font-size:12px;color:var(--leise);font-variant-numeric:tabular-nums}
+.pf-pos-werte{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.pf-pos-werte b{font-family:var(--ziffern);font-size:15px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.pf-pos-werte small{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.pf-pos-werte .auf{color:var(--gruen)}.pf-pos-werte .ab{color:var(--rot)}
+.pf-balken{grid-column:1 / -1;height:3px;margin-top:10px;border-radius:999px;background:var(--flaeche);overflow:hidden}
+.pf-balken i{display:block;height:100%;border-radius:999px;background:var(--blau)}
+
+/* Watchlist */
+.wl-zahl{font-size:12px;color:var(--leise)}
+.wl-liste{display:flex;flex-direction:column}
+.wl-zeile{display:flex;align-items:center}
+.wl-haupt{flex:1;display:flex;align-items:center;gap:11px;min-width:0;min-height:62px;padding:0 4px 0 20px;
+          background:none;border:0;text-align:left;color:inherit;font:inherit}
+.wl-haupt:disabled{opacity:.55}
+.wl-knoepfe{display:flex;flex-shrink:0;padding-right:12px}
+.wl-pfeil{width:34px;height:44px;border:0;background:none;color:var(--leise);
+          display:flex;align-items:center;justify-content:center}
+.wl-pfeil:disabled{opacity:.3}
+
+/* Positionsformular */
+.pb-suche{margin:0 20px 8px}
+.pb-treffer{display:flex;flex-direction:column}
+.pb-treffer-zeile{display:flex;align-items:center;gap:12px;min-height:60px;padding:0 20px;
+                  background:none;border:0;text-align:left;color:inherit;font:inherit}
+.pb-treffer-zeile img{border-radius:50%}
+.pb-treffer-zeile span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pb-treffer-zeile b{font-size:15px;font-weight:600;color:var(--text)}
+.pb-treffer-zeile small{font-size:12px;color:var(--leise)}
+.pb-gewaehlt{display:flex;align-items:center;justify-content:space-between;gap:12px;
+             margin:4px 20px 16px;padding:14px 16px;border:0;border-radius:16px;
+             background:var(--flaeche);color:var(--text);font:inherit;text-align:left}
+.pb-gewaehlt span{display:flex;flex-direction:column;gap:2px}
+.pb-gewaehlt b{font-size:15px;font-weight:600}
+.pb-gewaehlt small{font-size:12px;color:var(--leise)}
+.pb-feld{margin:0 20px 18px}
+.pb-feld .nk-lab{display:block;margin-bottom:7px}
+.pb-opt{font-style:normal;color:var(--aus)}
+.pb-hilfe{margin:8px 0 0;font-size:12px;line-height:17px;color:var(--leise)}
+.pb-los{margin:6px 20px 0;width:calc(100% - 40px)}
+.pb-weg{margin:12px 20px 0;width:calc(100% - 40px)}
