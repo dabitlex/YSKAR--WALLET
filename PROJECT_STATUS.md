@@ -1,7 +1,7 @@
 # PROJECT_STATUS – YSKAR Financial Wallet
 
 **Stand:** 09.11.2026 · **Zweig:** `feature/yskar-finance-v3` · **Basis:** `main` @ `2f218d0`
-**Aktuelle Phase:** 1 abgeschlossen · 2 vorbereitet
+**Aktuelle Phase:** 1–3 abgeschlossen · 4 als Nächstes
 
 ---
 
@@ -20,7 +20,32 @@
 - Entwicklungsumgebung inventarisiert, Build-Strategie festgelegt.
 - Ergebnis: **[`docs/BESTANDSAUFNAHME.md`](docs/BESTANDSAUFNAHME.md)**
 
-**Am bestehenden Code wurde nichts geändert.** Auftragsgemäß.
+**Am bestehenden Code wurde in Phase 1 nichts geändert.** Auftragsgemäß.
+
+### Phase 2 – Produktkonzept ✅
+
+- Modulkarte, erlaubte Abhängigkeitsrichtung und vier verbotene Importpfade
+  festgeschrieben (werden in Phase 8 per Test erzwungen).
+- Navigation auf vier Bereiche festgelegt.
+- Schnittstelle `MarktAnbieter` und Hülle `MitHerkunft<T>` entworfen – jeder
+  angezeigte Wert trägt Quelle und Alter.
+- Portfolio-Datenmodell: `quelle` ist Pflichtfeld, YSR als manuelle Position
+  gesperrt. Doppelzählung ist damit strukturell ausgeschlossen.
+- Entscheidung Charts: eigene SVG-Umsetzung statt Bibliothek (Begründung in
+  `docs/ARCHITEKTUR.md` §7).
+- Ergebnis: **[`docs/ARCHITEKTUR.md`](docs/ARCHITEKTUR.md)**
+
+### Phase 3 – Designsystem ✅
+
+- Neue Markenpalette umgesetzt; Blau führt wieder (das Konzept „Ruhe" hatte
+  es bewusst unterdrückt).
+- 17 Farbregeln umgestellt, 48 harte Farbwerte auf Tokens gelegt, 33
+  Cyanwerte des alten Zweitakzents auf die Marke geführt. Keine Reste.
+- **Kontraste gerechnet, nicht geschätzt.** Dabei fiel auf, dass `#2F7BFF`
+  weißen Text nur mit 3,62 : 1 trägt und damit unter AA liegt – gelöst über
+  drei Blaurollen, ohne die Markenfarbe zu verlassen.
+- Nativer Starthintergrund mitgezogen, sonst springt die Farbe beim Start.
+- Ergebnis: **[`docs/DESIGNSYSTEM.md`](docs/DESIGNSYSTEM.md)**
 
 ---
 
@@ -29,8 +54,8 @@
 | Bereich | Stand |
 |---|---|
 | Analyse | ✅ abgeschlossen |
-| Produktarchitektur | 🔵 in Arbeit |
-| Designsystem | ⚪ offen |
+| Produktarchitektur | ✅ abgeschlossen |
+| Designsystem | ✅ abgeschlossen |
 | Wallet | ✅ funktionsfähig (Bestand, unverändert) |
 | Markets | ⚪ offen |
 | Portfolio / Watchlist | ⚪ offen |
@@ -50,7 +75,9 @@ Ausgeführt am 09.11.2026 auf `feature/yskar-finance-v3`:
 | `node werkzeug/buendel-pruefen.mjs` | **in Ordnung** – 25 Dateien |
 | Gebaute Größe | 556 kB JS (182 kB gzip), 91 kB CSS (18 kB gzip) |
 | Live-Prüfung `yskar.vercel.app` | `summary`, `supply`, `fees` je **HTTP 200** |
-| Native APK in dieser Sitzung | **nicht möglich** – kein Android SDK (siehe unten) |
+| Durchlauf in Chromium (412 × 915) | Einstieg, Wiederherstellen, PIN, Wallet, Activity, Kontakte, Einstellungen – **ohne Konsolenfehler** |
+| Live-Daten im Durchlauf | `200 /api/v2/account/…`, `200 /api/v2/summary` |
+| Native APK in dieser Sitzung | **nicht möglich** – kein Android SDK; Bau läuft über GitHub Actions |
 
 ---
 
@@ -60,46 +87,42 @@ Ausgeführt am 09.11.2026 auf `feature/yskar-finance-v3`:
 |---|---|---|---|
 | P1 | **Konsensfassung 6 aktiviert bei Block 10 000**, Netz steht bei 8 410 → ~11 Tage. | hoch | Wallet ist vorbereitet (`src/wallet/fassung.ts`, getestet). Sendepfad wird **nicht** umgebaut. Übergang am Gerät beobachten. |
 | P2 | **YSR hat keinen Marktpreis.** Nicht bei CoinGecko gelistet, keine Preisquelle im YSKAR-Projekt. | hoch | Produktentscheidung: YSR-Bestand in YSR, Fiat-Summe nur über bepreiste Positionen, Quelle je Wert gekennzeichnet. Keine erfundenen Kurse. |
-| P3 | **CoinGecko ohne API-Schlüssel unzuverlässig**: gemessen 6 × HTTP 200 / 6 × HTTP 429 bei 12 sequenziellen Aufrufen. | hoch | Cache + Coalescing + Backoff zwingend. Produktive Bezugsquelle: **Entscheidung offen** (siehe Nächste Schritte). |
+| P3 | **CoinGecko ohne API-Schlüssel unzuverlässig**: gemessen 6 × HTTP 200 / 6 × HTTP 429 bei 12 sequenziellen Aufrufen. | hoch | **Entschieden:** Demo-Schlüssel, in der App eingegeben und im sicheren Speicher gehalten – nicht im Build. Ohne Schlüssel läuft die App gegen die öffentliche API, mit Hinweis. Cache + Coalescing + Backoff in jedem Fall. |
 | P4 | **Kein Android SDK / kein adb** in dieser Umgebung. | mittel | Bau über die bestehende GitHub-Actions-Pipeline. Oberflächentests hier über Chromium/Playwright bei 412 × 915. |
-| P5 | Designkonzept „Ruhe" unterdrückt Blau bewusst; neue Richtung verlangt Blau durchgehend. | mittel | Richtungsumkehr, keine reine Variablenänderung. In Phase 3 einzuplanen. |
+| P5 | ~~Designkonzept „Ruhe" unterdrückt Blau~~ | – | **Erledigt in Phase 3.** |
+| P7 | `#2F7BFF` trägt weißen Text nur mit 3,62 : 1 und liegt damit unter WCAG AA. | mittel | Gelöst über drei Blaurollen: Marke/UI `#2F7BFF`, Knopffüllung `#2563D6` (5,48 : 1), Blau-als-Text `#6BA2FF`. |
 | P6 | PIN-Bremse liegt in `localStorage`, nicht im sicheren Speicher – zurücksetzbar. | niedrig | Kein kritischer Fund (Schutz hängt an PBKDF2/400 000). Bei Überarbeitung mitnehmen. |
 
 ---
 
 ## Offene Aufgaben
 
-**Phase 2 – Produktkonzept** (nächster Schritt)
-- [ ] Modulgrenzen und Datenfluss festschreiben
-- [ ] Navigationsstruktur 4 Bereiche (Wallet, Markets, Activity, Profile)
-- [ ] Schnittstelle `MarktAnbieter` definieren (austauschbar)
-- [ ] Portfolio-Datenmodell mit Pflichtfeld „onchain | manuell"
+**Phase 4 – Wallet** (nächster Schritt)
+- [ ] Netzdaten anbinden: Höhe, Hashrate, aktive Miner, Belohnung, Umlauf
+      (liegen bereits im Spiegel, werden heute nur nicht gelesen)
+- [ ] Navigation auf Wallet / Markets / Activity / Profile umstellen;
+      Kontakte ziehen in den Wallet-Bereich
+- [ ] Wallet-Übersicht nach Entwurf (YSR groß, Netzband, getrennter Fiat-Teil)
+- [ ] Sendepfad **unverändert** übernehmen
 
-**Phase 3 – Designsystem**
-- [ ] Palette, Typografie, Abstände, Komponenten
-- [ ] Screens
-
-**Phase 4–10** – siehe Auftrag.
+**Phase 5–10** – siehe Auftrag.
 
 ---
 
 ## Nächste Entwicklungsschritte
 
-1. **Entscheidung notwendig (blockiert Phase 5):** Bezugsquelle der Marktdaten.
-   - **A** Nur öffentliche CoinGecko-API, kein Schlüssel. Kein Betriebsaufwand,
-     aber gemessen 50 % Fehlerquote; Charts und Listen laden teils verzögert
-     oder zeigen den letzten bekannten Stand.
-   - **B** Kostenloser CoinGecko-Demo-Schlüssel, in der App einmal eingegeben
-     und im sicheren Speicher gehalten – **nicht** im Build. Zuverlässig,
-     aber der Nutzer muss einen Schlüssel besorgen.
-   - **C** Eigener Proxy neben `yskar.vercel.app`, Schlüssel serverseitig,
-     Antworten zentral zwischengespeichert. Technisch die beste Lösung,
-     erfordert aber Betrieb und Deployment.
-   - **Empfehlung: C**, mit A als automatischem Rückfall. Das hält die Vorgabe
-     „kein Schlüssel in der APK" ein, liefert verlässliche Daten und lässt die
-     App auch ohne Proxy funktionieren.
-2. Phase 2 ausarbeiten (unabhängig von dieser Entscheidung).
-3. Phase 3 Designsystem.
+**Getroffene Entscheidungen (09.11.2026):**
+
+1. **Marktdaten:** CoinGecko mit kostenlosem Demo-Schlüssel. Der Schlüssel
+   wird in der App eingegeben und im sicheren Speicher gehalten, **nie im
+   Build**. Ohne Schlüssel arbeitet die App gegen die öffentliche API und
+   weist auf die eingeschränkte Zuverlässigkeit hin.
+2. **YSR-Wert:** getrennter Ausweis. YSR-Bestand groß in YSR, daneben die
+   Netzdaten; die Fiat-Summe umfasst ausschließlich bepreiste Positionen.
+   An der Kursstelle steht, dass YSR noch nicht notiert ist. Es gibt bewusst
+   keine Gesamtsumme über beides – sie wäre erfunden.
+
+**Als Nächstes:** Phase 4 (Wallet).
 
 ---
 
