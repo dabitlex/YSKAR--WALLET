@@ -16,26 +16,64 @@
 
 :root{
   color-scheme:dark;
-  /* Konzept "Ruhe" (03.11.2026): drei Flaechen -- Grund, Flaeche (--karte), Flaeche hoch (--flaeche).
-     Die alten Namen bleiben, damit jede Regel weiter greift; sie zeigen jetzt auf die neue Palette. */
-  --grund:#0F1012; --senke:#0F1012; --tief:#0F1012; --karte:#1C1D21; --flaeche:#2A2B30; --nav:#0F1012; --blatt:#1C1D21;
-  --rand:rgba(255,255,255,.07); --linie:rgba(255,255,255,.07); --rand-hell:rgba(255,255,255,.1);
-  --glas:#1C1D21; --glas2:#2A2B30;
-  /* Text: hell, zweitrangig, leise (leise auf Flaeche hoch noch 4,8 : 1). */
-  --text:#F3F3F4; --lesen:#B4B6BC; --leise:#94979F; --blass:#94979F; --aus:#5E6169;
-  /* Hauptknoepfe sind hell (--text). Blau nur fuer aktive Schalter (--blau-tief); Akzente und Fokus hell. */
-  --blau:#2F6BF0; --blau-druck:#2557C8; --blau-hell:#F3F3F4; --blau-flaeche:#1C1D21; --blau-punkt:#F3F3F4; --blau-tief:#2F6BF0;
-  --gruen:#5FD39B; --gruen-voll:#1F9E6E; --gruen-flaeche:#12261C;
-  --bern:#F0B35B; --bern-flaeche:#2A2216; --bern-text:#F2E2C6;
-  --rot:#FF7A6E; --rot-voll:#C8372F; --rot-flaeche:#2E1A19;
-  /* Kein farbiger Schein mehr (4.2): Tiefe nur durch Flaechen und Raender. */
+
+  /* =====================================================================
+     YSKAR Financial Wallet -- Marke (Finance v3, 09.11.2026)
+
+     Blau FUEHRT. Drei Flaechen, Text in zwei Stufen, Richtung in Gruen/Rot.
+     Alle Kontraste gerechnet und belegt in docs/DESIGNSYSTEM.md.
+
+     Die alten Variablennamen bleiben erhalten und zeigen auf die neue
+     Palette, damit jede der rund 1000 Regeln darueber weiter greift.
+     ===================================================================== */
+
+  /* ---- Flaechen: Grund, Karte, Flaeche hoch ---- */
+  --grund:#080D18; --senke:#080D18; --tief:#050A12; --nav:#080D18;
+  --karte:#111827; --blatt:#111827; --glas:#111827;
+  --flaeche:#172235; --glas2:#172235;
+
+  /* ---- Raender: aus der Textfarbe, nie aus Schwarz ---- */
+  --rand:rgba(244,247,252,.08); --linie:rgba(244,247,252,.08);
+  --rand-hell:rgba(244,247,252,.14);
+
+  /* ---- Text: 18,1 : 1 / 6,9 : 1 auf Grund ---- */
+  --text:#F4F7FC; --lesen:#C3CCDA; --leise:#8D9BB0; --blass:#8D9BB0; --aus:#5A6678;
+
+  /* ---- Blau: die Markenfarbe, in drei Rollen ----
+     --blau        Akzent, Zeichen, Linien, Fokus, Rahmen, Diagramme.
+                   Als UI-Farbe gefordert sind 3 : 1 -- erreicht 4,99 : 1
+                   auf Grund und 4,10 : 1 auf Flaeche hoch.
+     --blau-fuell  Fuellung von Knoepfen, die Text tragen. #2F7BFF traegt
+                   weissen Text nur mit 3,62 : 1 und faellt damit unter AA;
+                   diese zwei Stufen dunkler erreichen 5,5 : 1.
+     --blau-text   Blau ALS Text auf dunkler Flaeche: 6,3 bis 7,6 : 1. */
+  --blau:#2F7BFF;
+  --blau-fuell:#2563D6;
+  --blau-druck:#1F52BD;
+  --blau-text:#6BA2FF;
+  --blau-hell:#6BA2FF;
+  --blau-tief:#2F7BFF;
+  --blau-punkt:#2F7BFF;
+  --blau-flaeche:var(--blau-rand);
+  --blau-flaeche-stark:var(--blau-rand);
+  --blau-rand:var(--blau-rand);
+
+  /* ---- Richtung: Gewinn und Verlust ---- */
+  --gruen:#32C98A; --gruen-voll:#1F9E6E; --gruen-flaeche:rgba(50,201,138,.12);
+  --rot:#F05D68; --rot-voll:#C8372F; --rot-flaeche:rgba(240,93,104,.12);
+  --bern:#F0B35B; --bern-flaeche:rgba(240,179,91,.12); --bern-text:#F2E2C6;
+
+  /* Keine farbigen Leuchtschatten: Tiefe entsteht aus Flaechen und Raendern. */
   --schein:none;
+
   --schrift:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
-  /* Zahlen stehen in der Textschrift mit Tabellenziffern; Mono nur fuer Adressen und Kennungen. */
+  /* Zahlen stehen in der Textschrift mit Tabellenziffern; Mono nur fuer
+     Adressen und Kennungen. */
   --ziffern:var(--schrift);
   --mono:'Geist Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
   --kurve:cubic-bezier(.2,0,0,1);
-  /* Android zeichnet bis unter Statusleiste und Gestenbalken; Capacitor traegt deren Hoehe ein. */
+  /* Android zeichnet bis unter Statusleiste und Gestenbalken; Capacitor
+     traegt deren Hoehe ein. */
   --oben:var(--safe-area-inset-top,env(safe-area-inset-top,0px));
   --unten:var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px));
 }
@@ -87,7 +125,7 @@ h1,h2,p{margin:0}
 .knopf.zweit:active{background:var(--flaeche)}
 /* Hell: der Hauptknopf des Einstiegs, wie der Hero-Knopf der Website -- mit Pfeil im Kreis. */
 .knopf.hell{background:var(--text);color:var(--grund);box-shadow:none}
-.knopf.hell:active{background:#DDE5F5}
+.knopf.hell:active{background:var(--blau-druck)}
 .knopf.hell .pfeilkreis{width:24px;height:24px;border-radius:50%;background:var(--grund);color:var(--text);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .knopf.gefahr{background:var(--rot-voll);box-shadow:none}
 .knopf.gefahr.zweit{background:var(--rot-flaeche);border-color:rgba(255,107,107,.3);color:var(--rot)}
@@ -112,7 +150,7 @@ h1,h2,p{margin:0}
 .kasten.warn{background:rgba(245,190,107,.07);box-shadow:inset 0 0 0 1px rgba(245,190,107,.22);color:var(--text)}
 .kasten.warn svg{color:var(--bern)}
 .kasten.warn strong{color:#fff}
-.kasten.ruhig{background:rgba(47,123,255,.08);box-shadow:inset 0 0 0 1px rgba(99,216,255,.22);color:var(--text)}
+.kasten.ruhig{background:var(--blau-rand);box-shadow:inset 0 0 0 1px var(--blau-rand);color:var(--text)}
 .kasten.ruhig svg{color:var(--blau-hell)}
 .kasten.rot{background:rgba(255,143,132,.08);box-shadow:inset 0 0 0 1px rgba(255,143,132,.25);color:var(--text)}
 .kasten.rot svg{color:var(--rot)}
@@ -182,7 +220,7 @@ h1,h2,p{margin:0}
 .zeile .wert.offen{color:var(--leise);font-size:13.5px;font-weight:400}
 .zeile > svg.pfeil{color:var(--blass);flex-shrink:0}
 .kachel{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.kachel.aus{background:rgba(47,123,255,.14);color:var(--blau-hell)}
+.kachel.aus{background:var(--blau-rand);color:var(--blau-hell)}
 .kachel.ein{background:rgba(59,229,154,.12);color:var(--gruen)}
 .kachel.bern{background:var(--bern-flaeche);color:var(--bern)}
 .kachel.gross{width:64px;height:64px}
@@ -190,7 +228,7 @@ h1,h2,p{margin:0}
 .kachel.art{width:40px;height:40px;border-radius:14px;border:0}
 .kachel.art.aus{background:var(--glas2);color:var(--text)}
 .kachel.art.ein{background:rgba(124,232,188,.08);color:var(--gruen)}
-.kachel.art.block{background:rgba(99,216,255,.08);color:var(--blau-hell)}
+.kachel.art.block{background:var(--blau-rand);color:var(--blau-hell)}
 .kachel.art.bern{background:rgba(245,190,107,.08);color:var(--bern)}
 .kachel.art.gross{width:64px;height:64px;border-radius:20px}
 /* Kleine Kachel vor einer Einstellzeile. */
@@ -281,7 +319,7 @@ h1,h2,p{margin:0}
 /* ---------- Das leuchtende Zeichen (Startbildschirm, Sperre) ---------- */
 /* Jedes Band: ruhende Grundflaeche, darueber Licht und Fehlerfarbe -- gewechselt wird nur die Deckkraft. */
 .leucht{display:block;overflow:visible}
-.leucht .grund{fill:rgba(242,246,255,.06);stroke:rgba(99,216,255,.2);stroke-width:1;vector-effect:non-scaling-stroke}
+.leucht .grund{fill:rgba(242,246,255,.06);stroke:var(--blau-rand);stroke-width:1;vector-effect:non-scaling-stroke}
 .leucht .licht{opacity:0;stroke:rgba(255,255,255,.38);stroke-width:1;vector-effect:non-scaling-stroke;transition:opacity .18s var(--kurve)}
 .leucht .fehler{opacity:0;transition:opacity .15s var(--kurve)}
 .leucht .band.halb .licht{opacity:.42}
@@ -296,7 +334,7 @@ h1,h2,p{margin:0}
 .pinseite.mit-zeichen p.unter{font-size:12.5px;margin-top:-8px}
 .sperre-adresse{display:inline-flex;align-items:center;gap:8px}
 .sperre-adresse i{width:6px;height:6px;border-radius:50%;background:var(--blau-hell);opacity:.7}
-.pinseite.mit-zeichen .punkte span.voll{background:#F2F6FF;box-shadow:0 0 10px rgba(99,216,255,.35)}
+.pinseite.mit-zeichen .punkte span.voll{background:#F2F6FF;box-shadow:0 0 10px var(--blau-rand)}
 .pinseite.mit-zeichen .punkte.gut span{background:var(--gruen);box-shadow:none}
 .pinseite.mit-zeichen .punkte.falsch span{background:var(--rot);box-shadow:0 0 10px rgba(255,143,132,.35)}
 /* Beim Start: der Inhalt kommt nach, das Zeichen bringt der Startbildschirm mit. */
@@ -331,10 +369,10 @@ h1,h2,p{margin:0}
 .wort b.falsch{color:var(--rot)}
 .wortraster.eins{grid-template-columns:minmax(0,1fr);gap:10px}
 .wortraster.eins .wort{height:56px;border-radius:18px;padding:0 18px;background:var(--karte)}
-.tonknopf{height:48px;border-radius:999px;background:rgba(47,123,255,.14);border:1px solid rgba(99,216,255,.3);color:var(--blau-hell);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:9px;width:100%}
+.tonknopf{height:48px;border-radius:999px;background:var(--blau-rand);border:1px solid var(--blau-rand);color:var(--blau-hell);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:9px;width:100%}
 .tonknopf.grau{background:var(--glas);border-color:var(--rand-hell);color:var(--lesen)}
 .tonknopf:disabled{opacity:.45}
-.grosskreis{width:140px;height:140px;border-radius:50%;background:rgba(47,123,255,.12);border:1px solid rgba(99,216,255,.3);color:var(--blau-hell);display:flex;align-items:center;justify-content:center;align-self:center;flex-shrink:0}
+.grosskreis{width:140px;height:140px;border-radius:50%;background:var(--blau-rand);border:1px solid var(--blau-rand);color:var(--blau-hell);display:flex;align-items:center;justify-content:center;align-self:center;flex-shrink:0}
 .auswahlzeile{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--rand);border-radius:22px;background:var(--karte);text-align:left;width:100%}
 .auswahlzeile:active{background:var(--flaeche)}
 .auswahlzeile .worte{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -353,7 +391,7 @@ h1,h2,p{margin:0}
 .betragblock .tippfeld.lang3{font-size:22px;letter-spacing:0}
 .betragblock .unten{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--leise)}
 .betragblock .unten b{font-family:var(--ziffern);font-weight:400;color:var(--lesen)}
-.betragblock .alles{height:26px;padding:0 10px;border-radius:999px;border:1px solid rgba(99,216,255,.35);background:rgba(99,216,255,.12);color:var(--blau-hell);font-family:var(--ziffern);font-size:11px;font-weight:500;letter-spacing:.08em}
+.betragblock .alles{height:26px;padding:0 10px;border-radius:999px;border:1px solid var(--blau-rand);background:var(--blau-rand);color:var(--blau-hell);font-family:var(--ziffern);font-size:11px;font-weight:500;letter-spacing:.08em}
 .mitte-block{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0 2px;flex-shrink:0}
 .mitte-block > small{font-size:15px;font-weight:500;color:var(--leise)}
 .paar{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:14px 0;border-bottom:1px solid var(--linie);font-size:14px}
@@ -369,7 +407,7 @@ h1,h2,p{margin:0}
 .vierer.klein-schrift{font-size:12px;gap:0 6px;justify-content:flex-end;color:var(--lesen)}
 .vierer.mittig{justify-content:center}
 .schieber{position:relative;height:68px;border-radius:34px;overflow:hidden;touch-action:none;flex-shrink:0;background:var(--glas);border:0;box-shadow:inset 0 0 0 1px var(--rand-hell)}
-.schieber .spur{position:absolute;left:0;top:0;bottom:0;width:62px;border-radius:34px;background:rgba(47,123,255,.14)}
+.schieber .spur{position:absolute;left:0;top:0;bottom:0;width:62px;border-radius:34px;background:var(--blau-rand)}
 .schieber .wort-mitte{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:40px;font-size:15px;font-weight:500;color:var(--leise);pointer-events:none}
 .schieber .pfeile{position:absolute;right:22px;top:25px;color:var(--blass);display:flex;pointer-events:none}
 @keyframes wink{0%,100%{transform:translateX(0);opacity:.6}50%{transform:translateX(5px);opacity:1}}
@@ -392,7 +430,7 @@ h1,h2,p{margin:0}
 .pille{display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:500;border:1px solid transparent}
 .pille.bern{background:rgba(255,180,84,.12);border-color:rgba(255,180,84,.35);color:var(--bern)}
 .pille.gruen{background:rgba(59,229,154,.12);border-color:rgba(59,229,154,.35);color:var(--gruen)}
-.pille.blau{background:rgba(99,216,255,.1);border-color:rgba(99,216,255,.35);color:var(--blau-hell)}
+.pille.blau{background:var(--blau-rand);border-color:var(--blau-rand);color:var(--blau-hell)}
 .pille.rot{background:rgba(255,107,107,.12);border-color:rgba(255,107,107,.35);color:var(--rot)}
 .pille i{width:6px;height:6px;border-radius:50%;background:currentColor}
 /* Drei Stufen nebeneinander (Gesendet). */
@@ -464,12 +502,12 @@ h1,h2,p{margin:0}
 .strich{display:inline-block;width:2px;height:1.15em;border-radius:1px;background:var(--blau-punkt);margin-left:1px;vertical-align:-.2em;flex-shrink:0;animation:blinkt 1.1s steps(1) infinite}
 @keyframes blinkt{50%{opacity:0}}
 .feld.tippfeld{white-space:pre-wrap;overflow-wrap:anywhere}
-.feld.tippfeld.aktiv,.feld-huelle.aktiv,.suche .tippfeld.aktiv{box-shadow:inset 0 0 0 1.5px rgba(99,216,255,.55)}
+.feld.tippfeld.aktiv,.feld-huelle.aktiv,.suche .tippfeld.aktiv{box-shadow:inset 0 0 0 1.5px var(--blau-rand)}
 .feld-huelle .tippfeld{flex:1;min-width:0;min-height:44px;padding:6px 0;font-size:14px;line-height:1.7;display:flex;flex-wrap:wrap;align-items:center;gap:0 9px}
 .feld-huelle .tippfeld span + .strich{margin-left:-8px}
 .suche .tippfeld{min-height:48px;border-radius:24px;padding:12px 16px 12px 46px;font-size:15px;line-height:22px;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--karte)}
 .wort.tippfeld{border:1.5px solid transparent;overflow:hidden}
-.wort.tippfeld.aktiv{border-color:rgba(99,216,255,.55)}
+.wort.tippfeld.aktiv{border-color:var(--blau-rand)}
 .wort.tippfeld b + .strich{margin-left:-9px}
 
 /* Solange getippt wird, endet der Inhalt ueber der Tastatur. */
@@ -479,7 +517,7 @@ h1,h2,p{margin:0}
 .app.tippt .nav,.app.tippt .schleier{display:none}
 .app.tippt .meldung{bottom:calc(var(--tastatur) + 14px)}
 
-.tastatur{position:absolute;left:0;right:0;bottom:0;z-index:35;background:#0D121C;border-top:1px solid var(--rand);padding:0 5px calc(var(--unten) + 8px);
+.tastatur{position:absolute;left:0;right:0;bottom:0;z-index:35;background:#0B1220;border-top:1px solid var(--rand);padding:0 5px calc(var(--unten) + 8px);
   display:flex;flex-direction:column;touch-action:none;box-shadow:0 -10px 24px rgba(0,0,0,.35);animation:hoch .22s var(--kurve) both}
 .tastatur.steht{animation:none}
 .tleiste{display:flex;align-items:center;gap:8px;min-height:50px;padding:0 3px 0 5px}
@@ -488,7 +526,7 @@ h1,h2,p{margin:0}
 .tknopf{height:38px;padding:0 14px;border-radius:19px;border:0;background:transparent;color:var(--leise);font-size:14.5px;font-weight:500;display:flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap}
 .tknopf:active{background:var(--flaeche)}
 .tknopf.vorschlag{font-weight:500;font-size:15px;color:var(--text)}
-.tknopf.vorschlag.genau{background:rgba(47,123,255,.14);box-shadow:inset 0 0 0 1px rgba(99,216,255,.3);color:var(--text)}
+.tknopf.vorschlag.genau{background:var(--blau-rand);box-shadow:inset 0 0 0 1px var(--blau-rand);color:var(--text)}
 .tfertig{height:44px;padding:0 12px;border:0;background:transparent;color:var(--blau-hell);font-size:15px;font-weight:500;flex-shrink:0}
 .tfertig:active{opacity:.6}
 .thinweis{font-size:14px;font-weight:500;color:var(--leise);padding-left:6px;white-space:nowrap}
@@ -540,8 +578,8 @@ h1,h2,p{margin:0}
 /* Eine dunkle Scheibe mit blauem Ring und dem Zeichen; alles aus CSS, wie .m-seite auf yskar.app. */
 .muenze{--d:200px;position:relative;width:var(--d);height:var(--d);border-radius:50%;flex-shrink:0;
   background:radial-gradient(circle at 32% 26%,#132354,#060B1C 72%);
-  box-shadow:inset 0 0 0 calc(var(--d)*.035) #2F7BFF,inset 0 0 0 calc(var(--d)*.05) #1B4FD1,inset 0 0 calc(var(--d)*.12) rgba(99,216,255,.18),0 24px 60px -20px rgba(47,123,255,.45)}
-.muenze img{position:absolute;left:22%;top:22%;width:56%;height:56%;filter:drop-shadow(0 0 calc(var(--d)*.05) rgba(47,123,255,.45))}
+  box-shadow:inset 0 0 0 calc(var(--d)*.035) #2F7BFF,inset 0 0 0 calc(var(--d)*.05) #1B4FD1,inset 0 0 calc(var(--d)*.12) var(--blau-rand),0 24px 60px -20px var(--blau-rand)}
+.muenze img{position:absolute;left:22%;top:22%;width:56%;height:56%;filter:drop-shadow(0 0 calc(var(--d)*.05) var(--blau-rand))}
 .muenze.gross{--d:200px}.muenze.mittel{--d:140px}.muenze.klein{--d:96px}
 .hero .muenze{margin:8px 0}
 .pinseite .logo-platz .muenze{--d:min(120px,100%);aspect-ratio:1;height:auto;margin:0}
@@ -549,8 +587,8 @@ h1,h2,p{margin:0}
 
 /* ---------- Einstellungen: Kopfkarte ---------- */
 .profilkarte{flex-direction:row;align-items:center;gap:14px;padding:16px;border-color:var(--rand-hell);
-  background:linear-gradient(135deg,rgba(47,123,255,.22),var(--karte) 70%)}
-.profilkarte .zeichen{width:48px;height:48px;border-radius:16px;background:rgba(3,6,15,.5);border:1px solid rgba(99,216,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  background:linear-gradient(135deg,var(--blau-rand),var(--karte) 70%)}
+.profilkarte .zeichen{width:48px;height:48px;border-radius:16px;background:rgba(3,6,15,.5);border:1px solid var(--blau-rand);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .profilkarte .zeichen img{width:26px;height:26px}
 .profilkarte .worte{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .profilkarte b{font-size:15px;font-weight:500}
@@ -598,7 +636,7 @@ div.ez:active{background:transparent}
 .ef{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;color:var(--text);background:radial-gradient(110% 55% at 50% 26%,#0E1D40 0%,#0A1122 40%,#03060F 82%);user-select:none;-webkit-user-select:none;overflow:hidden}
 .ef-balken{display:flex;gap:4px;padding:calc(var(--oben) + 14px) 20px 0}
 .ef-balken i{flex:1;height:2px;border-radius:1px;background:rgba(242,246,255,.16);overflow:hidden}
-.ef-balken b{display:block;height:100%;background:#F2F6FF}
+.ef-balken b{display:block;height:100%;background:var(--blau)}
 .ef-kopf{display:flex;align-items:center;gap:4px;padding:8px 12px 0 20px;font-size:13px;color:var(--leise)}
 .ef-kopf > span{flex:1}
 .ef-ueber{height:44px;padding:0 12px;border:0;background:none;color:var(--leise);font:inherit;font-size:14px}
@@ -617,8 +655,8 @@ div.ez:active{background:transparent}
 /* Ausschnitte echter Bildschirme (Demo-Daten) mit dezenter Hervorhebung */
 .ef-aus{position:relative;border-radius:22px;overflow:hidden;background:#05070B;box-shadow:inset 0 0 0 1px rgba(242,246,255,.08),0 30px 70px -24px rgba(27,79,209,.45)}
 .ef-aus img{position:absolute;max-width:none;height:auto}
-.ef-mark{position:absolute;border-radius:16px;box-shadow:0 0 0 1.5px rgba(99,216,255,.7),0 0 0 6px rgba(99,216,255,.1),0 0 28px rgba(99,216,255,.25)}
-.ef-marke{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:14px;background:#0A1122;box-shadow:inset 0 0 0 1px rgba(99,216,255,.35);font-size:12px;color:var(--blau-hell);white-space:nowrap}
+.ef-mark{position:absolute;border-radius:16px;box-shadow:0 0 0 1.5px var(--blau-rand),0 0 0 6px var(--blau-rand),0 0 28px var(--blau-rand)}
+.ef-marke{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:14px;background:#0A1122;box-shadow:inset 0 0 0 1px var(--blau-rand);font-size:12px;color:var(--blau-hell);white-space:nowrap}
 /* Grafiken in der Y-Formensprache */
 .ef .glas{border-radius:22px;background:linear-gradient(160deg,rgba(242,246,255,.06),rgba(242,246,255,.015));box-shadow:inset 0 1px 0 rgba(242,246,255,.1),inset 0 0 0 1px rgba(242,246,255,.05),0 30px 60px -30px rgba(0,0,0,.8)}
 .ef-zent{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 20px}
@@ -645,8 +683,8 @@ div.ez:active{background:transparent}
 .ef-zeilen span.wartet{color:var(--text)} .ef-zeilen span.wartet i{background:var(--bern)}
 .ef-stand path{transition:fill .35s var(--kurve)}
 .ef-kontakt{display:flex;align-items:center;gap:14px;padding:13px 16px}
-.ef-kontakt.hell{box-shadow:0 0 0 1.5px rgba(99,216,255,.5),0 24px 50px -16px rgba(0,0,0,.9);transform:translateX(10px)}
-.ef-kontakt .av{width:44px;height:44px;border-radius:22px;background:rgba(99,216,255,.12);color:var(--blau-hell);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.ef-kontakt.hell{box-shadow:0 0 0 1.5px var(--blau-rand),0 24px 50px -16px rgba(0,0,0,.9);transform:translateX(10px)}
+.ef-kontakt .av{width:44px;height:44px;border-radius:22px;background:var(--blau-rand);color:var(--blau-hell);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
 .ef-kontakt .m{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:16px;font-weight:500}
 .ef-kontakt small{font-size:12.5px;font-weight:400;color:var(--leise)}
 .ef-kontakt .los{height:34px;padding:0 14px;border-radius:17px;background:var(--blau-tief);color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center}
@@ -659,12 +697,12 @@ div.ez:active{background:transparent}
 .ef-hinweis b{display:block;font-weight:500;color:var(--bern-text)}
 .ef-hinweis span{color:var(--bern-text);opacity:.85}
 .ef-hinweis span b{opacity:1}
-.ef-schloss{position:absolute;right:-8px;top:-14px;width:44px;height:44px;border-radius:14px;background:#03060F;box-shadow:inset 0 0 0 1px rgba(99,216,255,.35);display:flex;align-items:center;justify-content:center;color:var(--blau-hell)}
+.ef-schloss{position:absolute;right:-8px;top:-14px;width:44px;height:44px;border-radius:14px;background:#03060F;box-shadow:inset 0 0 0 1px var(--blau-rand);display:flex;align-items:center;justify-content:center;color:var(--blau-hell)}
 .ef-sperre{width:min(100%,290px);padding:22px 20px 10px;display:flex;flex-direction:column;align-items:center;gap:14px}
 .ef-sperre .ef-sperre-zeichen{width:min(22cqw,24cqh,92px);height:auto;filter:drop-shadow(0 12px 26px rgba(27,79,209,.35))}
 .ef-punkte{display:flex;gap:12px}
 .ef-punkte i{width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(238,242,248,.3)}
-.ef-punkte i.v{background:#F2F6FF;box-shadow:0 0 10px rgba(99,216,255,.35)}
+.ef-punkte i.v{background:#F2F6FF;box-shadow:0 0 10px var(--blau-rand)}
 .ef-tabelle{width:100%}
 .ef-tabelle div,.ef-paar{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--leise);padding:9px 0}
 .ef-tabelle div{border-top:1px solid rgba(242,246,255,.06)}
@@ -674,8 +712,8 @@ div.ez:active{background:transparent}
 .ef-siegel{width:min(100%,300px);padding:18px 18px 12px}
 .ef-satz{margin-top:8px;font-size:17px;line-height:23px}
 .ef-siegel-mitte{display:flex;align-items:center;gap:14px;margin:18px 0 10px}
-.ef-siegel-mitte i{flex:1;height:1px;background:linear-gradient(90deg,rgba(99,216,255,0),rgba(99,216,255,.45))}
-.ef-siegel-mitte i:last-child{background:linear-gradient(90deg,rgba(99,216,255,.45),rgba(99,216,255,0))}
+.ef-siegel-mitte i{flex:1;height:1px;background:linear-gradient(90deg,var(--blau-flaeche),var(--blau-rand))}
+.ef-siegel-mitte i:last-child{background:linear-gradient(90deg,var(--blau-rand),var(--blau-flaeche))}
 .ef-siegel-mitte .leucht{width:min(20cqw,26cqh,84px);height:auto;filter:drop-shadow(0 12px 28px rgba(27,79,209,.5))}
 .ef-paar{padding:4px 0;font-size:11.5px}
 .ef-paar b{font-weight:400}
@@ -697,7 +735,7 @@ div.ez:active{background:transparent}
 @media (prefers-reduced-motion:reduce){.ef-ende-zeichen .band{animation:none}}
 /* Karte auf dem Startbildschirm */
 .ef-karte{position:relative;flex-shrink:0}
-.ef-karte-los{width:100%;border:0;background:radial-gradient(120% 140% at 100% 0%,#0E1D40,#0A1122 60%);box-shadow:inset 0 0 0 1px rgba(99,216,255,.14);border-radius:22px;padding:16px 18px;display:flex;gap:14px;align-items:center;text-align:left;color:var(--text);font:inherit}
+.ef-karte-los{width:100%;border:0;background:radial-gradient(120% 140% at 100% 0%,#0E1D40,#0A1122 60%);box-shadow:inset 0 0 0 1px var(--blau-rand);border-radius:22px;padding:16px 18px;display:flex;gap:14px;align-items:center;text-align:left;color:var(--text);font:inherit}
 .ef-karte-text{flex:1;display:flex;flex-direction:column;gap:4px}.ef-karte-text b{font-size:18px;font-weight:400;font-stretch:84%;letter-spacing:-.02em}.ef-karte-text > span{font-size:13px;color:var(--leise)}
 .ef-karte-bild{width:52px;height:52px;display:flex;align-items:center;justify-content:center;margin-right:18px}.ef-karte-bild .leucht{width:46px;height:46px;filter:drop-shadow(0 8px 18px rgba(27,79,209,.45))}
 .ef-karte-text b em{font-style:normal;color:var(--blau-hell)}
@@ -740,7 +778,7 @@ div.ez:active{background:transparent}
 /* 1 -- An wen? */
 .sf-t1{font-size:30px;line-height:36px;font-weight:500;letter-spacing:-.022em;margin-top:22px}
 .sf-adressfeld{margin-top:18px;min-height:56px;border-radius:28px;padding:8px 20px;display:flex;align-items:center;background:var(--glas);box-shadow:inset 0 0 0 1px var(--rand);flex-shrink:0}
-.sf-adressfeld.aktiv{box-shadow:inset 0 0 0 1.5px rgba(99,216,255,.55)}
+.sf-adressfeld.aktiv{box-shadow:inset 0 0 0 1.5px var(--blau-rand)}
 .sf-adressfeld .tippfeld{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;column-gap:7px;row-gap:2px;font-family:var(--mono);font-size:15px;line-height:22px;min-height:22px;outline:none}
 .sf-adressfeld .tippfeld .platz{color:var(--blass)}
 .sf-adressfeld .tippfeld span + .strich{margin-left:-7px}
@@ -768,7 +806,7 @@ div.ez:active{background:transparent}
 .sf-stufen button{height:56px;border-radius:16px;border:0;background:transparent;color:var(--leise);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:500 14px var(--schrift);padding:0 4px;min-width:0;
   transition:scale .15s var(--kurve),background-color .15s var(--kurve)}
 .sf-stufen button small{font-size:12.5px;font-weight:400;color:var(--blass);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.sf-stufen button[aria-checked="true"]{background:rgba(47,123,255,.14);color:var(--text);box-shadow:inset 0 0 0 1px rgba(99,216,255,.4)}
+.sf-stufen button[aria-checked="true"]{background:var(--blau-rand);color:var(--text);box-shadow:inset 0 0 0 1px var(--blau-rand)}
 .sf-stufen button[aria-checked="true"] small{color:var(--blau-hell)}
 .sf-ohne{display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:20px;background:var(--glas);box-shadow:inset 0 0 0 1px var(--rand);font-size:13px;color:var(--leise)}
 .sf-ohne b{font-size:15px;font-weight:500;color:var(--text)}
@@ -981,9 +1019,9 @@ section > .st-abschnitt{margin-top:26px}
 .ez-hinweis{margin:10px 4px 0;font-size:13px;line-height:19px;color:var(--blass)}
 .ez-hinweis + .ez-hinweis{margin-top:8px}
 .ez-sicherheit{display:block;margin-top:24px;padding:18px;border:0;border-radius:24px;text-align:left;color:var(--text);font:inherit;flex-shrink:0;
-  box-shadow:inset 0 0 0 1px rgba(99,216,255,.22);background:linear-gradient(180deg,rgba(47,123,255,.08),rgba(47,123,255,.02));transition:scale .15s var(--kurve)}
+  box-shadow:inset 0 0 0 1px var(--blau-rand);background:linear-gradient(180deg,var(--blau-rand),var(--blau-rand));transition:scale .15s var(--kurve)}
 .ez-sicherheit-kopf{display:flex;align-items:center;gap:14px}
-.ez-sicherheit-ico{width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:rgba(99,216,255,.1);color:var(--blau-hell);flex-shrink:0}
+.ez-sicherheit-ico{width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:var(--blau-rand);color:var(--blau-hell);flex-shrink:0}
 .ez-sicherheit .ez-text{flex:1;min-width:0}
 .ez-sicherheit .ez-text b{font-weight:500;font-size:17px}
 .ez-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -1037,7 +1075,7 @@ section > .st-abschnitt{margin-top:26px}
 /* Wortfelder */
 .ew-woerter .wortraster{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .ew-woerter .wort{height:44px;border-radius:14px;gap:8px;padding:0 10px;background:var(--glas);border:0;box-shadow:inset 0 0 0 1px var(--rand)}
-.ew-woerter .wort.tippfeld.aktiv{box-shadow:inset 0 0 0 1.5px rgba(99,216,255,.55);border:0}
+.ew-woerter .wort.tippfeld.aktiv{box-shadow:inset 0 0 0 1.5px var(--blau-rand);border:0}
 .ew-woerter .wort small{font-size:11.5px;color:var(--blass);min-width:14px}
 .ew-woerter .wort b{font-size:14px;font-weight:400}
 .ew-woerter .wort.fertig b{color:var(--leise);letter-spacing:.1em}
@@ -1069,14 +1107,14 @@ section > .st-abschnitt{margin-top:26px}
 .seite.st > .st-meldung{margin-top:14px}
 
 /* =====================================================================
-   Konzept "Ruhe" (freigegeben 03.11.2026) -- Bausteine.
-   Drei Flaechen, Hauptknopf hell, keine Leuchtschatten, keine Verlaeufe.
+   YSKAR Finance v3 (09.11.2026) -- Bausteine.
+   Drei Flaechen, Hauptknopf BLAU, keine Leuchtschatten, keine Verlaeufe.
    Schrift 13/15/17/22/28/56, Radien 12/18/28. Diese Schicht steht bewusst
    am Ende und gleicht die Regeln darueber an; Vorschau: Design-Artboard
    "YSKAR Wallet - Konzept Ruhe", Blatt "2 Gestaltung".
    ===================================================================== */
 .app{background:var(--grund)}
-:focus-visible{outline-color:var(--text)}
+:focus-visible{outline-color:var(--blau)}
 
 /* Kopf: ueberall gleich hoch, Titel 28/600, mittiger Titel 17/600 */
 .kopf,.kopf-zurueck,.sf-kopf,.st-kopf{min-height:48px}
@@ -1087,14 +1125,14 @@ section > .st-abschnitt{margin-top:26px}
 .klein.leer{background:transparent;color:var(--lesen)}
 
 /* Knoepfe: hell fuehrt, Flaeche begleitet, Gefahr rot auf dunkel */
-.knopf{border-radius:18px;background:var(--text);color:var(--grund);font-size:15px;font-weight:600;box-shadow:none;border:0}
-.knopf:active{background:#DADBDE}
+.knopf{border-radius:18px;background:var(--blau-fuell);color:#FFF;font-size:15px;font-weight:600;box-shadow:none;border:0}
+.knopf:active{background:var(--blau-druck)}
 .knopf:disabled{background:var(--karte);color:var(--aus)}
 .knopf.zweit{background:var(--karte);color:var(--text);border:0;box-shadow:none;min-height:56px;font-size:15px}
 .knopf.zweit:active{background:var(--flaeche)}
 .knopf.zweit:disabled{background:var(--karte);color:var(--aus)}
-.knopf.hell{background:var(--text);color:var(--grund)}
-.knopf.hell .pfeilkreis{background:var(--grund);color:var(--text)}
+.knopf.hell{background:var(--blau-fuell);color:#FFF}
+.knopf.hell .pfeilkreis{background:rgba(255,255,255,.2);color:#FFF}
 .knopf.gefahr{background:var(--rot-flaeche);color:var(--rot)}
 .knopf.gefahr.zweit{background:var(--rot-flaeche);border:0;color:var(--rot)}
 .knopf.gefahr:active{background:#3A2120}
@@ -1127,7 +1165,7 @@ section > .st-abschnitt{margin-top:26px}
 .wort.tippfeld.aktiv{border-color:rgba(243,243,244,.7)}
 .suche .tippfeld,.kt-suche .tippfeld{background:var(--karte);box-shadow:none;border-radius:18px}
 .chip{border-radius:12px;box-shadow:none;background:var(--karte);color:var(--lesen);height:36px}
-.chip[aria-pressed="true"]{background:var(--text);color:var(--grund);font-weight:600}
+.chip[aria-pressed="true"]{background:var(--blau-fuell);color:#FFF;font-weight:600}
 .segment{border-radius:12px;background:var(--karte);box-shadow:none}
 .segment button{height:34px;border-radius:8px;font-size:13px}
 .segment button[aria-pressed="true"]{background:var(--flaeche);color:var(--text);font-weight:600}
@@ -1158,9 +1196,9 @@ section > .st-abschnitt{margin-top:26px}
 /* Dekor der alten Fassung: Baender und Leuchtlinien entfallen */
 .st-teilung,.band-linie,.ep-teilung,.ew-band{display:none}
 .schritte i{width:14px;height:3px;border-radius:2px;clip-path:none;background:var(--flaeche)}
-.schritte i.an{background:var(--text)}
+.schritte i.an{background:var(--blau)}
 .y3 i{clip-path:none;border-radius:2px;width:12px;height:4px;background:var(--flaeche)}
-.y3 i.erledigt{background:var(--text)}
+.y3 i.erledigt{background:var(--blau)}
 
 /* PIN und Sperre: kein Schein, helle Punkte */
 .pinseite.mit-zeichen,.startbild-schein{background:var(--grund)}
@@ -1172,7 +1210,7 @@ section > .st-abschnitt{margin-top:26px}
 .pinseite.mit-zeichen p.unter,.pinseite p.unter{font-size:15px}
 .sperre-adresse i{background:var(--leise)}
 .punkte span{box-shadow:inset 0 0 0 1.5px var(--leise)}
-.pinseite.mit-zeichen .punkte span.voll,.punkte span.voll{background:var(--text);box-shadow:none}
+.pinseite.mit-zeichen .punkte span.voll,.punkte span.voll{background:var(--blau);box-shadow:none}
 .pinseite.mit-zeichen .punkte.falsch span{background:var(--rot);box-shadow:none}
 .taste{border-radius:18px}
 .taste.finger{color:var(--text)}
@@ -1193,7 +1231,7 @@ section > .st-abschnitt{margin-top:26px}
 .wortraster.eins .wort,.ew-woerter .wortraster.eins .wort{border-radius:18px;background:var(--karte)}
 .ew-woerter .wort{background:var(--karte);box-shadow:none;border-radius:12px}
 .ew-woerter .wort.tippfeld.aktiv{box-shadow:inset 0 0 0 1.5px rgba(243,243,244,.7)}
-.wortkarte-knopf{background:var(--text);color:var(--grund);box-shadow:none;border-radius:12px;font-weight:600}
+.wortkarte-knopf{background:var(--blau-fuell);color:#FFF;box-shadow:none;border-radius:12px;font-weight:600}
 .wortkarte .wortliste i{background:var(--flaeche)}
 .auswahlzeile{background:var(--karte);border:0;border-radius:18px}
 .auswahlzeile .kachel{border-radius:12px}
@@ -1212,10 +1250,10 @@ section > .st-abschnitt{margin-top:26px}
 .vierer span.rand{color:var(--text);font-weight:500}
 .schieber{border-radius:18px;background:var(--karte);box-shadow:none}
 .schieber .spur{border-radius:18px;background:rgba(255,255,255,.06)}
-.knauf{border-radius:12px;background:var(--text);color:var(--grund);box-shadow:none}
+.knauf{border-radius:12px;background:var(--blau-fuell);color:#FFF;box-shadow:none}
 .schieber.gesperrt .knauf{background:var(--flaeche);color:var(--aus)}
 .sf-schritt.erledigt > i,.sf-schritt > i{clip-path:none;border-radius:2px}
-.stufe .punkt.fertig{background:var(--text);color:var(--grund)}
+.stufe .punkt.fertig{background:var(--blau);color:#FFF}
 .sf-warnkachel{border-radius:18px}
 
 /* Aktivitaet und Zahlung */
@@ -1223,7 +1261,7 @@ section > .st-abschnitt{margin-top:26px}
 .ef-karte-los{background:var(--karte);box-shadow:none;border-radius:18px}
 
 /* Kontakt-Verlauf: Gesendetes hell, Empfangenes auf Flaeche, Anforderung als Umriss */
-.blase.r{background:var(--text);color:var(--grund)}
+.blase.r{background:var(--blau-fuell);color:#FFF}
 .blase.r .zeit{opacity:.75}
 .blase.r .zeit.wartet{color:#7A4D0B;opacity:1}
 .blase.l{background:var(--karte);border:0}
@@ -1249,20 +1287,20 @@ section > .st-abschnitt{margin-top:26px}
 /* Eigene Tastatur */
 .tastatur{background:var(--karte);border-top:0;box-shadow:none}
 .ttaste{background:var(--flaeche)}
-.ttaste:active,.ttaste.unten{background:#3A3B41}
+.ttaste:active,.ttaste.unten{background:#223047}
 .ttaste.dunkel{background:rgba(255,255,255,.04)}
 .ttaste[data-z].unten::after{background:var(--flaeche);box-shadow:0 8px 18px rgba(0,0,0,.5)}
 .tknopf.vorschlag.genau{background:var(--flaeche);box-shadow:none}
 
 /* Scanner: ruhiger Rahmen */
-.scanner{background:#0A0A0C}
+.scanner{background:#05080F}
 .scanner .oben .klein{background:rgba(255,255,255,.1)}
 
 /* Einfuehrung: matt, Hervorhebung hell statt cyan */
 .ef,.ef.ende{background:var(--grund)}
 .ef-text h2{font-weight:600;font-stretch:96%;letter-spacing:-.02em}
 .ef-text h2 em{color:var(--leise)}
-.ef-aktion{background:var(--text);color:var(--grund);border-radius:18px;font-weight:600;box-shadow:none}
+.ef-aktion{background:var(--blau-fuell);color:#FFF;border-radius:18px;font-weight:600;box-shadow:none}
 .ef-pfeil{background:var(--karte);box-shadow:none;border-radius:18px}
 .ef-zu{background:var(--karte);border-radius:12px}
 .ef-aus{border-radius:18px;background:var(--grund);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
@@ -1274,11 +1312,11 @@ section > .st-abschnitt{margin-top:26px}
 .ef-siegel-mitte i,.ef-siegel-mitte i:last-child{background:var(--flaeche)}
 .ef-kontakt.hell{box-shadow:0 0 0 1.5px rgba(243,243,244,.6)}
 .ef-kontakt .av{background:var(--flaeche);color:var(--text)}
-.ef-kontakt .los{background:var(--text);color:var(--grund)}
+.ef-kontakt .los{background:var(--blau-fuell);color:#FFF}
 .ef-eingang{background:var(--karte);box-shadow:none}
 .ef-schloss{background:var(--karte);box-shadow:none;color:var(--text)}
 .ef-hinweis{box-shadow:none}
-.ef-punkte i.v{background:var(--text);box-shadow:none}
+.ef-punkte i.v{background:var(--blau);box-shadow:none}
 
 /* Wallet (Konzept "Ruhe", Variante C) */
 .st-kopf{gap:6px}
@@ -1322,7 +1360,7 @@ section > .st-abschnitt{margin-top:26px}
    ------------------------------------------------------------------ */
 .seite.st-flaechen{padding-left:0;padding-right:0}
 .st-oben{position:relative;z-index:2;display:flex;flex-direction:column;flex-shrink:0;padding:0 24px 24px;background:var(--grund);border-radius:0 0 30px 30px;box-shadow:0 12px 22px -10px rgba(0,0,0,.75),0 1px 0 rgba(255,255,255,.035)}
-.st-band{position:relative;z-index:1;flex-shrink:0;margin:-30px 0;padding:38px 0;background:linear-gradient(180deg,#303136 0%,var(--flaeche) 55%,#25262B 100%)}
+.st-band{position:relative;z-index:1;flex-shrink:0;margin:-30px 0;padding:38px 0;background:linear-gradient(180deg,#1E2B42 0%,var(--flaeche) 55%,#101A2B 100%)}
 .st-band-innen{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s cubic-bezier(.2,0,0,1)}
 .st-band.an .st-band-innen{grid-template-rows:1fr}
 .st-band-inhalt{min-height:0;overflow:hidden;display:flex;align-items:center;gap:12px;padding:0 24px}
@@ -1334,7 +1372,7 @@ section > .st-abschnitt{margin-top:26px}
 .st-band-zeile{display:flex;align-items:center;gap:8px;min-width:0}
 .st-band-zeile > span:last-child{overflow:hidden;text-overflow:ellipsis}
 .st-band-pfeil{flex-shrink:0;color:var(--leise)}
-.st-band-aktion{flex-shrink:0;min-height:40px;padding:0 16px;border:0;border-radius:12px;background:var(--text);color:var(--grund);font:inherit;font-size:14px;font-weight:600}
+.st-band-aktion{flex-shrink:0;min-height:40px;padding:0 16px;border:0;border-radius:12px;background:var(--blau-fuell);color:#FFF;font:inherit;font-size:14px;font-weight:600}
 .st-band.bern .st-band-sym,.st-band.bern .st-band-text b{color:var(--bern)}
 .st-band.gruen .st-band-sym{color:var(--gruen)}
 .st-band.rot .st-band-sym,.st-band.rot .st-band-text b{color:var(--rot)}
