@@ -11,6 +11,7 @@ import { S, Betrag, Platzhalterzeilen, Zahlungszeile, useAnzeige, useMeldung, us
 import { YMarke, YBaender, ZahlZeichen, type Teilstand } from '../ui/zeichen.tsx';
 import { EinfuehrungKarte } from './Einfuehrung.tsx';
 import { Netzkarte } from '../ui/netzkarte.tsx';
+import { PortfolioZeile } from '../ui/portfoliozeile.tsx';
 
 /** "ysr1…3h8q": nur zum Wiedererkennen. Kopiert wird immer die volle Adresse. */
 const kurz = (a: string | null) => (a ? `${a.slice(0, 4)}…${a.slice(-4)}` : '');
@@ -164,6 +165,10 @@ export function Start() {
 
   return (
     <div className="seite mit-nav st st-flaechen fest">
+      {/* Die Wallet zeigt ihren Namen nicht als Ueberschrift -- das Guthaben
+          steht fuer sich. Fuer Vorlesewerkzeuge braucht die Seite trotzdem
+          einen Namen, sonst ist der Hauptbildschirm der App namenlos. */}
+      <h1 className="nur-vorlesen">{t.start.titel}</h1>
       <div className="st-oben">
         <div className="st-kopf">
           <button type="button" className="st-adresse sinkt" aria-label={t.start.adresseKopieren}
@@ -233,6 +238,11 @@ export function Start() {
             ? (konto ? <div className="leerstand">{neu ? <><b>{t.start.leer}</b><br /><span>{t.einf.k2.text}</span></> : t.start.leer}</div> : offline ? <div className="leerstand">–</div> : <Platzhalterzeilen />)
             : <div className="liste">{liste.map(z => <Zahlungszeile key={z.txid} z={z} onTipp={() => nav.gehe({ n: 'detail', zahlung: z })} />)}</div>}
         </div>
+
+        {/* Verweis aufs Portfolio. BEWUSST eine eigene Zeile und keine
+            Summe mit dem YSR-Guthaben darueber: YSR hat keinen Kurs, eine
+            gemeinsame Zahl waere erfunden. */}
+        <PortfolioZeile />
 
         {/* Der Zustand des Netzes. Steht unter "Zuletzt", damit die Zahlungen
             oben bleiben und die Messung der Liste unberuehrt ist. */}

@@ -154,6 +154,9 @@ export const de = {
     bald: 'in Kürze',
   },
   start: {
+    pfZeile: 'Weitere Positionen', pfLeer: 'Portfolio anlegen',
+    pfUnter: (n: number) => (n === 1 ? '1 Position, außerhalb dieser Wallet' : `${n} Positionen, außerhalb dieser Wallet`),
+    pfLeerUnter: 'Trage ein, was du außerhalb dieser Wallet hältst',
     titel: 'Wallet', guthaben: 'Guthaben', adresse: 'Deine Adresse', adresseKopieren: 'Adresse kopieren',
     adresseKopiert: 'Adresse kopiert', verbergen: 'Guthaben verbergen', zeigen: 'Guthaben anzeigen',
     sperren: 'Wallet sperren',

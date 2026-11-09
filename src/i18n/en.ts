@@ -146,6 +146,9 @@ export const en: Woerterbuch = {
     bald: 'very soon',
   },
   start: {
+    pfZeile: 'Other positions', pfLeer: 'Set up portfolio',
+    pfUnter: (n: number) => (n === 1 ? '1 position, outside this wallet' : `${n} positions, outside this wallet`),
+    pfLeerUnter: 'Add what you hold outside this wallet',
     titel: 'Wallet', guthaben: 'Balance', adresse: 'Your address', adresseKopieren: 'Copy address',
     adresseKopiert: 'Address copied', verbergen: 'Hide balance', zeigen: 'Show balance',
     sperren: 'Lock wallet',

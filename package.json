@@ -8,7 +8,10 @@
     "build": "tsc --noEmit && vite build",
     "typen": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
-    "app:sync": "cap sync android"
+    "app:sync": "cap sync android",
+    "durchlauf": "node werkzeug/durchlauf.mjs",
+    "durchlauf:live": "node werkzeug/durchlauf.mjs --live",
+    "durchlauf:bilder": "node werkzeug/durchlauf.mjs --bilder"
   },
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^10.0.0",

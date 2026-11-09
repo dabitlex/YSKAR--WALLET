@@ -88,11 +88,47 @@ Nicht enthalten: weitere Sprachen außer Deutsch und Englisch.
 
 ```bash
 npm ci
-npm test                             # Kern, Tresor, Beträge, Anforderungen
+npm test                             # Kern, Tresor, Beträge, Markt, Portfolio, Grenzen
 npm run build                        # Typprüfung und Oberfläche nach dist/
 node werkzeug/buendel-pruefen.mjs    # nur Hauptkette, nur bekannte Gegenstellen
 npm run dev                          # Oberfläche im Browser, zum Entwickeln
 ```
+
+### Durchlauf durch die ganze App
+
+`npm test` prüft Rechnung und Regeln. Ob die **Bildschirme** erscheinen und
+die Übergänge halten, prüft kein Unit-Test: Ein Typfehler fällt beim Bauen
+auf, eine Seite, die nach einem Reiterwechsel weiß bleibt, nicht.
+
+Dafür gibt es `werkzeug/durchlauf.mjs`. Er stellt eine Wallet aus dem
+öffentlichen BIP39-Testvektor wieder her, läuft durch **alle 22
+Bildschirme**, drückt die Zurück-Taste, startet die App neu und meldet jede
+leere Seite und jede Konsolenmeldung.
+
+```bash
+npm run dev            # in einem Terminal
+```
+
+```bash
+npm run durchlauf              # feste Beispieldaten, immer gleich
+```
+
+```bash
+npm run durchlauf:live         # gegen die echte Markt-API
+```
+
+```bash
+npm run durchlauf:bilder       # Screenshots nach /tmp/yskar-shots
+```
+
+Der Durchlauf braucht Playwright und einen Chromium. Er sendet **nichts**:
+Keine Zeile ruft `POST /api/v2/tx` auf, und die verwendeten zwölf Wörter
+("abandon … about") sind der weltweit bekannte Testvektor ohne Guthaben.
+
+In GitHub Actions läuft er bewusst **nicht** mit: Ein Chromium im Lauf
+kostet Minuten und Platz, und die APK soll schnell und verlässlich
+entstehen. Wer ihn dort haben will, hängt ihn als eigenen Job an, der den
+Bau nicht blockiert.
 
 Die Tests in `tests/kern.test.ts` stellen sicher, dass dieselben 12 Wörter dieselbe Adresse ergeben wie in der bisherigen App und dass eine Überweisung Byte für Byte dieselbe ist. Schlagen sie fehl, baut GitHub keine APK.
 

@@ -33,8 +33,11 @@ export function Watchlist() {
 
   return (
     <div className="seite wl">
+      {/* Die Zahl gehoert nach rechts, nicht in die Mitte: KopfZurueck
+          ersetzt bei "mitte" die Ueberschrift, und dann haette die Seite
+          keinen Namen mehr. */}
       <KopfZurueck titel={t.wl.titel} zurueck={() => nav.zurueck()}
-                   mitte={<span className="wl-zahl">{t.wl.anzahl(fav.ids.length)}</span>} />
+                   rechts={<span className="wl-zahl">{t.wl.anzahl(fav.ids.length)}</span>} />
 
       {zeilen.length === 0 ? (
         <div className="leerstand pf-leer">
