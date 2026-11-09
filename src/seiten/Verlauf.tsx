@@ -12,6 +12,14 @@ import { S, Kasten, Platzhalterzeilen, Zahlungszeile, Stellen, useAnzeige, useZe
 import { Tippfeld, useTastatur } from '../ui/tastatur.tsx';
 
 type Filter = 'alle' | 'ein' | 'aus' | 'mining';
+/*
+  Zeitraum. Gefiltert wird hier, auf den bereits geladenen Seiten -- der
+  Spiegel kennt keinen Zeitraum-Parameter (geprueft an seiner Route
+  /api/v2/account/{adresse}/verlauf). Einen zu erfinden waere ein Aufruf,
+  der ins Leere geht.
+*/
+type Zeitraum = 'alle' | 't30' | 't90' | 'j1';
+const TAGE: Record<Zeitraum, number | null> = { alle: null, t30: 30, t90: 90, j1: 365 };
 
 /** Mining: so viele Eintraege sollen nach einem Tipp auf "Mehr laden" mindestens dazukommen. */
 const MINING_ZIEL = 12;
@@ -40,6 +48,7 @@ export function Verlauf() {
   const { wartend, verlauf } = useZahlungen();
   const { kontakte } = useKontakte();
   const [filter, setFilter] = useState<Filter>('alle');
+  const [zeitraum, setZeitraum] = useState<Zeitraum>('alle');
   const [suchOffen, setSuchOffen] = useState(false);
   const [suche, setSuche] = useState('');
   const [q, setQ] = useState('');
@@ -62,7 +71,11 @@ export function Verlauf() {
 
   // Was der Spiegel filtert: Eingang und Ausgang. Mining fragt den ungefilterten Verlauf.
   const richtung = filter === 'ein' || filter === 'aus' ? filter : 'alle';
-  const passt = (z: Zahlung) => filter !== 'mining' || istMining(z);
+  const grenze = TAGE[zeitraum] === null ? null : Date.now() / 1000 - TAGE[zeitraum]! * 86_400;
+  // Eine Zahlung ohne Zeit (noch kein Block) faellt NICHT aus dem Zeitraum:
+  // Sie ist gerade erst entstanden und gehoert immer in den neuesten.
+  const imZeitraum = (z: Zahlung) => grenze === null || z.zeit === null || z.zeit >= grenze;
+  const passt = (z: Zahlung) => (filter !== 'mining' || istMining(z)) && imZeitraum(z);
   // Ohne Spiegel-Filter und ohne Suche ist die erste Seite die des Kontos -- sie bleibt aktuell.
   const vomKonto = richtung === 'alle' && frage === '';
 
@@ -145,6 +158,14 @@ export function Verlauf() {
       )}
       <div className="segment vier" role="group" aria-label={t.verlauf.filter}>
         {teil('alle', t.verlauf.alle)}{teil('ein', t.verlauf.eingang)}{teil('aus', t.verlauf.ausgang)}{teil('mining', t.verlauf.mining)}
+      </div>
+      <div className="vl-zeit" role="group" aria-label={t.verlauf.zeitraum}>
+        {(['alle', 't30', 't90', 'j1'] as Zeitraum[]).map(z => (
+          <button key={z} type="button" className="chip sinkt" aria-pressed={zeitraum === z}
+                  onClick={() => setZeitraum(z)}>
+            {z === 'alle' ? t.verlauf.zAlle : z === 't30' ? t.verlauf.z30 : z === 't90' ? t.verlauf.z90 : t.verlauf.z1j}
+          </button>
+        ))}
       </div>
       </div>
 

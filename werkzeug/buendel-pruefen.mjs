@@ -21,8 +21,9 @@ const ERLAUBT = new Set([
   'api.coingecko.com',
   // Bilder der Kryptowaehrungen. Reine Bildabrufe, keine Daten dorthin.
   'coin-images.coingecko.com',
-  // Links in Texten, keine Abrufe.
-  't.me', 'react.dev', 'www.w3.org',
+  // Links, die im Browser geoeffnet werden -- die App ruft dort nichts ab.
+  // www.coingecko.com: dort holt der Nutzer seinen kostenlosen Demo-Schluessel.
+  't.me', 'react.dev', 'www.w3.org', 'www.coingecko.com',
 ]);
 const VERBOTEN = [/regtest/i, /testnet/i, /localhost/i, /127\.0\.0\.1/, /VITE_SPIEGEL/, /VITE_KNOTEN/];
 

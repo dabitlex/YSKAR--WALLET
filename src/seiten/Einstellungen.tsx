@@ -7,6 +7,10 @@ import { kopieren, sichtschutz, imBrowserOeffnen, tippGefuehl } from '../geraet/
 import { istNativ, letzteFehler } from '../geraet/plattform.ts';
 import { eingangMoeglich, eingangStand, eingangEinschalten, eingangAusschalten, eingangAkku, type EingangStand } from '../geraet/eingang.ts';
 import { S, Kopf, Blatt, Kasten, PinFeld, useMeldung, type PinAntwort } from '../ui/teile.tsx';
+import { Tippfeld } from '../ui/tastatur.tsx';
+import { tippeText } from '../wallet/tasten.ts';
+import { lesen as schluesselLesen, setzen as schluesselSetzen, entfernen as schluesselEntfernen,
+         siehtAus, verkuerzt } from '../markt/schluessel.ts';
 import { Wortkarte } from './Einstieg.tsx';
 
 declare const __VERSION__: string;
@@ -18,6 +22,8 @@ const LINKS = {
   news: 'https://t.me/yskar_official',
   datenschutz: 'https://www.yskar.app/datenschutz',
   impressum: 'https://www.yskar.app/impressum',
+  // Wo es den kostenlosen Demo-Schluessel gibt. Nur ein Link, kein Abruf.
+  coingecko: 'https://www.coingecko.com/en/developers/dashboard',
 };
 
 type SymbolName = Parameters<typeof S>[0]['n'];
@@ -54,7 +60,12 @@ export function Einstellungen() {
   const daten = useDaten();
   const melde = useMeldung();
   const e = useEinstellungen();
-  const [blatt, setBlatt] = useState<null | 'sprache' | 'stellen' | 'meldung' | 'recht'>(null);
+  const [blatt, setBlatt] = useState<null | 'sprache' | 'stellen' | 'meldung' | 'recht' | 'waehrung' | 'markt'>(null);
+  // Der Markt-Schluessel liegt im geschuetzten Speicher; gezeigt werden nie
+  // mehr als die letzten vier Zeichen.
+  const [marktKey, setMarktKey] = useState<string | null>(null);
+  const [keyEingabe, setKeyEingabe] = useState('');
+  useEffect(() => { schluesselLesen().then(setMarktKey).catch(() => setMarktKey(null)); }, []);
   const [meldung, setMeldung] = useState<EingangStand | null>(null);
   const tipps = useRef<{ n: number; zeit: number }>({ n: 0, zeit: 0 });
   useEffect(() => { if (eingangMoeglich()) eingangStand().then(setMeldung); }, []);
@@ -126,6 +137,10 @@ export function Einstellungen() {
                rechts={<Schalter an={e.vibration} label={t.einst.vibration} onUmschalten={() => { einstellen({ vibration: !e.vibration }); if (!e.vibration) tippGefuehl(); }} />} />
         <Zeile text={t.einst.sprache} symbol="welt" wert={sprachText(e.sprache)} onTipp={() => setBlatt('sprache')} />
         <Zeile text={t.einst.stellen} symbol="regler" wert={stellenKurz(e.stellen)} onTipp={() => setBlatt('stellen')} />
+        <Zeile text={t.einst.waehrung} unter={t.einst.waehrungUnter} symbol="kurve"
+               wert={e.waehrung.toUpperCase()} onTipp={() => setBlatt('waehrung')} />
+        <Zeile text={t.einst.markt} unter={t.einst.marktUnter} symbol="welt"
+               wert={marktKey ? t.einst.marktGesetzt : t.einst.marktKeiner} onTipp={() => setBlatt('markt')} />
       </div>
 
       <div className="ez-ghd">{t.einst.ghdWerkzeuge}</div>
@@ -169,6 +184,57 @@ export function Einstellungen() {
                      rechts={e.stellen === s ? <span className="ez-symbol"><S n="haken" g={20} w={2.6} /></span> : <span />} />
             ))}
           </div>
+        </Blatt>
+      )}
+      {blatt === 'waehrung' && (
+        <Blatt titel={t.einst.waehrungTitel} onZu={() => setBlatt(null)}>
+          <p>{t.einst.waehrungText}</p>
+          <div className="ez-gruppe">
+            {(['eur', 'usd'] as const).map(w => (
+              <Zeile key={w} text={w.toUpperCase()} onTipp={() => { einstellen({ waehrung: w }); setBlatt(null); }}
+                     rechts={e.waehrung === w ? <span className="ez-symbol"><S n="haken" g={20} w={2.6} /></span> : <span />} />
+            ))}
+          </div>
+        </Blatt>
+      )}
+      {blatt === 'markt' && (
+        <Blatt titel={t.einst.marktTitel} onZu={() => setBlatt(null)}>
+          <p>{t.einst.marktText}</p>
+          <p>{t.einst.marktWarum}</p>
+          <button type="button" className="knopf zweit sinkt" onClick={() => imBrowserOeffnen(LINKS.coingecko)}>
+            <S n="extern" g={18} w={1.75} />{t.einst.marktHolen}
+          </button>
+          <div className="ez-feld">
+            <label className="nk-lab" htmlFor="mkey">{t.einst.marktFeld}</label>
+            {/* Einfuegen ist hier der Hauptweg: Den Schluessel kopiert man
+                von der CoinGecko-Seite. Ihn auf der eigenen Tastatur Zeichen
+                fuer Zeichen zu tippen -- mit Umschalt- und Zeichenebene --
+                waere eine Zumutung fuer 30 Stellen. */}
+            <Tippfeld id="mkey" art="text" label={t.einst.marktFeld} platz="CG-…" wert={keyEingabe}
+                      onTaste={z => setKeyEingabe(x => tippeText(x, z, 60))}
+                      einfuegen={x => setKeyEingabe(x.replace(/\s+/g, '').slice(0, 60))}
+                      leiste={keyEingabe !== '' && (
+                        <button type="button" className="tknopf" onClick={() => setKeyEingabe('')}>{t.tast.leeren}</button>
+                      )} />
+            <p className="pb-hilfe">{t.einst.marktForm}</p>
+          </div>
+          <button type="button" className="knopf sinkt" disabled={!siehtAus(keyEingabe)}
+                  onClick={async () => {
+                    await schluesselSetzen(keyEingabe.trim());
+                    setMarktKey(keyEingabe.trim());
+                    setKeyEingabe('');
+                    melde(t.einst.marktGespeichert);
+                    setBlatt(null);
+                  }}>{t.einst.marktSpeichern}</button>
+          {marktKey && (
+            <>
+              <div className="gutzeile"><S n="haken" g={16} w={2.6} />{verkuerzt(marktKey)}</div>
+              <button type="button" className="knopf gefahr zweit sinkt"
+                      onClick={async () => { await schluesselEntfernen(); setMarktKey(null); }}>
+                {t.einst.marktEntfernen}
+              </button>
+            </>
+          )}
         </Blatt>
       )}
       {blatt === 'recht' && (

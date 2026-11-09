@@ -1639,3 +1639,11 @@ section > .st-abschnitt{margin-top:26px}
 .pb-hilfe{margin:8px 0 0;font-size:12px;line-height:17px;color:var(--leise)}
 .pb-los{margin:6px 20px 0;width:calc(100% - 40px)}
 .pb-weg{margin:12px 20px 0;width:calc(100% - 40px)}
+
+/* Zeitraum-Filter in der Aktivitaet. Wie die Chip-Reihen in Markets darf
+   die Zeile nicht schrumpfen, sonst schneidet sie die Chips ab. */
+.vl-zeit{display:flex;flex-shrink:0;gap:7px;padding:10px 20px 4px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.vl-zeit::-webkit-scrollbar{display:none}
+.vl-zeit .chip{flex-shrink:0;height:32px;font-size:12.5px;padding:0 13px}
+.ez-feld{margin:16px 0}
+.ez-feld .nk-lab{display:block;margin-bottom:7px}

@@ -108,3 +108,26 @@ test('kern/ bleibt unveraendert gegenueber dem Hauptrepo', () => {
   const da = dateien('kern').map(d => d.replace(/^kern\//, '')).sort();
   assert.deepEqual(da, genannt, 'Jede Datei in kern/ muss in HERKUNFT.json stehen.');
 });
+
+test('der Markt-Schluessel wird nur in der Marktschicht benutzt', () => {
+  // Er geht an api.coingecko.com und sonst nirgendwohin -- vor allem nicht
+  // an den YSKAR-Spiegel oder den Full Node. Geprueft wird, wer das Modul
+  // ueberhaupt importiert und wo der Kopfzeilenname auftaucht.
+  const nutzer: string[] = [];
+  for (const ordner of ['netz', 'wallet', 'kern', 'geraet', 'portfolio', 'watchlist']) {
+    for (const datei of dateien(ordner)) {
+      if (importe(datei).some(p2 => p2.includes('markt/schluessel'))) nutzer.push(datei);
+    }
+  }
+  assert.deepEqual(nutzer, [], 'ausserhalb von markt/ und seiten/ darf niemand den Schluessel lesen');
+
+  const kopf = 'x-cg-demo-api-key';
+  const stellen: string[] = [];
+  for (const ordner of ['netz', 'wallet', 'kern', 'geraet', 'portfolio', 'watchlist', 'markt']) {
+    for (const datei of dateien(ordner)) {
+      if (readFileSync(join(WURZEL, datei), 'utf8').includes(kopf)) stellen.push(datei);
+    }
+  }
+  assert.deepEqual(stellen, ['markt/coingecko.ts'],
+                   'der Schluesselkopf steht an genau einer Stelle');
+});
