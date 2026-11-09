@@ -208,7 +208,7 @@ export function Einfuehrung() {
       case 1: ziel({ n: 'empfangen' }); break;
       case 2: ziel({ n: 'senden' }); break;
       case 4: nav.reiter('verlauf'); break;
-      case 5: nav.reiter('kontakte'); break;
+      case 5: nav.reiter('start'); nav.gehe({ n: 'kontakte' }); break;
       case 6: ziel({ n: 'woerterZeigen' }); break;
       case 7: ziel({ n: 'sicherheit' }); break;
       case 8: ziel({ n: 'signieren' }); break;

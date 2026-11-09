@@ -3,13 +3,27 @@
 //   1. Nur die Hauptkette: Kein Wort von einem Test- oder Entwicklernetz und
 //      keine Adresse eines Entwicklerrechners darf im ausgelieferten Code stehen.
 //   2. Nur die bekannten Gegenstellen: Der Code darf keine anderen Server
-//      ansprechen als Spiegel, Knoten und Explorer.
+//      ansprechen als Spiegel, Knoten, Explorer und den Marktdatendienst.
+//      Eine neue Gegenstelle muss hier BEWUSST eingetragen werden -- genau
+//      dafuer gibt es diese Liste. Wer sie stillschweigend erweitert,
+//      nimmt der Pruefung ihren Sinn.
 //   3. Nichts wird nachgeladen: Die Startseite bindet nur eigene Dateien ein.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const WURZEL = new URL('../dist/', import.meta.url).pathname;
-const ERLAUBT = new Set(['yskar.vercel.app', 'pool.yskar.app', 'www.yskar.app', 't.me', 'react.dev', 'www.w3.org']);
+const ERLAUBT = new Set([
+  // YSKAR: Spiegel (lesen), Full Node (senden), Website und Explorer.
+  'yskar.vercel.app', 'pool.yskar.app', 'www.yskar.app',
+  // Marktdaten (Phase 5). NUR LESEND und ohne jeden Wallet-Bezug: keine
+  // Adresse, kein Betrag, kein Identifikator verlaesst das Geraet dorthin.
+  // Die Trennung ist in tests/grenzen.test.ts festgeschrieben.
+  'api.coingecko.com',
+  // Bilder der Kryptowaehrungen. Reine Bildabrufe, keine Daten dorthin.
+  'coin-images.coingecko.com',
+  // Links in Texten, keine Abrufe.
+  't.me', 'react.dev', 'www.w3.org',
+]);
 const VERBOTEN = [/regtest/i, /testnet/i, /localhost/i, /127\.0\.0\.1/, /VITE_SPIEGEL/, /VITE_KNOTEN/];
 
 const dateien = [];

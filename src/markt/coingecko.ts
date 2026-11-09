@@ -30,6 +30,39 @@ import {
 
 const BASIS = 'https://api.coingecko.com/api/v3';
 
+/*
+  Anfragen in die Reihe stellen, mit Mindestabstand.
+
+  Beobachtet beim Testen: Die Markets-Seite holt Liste und Ueberblick
+  gleichzeitig. Zwei Anfragen im selben Augenblick -- eine kam mit 429
+  zurueck und sperrte damit AUCH den Chart, den der Nutzer danach
+  oeffnete. Die Sperre war richtig; falsch war, das 429 ueberhaupt zu
+  provozieren.
+
+  Deshalb geht immer nur eine Anfrage hinaus, mit Abstand dazwischen. Das
+  kostet beim ersten Aufbau eine knappe Sekunde und spart die 35 Sekunden
+  Sperre, die ein 429 nach sich zieht.
+
+  Mit eigenem Schluessel ist das Kontingent um ein Vielfaches groesser;
+  dann genuegt ein kurzer Abstand.
+*/
+const ABSTAND_OHNE_SCHLUESSEL = 1500;
+const ABSTAND_MIT_SCHLUESSEL = 300;
+
+let letzterRuf = 0;
+let reihe: Promise<unknown> = Promise.resolve();
+
+function anstellen<T>(fn: () => Promise<T>, abstand: number): Promise<T> {
+  const dran = reihe.then(async () => {
+    const warten = abstand - (Date.now() - letzterRuf);
+    if (warten > 0) await new Promise(r => setTimeout(r, warten));
+    letzterRuf = Date.now();
+  });
+  // Ein Fehler darf die Reihe nicht abreissen lassen.
+  reihe = dran.catch(() => undefined);
+  return dran.then(fn);
+}
+
 /* ------------------------------------------------------------ Pruefen */
 
 const obj = (v: unknown): Record<string, unknown> | null =>
@@ -70,6 +103,10 @@ async function hol(pfad: string): Promise<unknown> {
   if (key) kopf['x-cg-demo-api-key'] = key;
   const url = BASIS + pfad;
 
+  return anstellen(() => senden(url, kopf), key ? ABSTAND_MIT_SCHLUESSEL : ABSTAND_OHNE_SCHLUESSEL);
+}
+
+async function senden(url: string, kopf: Record<string, string>): Promise<unknown> {
   let status = 0;
   let daten: unknown = null;
   let retryAfter = 0;

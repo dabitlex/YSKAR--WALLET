@@ -370,12 +370,12 @@ export function Stellen({ text }: { text: string }) {
 
 /* ------------------------------------------------------------- Navigation */
 
-const REITER_BILD: Record<Reiter, SymbolName> = { start: 'wallet', verlauf: 'aktivitaet', kontakte: 'kontakt', einstellungen: 'zahnrad' };
+const REITER_BILD: Record<Reiter, SymbolName> = { start: 'wallet', markets: 'kurve', verlauf: 'aktivitaet', einstellungen: 'zahnrad' };
 
 export function Nav() {
   const t = useT();
   const nav = useNav();
-  const namen: Record<Reiter, string> = { start: t.start.titel, kontakte: t.kontakte.titel, verlauf: t.verlauf.titel, einstellungen: t.einst.kurz };
+  const namen: Record<Reiter, string> = { start: t.start.titel, markets: t.markt.kurz, verlauf: t.verlauf.titel, einstellungen: t.einst.kurz };
   return (
     <>
       <div className="schleier" aria-hidden="true" />

@@ -2,6 +2,9 @@ import { lager, useLager } from './lager.ts';
 
 export type Sprache = 'system' | 'de' | 'en';
 
+/** Fiat-Waehrung fuer Marktdaten und Portfolio. YSR selbst hat keinen Kurs. */
+export type Waehrung = 'eur' | 'usd';
+
 /** Nachkommastellen in der Uebersicht: 8 = exakt (wie die Kette), 4 oder 2 = abgeschnitten. */
 export type AnzeigeStellen = 8 | 4 | 2;
 
@@ -19,9 +22,15 @@ export interface Einstellungen {
   vibration: boolean;
   /** Sichtschutz fuer alle Bildschirme. Die 12 Woerter sind unabhaengig davon immer geschuetzt. */
   sichtschutz: boolean;
+  /**
+   * Waehrung, in der Marktdaten und das Portfolio gerechnet werden.
+   * Betrifft NICHT das YSR-Guthaben: YSR wird an keiner Boerse gehandelt
+   * und steht immer in YSR.
+   */
+  waehrung: Waehrung;
 }
 
-const VORGABE: Einstellungen = { sprache: 'system', sperreNach: 60, verborgen: false, einfuehrungGesehen: false, stellen: 8, vibration: true, sichtschutz: false };
+const VORGABE: Einstellungen = { sprache: 'system', sperreNach: 60, verborgen: false, einfuehrungGesehen: false, stellen: 8, vibration: true, sichtschutz: false, waehrung: 'eur' };
 
 export const einstellungenLager = lager<Einstellungen>('yskar.einstellungen', VORGABE, roh => {
   const r = (roh && typeof roh === 'object' ? roh : {}) as Partial<Einstellungen>;
@@ -33,6 +42,7 @@ export const einstellungenLager = lager<Einstellungen>('yskar.einstellungen', VO
     stellen: r.stellen === 4 || r.stellen === 2 ? r.stellen : 8,
     vibration: r.vibration !== false,
     sichtschutz: r.sichtschutz === true,
+    waehrung: r.waehrung === 'usd' ? 'usd' : 'eur',
   };
 });
 

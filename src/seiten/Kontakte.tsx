@@ -155,7 +155,7 @@ export function KontaktBearbeiten({ adresse: vor }: { adresse?: string }) {
         <Blatt titel={t.kontakte.loeschenFrage} onZu={() => setFragt(false)}>
           <p>{t.kontakte.loeschenText}</p>
           <div className="stapel">
-            <button type="button" className="knopf gefahr sinkt" onClick={() => { kontaktSetzen(vor, ''); nav.reiter('kontakte'); }}>{t.kontakte.loeschen}</button>
+            <button type="button" className="knopf gefahr sinkt" onClick={() => { kontaktSetzen(vor, ''); nav.reiter('start'); nav.gehe({ n: 'kontakte' }); }}>{t.kontakte.loeschen}</button>
             <button type="button" className="knopf zweit sinkt" onClick={() => setFragt(false)}>{t.allg.abbrechen}</button>
           </div>
         </Blatt>

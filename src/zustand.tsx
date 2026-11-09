@@ -272,6 +272,7 @@ export function useDaten(): DatenZustand {
 
 export type Ort =
   | { n: 'start' } | { n: 'kontakte' } | { n: 'verlauf' } | { n: 'einstellungen' }
+  | { n: 'markets' } | { n: 'coin'; id: string }
   | { n: 'senden'; an?: string; betrag?: bigint | null; notiz?: string | null; scan?: boolean }
   | { n: 'empfangen'; fuer?: string }
   | { n: 'detail'; zahlung: Zahlung }
@@ -280,8 +281,13 @@ export type Ort =
   | { n: 'pinAendern' } | { n: 'woerterZeigen' } | { n: 'sicherheit' } | { n: 'einfuehrung' }
   | { n: 'signieren' } | { n: 'signaturPruefen' } | { n: 'anmeldenQr'; code?: string };
 
-export type Reiter = 'start' | 'kontakte' | 'verlauf' | 'einstellungen';
-export const REITER: Reiter[] = ['start', 'verlauf', 'kontakte', 'einstellungen'];
+/*
+  Vier Bereiche (docs/ARCHITEKTUR.md Abschnitt 3). Die Kontakte sind aus
+  der Leiste in den Wallet-Bereich gezogen: Sie gehoeren fachlich dorthin,
+  und Markets braucht den Platz. Erreichbar bleiben sie ueber die Wallet.
+*/
+export type Reiter = 'start' | 'markets' | 'verlauf' | 'einstellungen';
+export const REITER: Reiter[] = ['start', 'markets', 'verlauf', 'einstellungen'];
 
 interface NavZustand {
   ort: Ort;

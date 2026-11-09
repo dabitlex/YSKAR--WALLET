@@ -11,6 +11,8 @@ import { Einstieg } from './seiten/Einstieg.tsx';
 import { Sperre } from './seiten/Sperre.tsx';
 import { Start } from './seiten/Start.tsx';
 import { Verlauf } from './seiten/Verlauf.tsx';
+import { Markets } from './seiten/Markets.tsx';
+import { CoinDetail } from './seiten/CoinDetail.tsx';
 import { Detail } from './seiten/Detail.tsx';
 import { Senden } from './seiten/Senden.tsx';
 import { Empfangen } from './seiten/Empfangen.tsx';
@@ -61,6 +63,8 @@ function Seiten() {
   switch (o.n) {
     case 'start': seite = <Start />; break;
     case 'kontakte': seite = <Kontakte />; break;
+    case 'markets': seite = <Markets />; break;
+    case 'coin': seite = <CoinDetail id={o.id} />; break;
     case 'verlauf': seite = <Verlauf />; break;
     case 'einstellungen': seite = <Einstellungen />; break;
     case 'senden': seite = <Senden an={o.an} betrag={o.betrag} notiz={o.notiz} scan={o.scan} />; break;

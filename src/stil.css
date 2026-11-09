@@ -1446,3 +1446,106 @@ section > .st-abschnitt{margin-top:26px}
 .nk-leer{margin:0;font-size:13px;line-height:19px;color:var(--leise)}
 
 @media (max-width:360px){.nk-gitter{gap:12px 10px}.nk-wert{font-size:17px}}
+
+/* =====================================================================
+   Markets und Coin-Detail (Phase 5).
+   Listenzeilen tragen Kurs UND Vorzeichen -- Farbe ist nie die einzige
+   Information. Mini-Charts sind dekorativ und vor Screenreadern versteckt.
+   ===================================================================== */
+.mk{padding-bottom:calc(var(--unten) + 96px)}
+.mk-suche{padding:0 20px 10px}
+
+/* Marktueberblick */
+.mk-ueberblick{margin:6px 20px 16px;padding:16px 18px;background:var(--karte);border-radius:24px}
+.mk-gross{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.mk-gross b{width:100%;font-family:var(--ziffern);font-size:28px;line-height:34px;font-weight:600;
+            color:var(--text);font-variant-numeric:tabular-nums}
+.mk-ch{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.mk-ch.auf,.mk-werte small.auf,.cd-chg .auf{color:var(--gruen)}
+.mk-ch.ab,.mk-werte small.ab,.cd-chg .ab{color:var(--rot)}
+.mk-klein{display:flex;flex-wrap:wrap;gap:12px 20px;margin-top:14px;padding-top:13px;border-top:1px solid var(--rand)}
+.mk-klein span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mk-klein i{font-style:normal;font-size:12px;color:var(--leise)}
+.mk-klein b{font-size:13px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+
+/* Filterleiste: waagerecht scrollbar, ohne sichtbaren Balken */
+.mk-filter{display:flex;flex-shrink:0;gap:8px;padding:0 20px 14px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.mk-filter::-webkit-scrollbar{display:none}
+.mk-filter .chip{flex-shrink:0}
+
+.mk-hinweis{margin:0 20px 14px}
+
+/* Coin-Zeile */
+.mk-liste{display:flex;flex-direction:column}
+.mk-zeile{display:flex;align-items:center;width:100%}
+.mk-haupt{flex:1;display:flex;align-items:center;gap:12px;min-width:0;min-height:68px;
+          padding:0 4px 0 20px;background:none;border:0;text-align:left;color:inherit;font:inherit}
+.mk-bild{flex-shrink:0;width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.mk-bild img{width:32px;height:32px;border-radius:50%}
+.mk-platz{width:32px;height:32px;border-radius:50%;background:var(--flaeche);color:var(--leise);
+          display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;font-style:normal}
+.mk-namen{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.mk-namen b{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-namen small{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--leise)}
+.mk-rang{font-style:normal;padding:1px 5px;border-radius:5px;background:var(--flaeche);
+         font-size:10px;font-weight:600;color:var(--leise)}
+.mk-werte{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding-left:8px}
+.mk-werte b{font-family:var(--ziffern);font-size:14px;font-weight:600;color:var(--text);
+            font-variant-numeric:tabular-nums;white-space:nowrap}
+.mk-werte small{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.mk-stern{flex-shrink:0;width:44px;height:44px;margin-right:12px;border:0;border-radius:50%;
+          background:none;color:var(--aus);display:flex;align-items:center;justify-content:center}
+.mk-stern.an{color:var(--blau)}
+.mini{flex-shrink:0;opacity:.9}
+.mini-leer{flex-shrink:0;width:64px}
+
+/* YSKAR: eigene Zeile, kein Kurs, getoente Flaeche als Markierung */
+.mk-ysr{min-height:68px;padding:0 20px;gap:12px;background:var(--blau-flaeche);border:0;
+        text-align:left;color:inherit;font:inherit;margin-bottom:4px}
+.mk-ysr-werte small{color:var(--blau-text);font-weight:500;max-width:150px;text-align:right;white-space:normal;line-height:14px}
+
+.mk-quelle{margin:18px 20px 0;font-size:12px;color:var(--aus)}
+
+/* ---------------------------------------------------- Coin-Detail */
+.cd{padding-bottom:calc(var(--unten) + 32px)}
+.cd-kopf{display:flex;align-items:center;gap:14px;padding:4px 20px 0}
+.cd-kopf img{border-radius:50%}
+.cd-symbol{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--leise)}
+.cd-preis{display:block;margin-top:3px;font-family:var(--ziffern);font-size:30px;line-height:36px;
+          font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.cd-chg{display:flex;align-items:baseline;gap:8px;padding:6px 20px 12px;font-size:15px;font-weight:600;
+        font-variant-numeric:tabular-nums}
+.cd-chg small{font-size:12px;font-weight:500;color:var(--leise)}
+
+/* Chart */
+.chart{position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.chart svg{display:block}
+.chart-ablesung{display:flex;align-items:baseline;gap:10px;height:20px;padding:0 20px 6px;opacity:0;
+                transition:opacity .15s var(--kurve)}
+.chart-ablesung.an{opacity:1}
+.chart-ablesung b{font-family:var(--ziffern);font-size:14px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.chart-ablesung span{font-size:12px;color:var(--leise)}
+.chart-leer{display:flex;align-items:center;justify-content:center;margin:0 20px;
+            border-radius:18px;background:var(--karte);color:var(--leise);font-size:13px}
+
+.cd-zeit{display:flex;flex-shrink:0;align-items:center;gap:7px;padding:14px 20px 18px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.cd-zeit::-webkit-scrollbar{display:none}
+.cd-zeit .chip{flex-shrink:0}
+
+.cd-gitter{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px;margin:0 20px;padding:16px 18px;
+           background:var(--karte);border-radius:22px}
+.cd-kennzahl{display:flex;flex-direction:column;gap:3px;min-width:0}
+.cd-kennzahl b{font-family:var(--ziffern);font-size:15px;font-weight:600;color:var(--text);
+               font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.cd-text{margin:22px 20px 0}
+.cd-text h2{margin:0 0 9px;font-size:17px;font-weight:600;color:var(--text)}
+.cd-text p{margin:0;font-size:14px;line-height:21px;color:var(--lesen)}
+.cd-sprache{margin:0 0 8px !important;font-size:12px !important;color:var(--leise) !important}
+.cd-link{margin:20px 20px 0;width:calc(100% - 40px)}
+
+/* Hinweis im Markt: Titel und Erklaerung gehoeren untereinander, sonst
+   laeuft der Satz zusammen ("Back in 35 s.Without your own key ..."). */
+.mk-hinweis span{display:flex;flex-direction:column;gap:3px;min-width:0}
+.mk-hinweis b{font-size:14px;font-weight:600;color:var(--text)}
+.mk-hinweis small{font-size:12px;line-height:17px;color:var(--leise)}

@@ -68,6 +68,38 @@ export const de = {
     fehlt: (g: string) => `Auf diesem Gerät nicht verfügbar (${g}).`,
     nichtGeklappt: 'Der Fingerabdruck wurde nicht bestätigt.',
   },
+  markt: {
+    titel: 'Markets', kurz: 'Markets',
+    suchen: 'Name oder Symbol suchen', suchenKurz: 'Suchen',
+    keineTreffer: 'Nichts gefunden.',
+    // Marktueberblick
+    gesamtkapital: 'Marktkapitalisierung', volumen24: '24-Stunden-Volumen',
+    dominanz: 'Dominanz', anzahlCoins: 'Kryptowährungen', boersen: 'Börsen',
+    // Filter
+    fRang: 'Rang', fGewinner: 'Gewinner', fVerlierer: 'Verlierer',
+    fKapital: 'Kapitalisierung', fVolumen: 'Volumen', fFavoriten: 'Favoriten',
+    keineFavoriten: 'Noch keine Favoriten. Tippe auf den Stern einer Kryptowährung.',
+    merken: 'Zu den Favoriten', vergessen: 'Aus den Favoriten entfernen',
+    // Zustände
+    laedt: 'Marktdaten werden geladen …',
+    gebremst: (sek: number) => `Der Marktdatendienst bremst gerade. Weiter in ${sek} s.`,
+    gebremstHilfe: 'Ohne eigenen Schlüssel ist das Kontingent sehr knapp. In den Einstellungen lässt sich ein kostenloser Schlüssel hinterlegen.',
+    offline: 'Marktdaten nicht erreichbar. Deine Wallet ist davon nicht betroffen.',
+    standVon: (wann: string) => `Stand ${wann}`,
+    quelle: (name: string) => `Kurse von ${name}`,
+    // Detail
+    kapital: 'Marktkapitalisierung', volumen: 'Handelsvolumen',
+    umlauf: 'Umlaufmenge', hoechstmenge: 'Maximalangebot', ath: 'Höchststand',
+    unbekannt: 'nicht bekannt', ueber: 'Über das Projekt',
+    nurEnglisch: 'Die Beschreibung liegt nur auf Englisch vor.',
+    projektseite: 'Projektseite',
+    z1h: '1 Std.', z24h: '24 Std.', z7d: '7 T.', z30d: '30 T.', z90d: '90 T.', z1j: '1 J.', zmax: 'Max',
+    verlaufLeer: 'Für diesen Zeitraum liegen keine Daten vor.',
+    // YSKAR in der Liste
+    ysrHinweis: 'Nicht an einer Börse gehandelt',
+    ysrLang: 'YSKAR wird an keiner Börse gehandelt. Mengen und Netzdaten kommen direkt vom YSKAR-Knoten, einen Kurs gibt es nicht.',
+    ysrOffen: 'YSKAR-Netz ansehen',
+  },
   netz: {
     titel: 'YSKAR-Netz',
     live: 'aktuell', alt: 'letzter bekannter Stand',

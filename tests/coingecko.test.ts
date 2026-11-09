@@ -296,3 +296,30 @@ test('die Form eines Demo-Schluessels wird geprueft', async () => {
   assert.equal(verkuerzt('CG-abcdefghij1234'), 'CG-…1234', 'nur die letzten vier Zeichen');
   assert.equal(verkuerzt(null), null);
 });
+
+test('Anfragen gehen nacheinander hinaus, nicht gleichzeitig', async () => {
+  // Beim Testen beobachtet: Liste und Ueberblick starteten im selben
+  // Augenblick, eine Anfrage kam mit 429 zurueck -- und die Sperre traf
+  // dann auch den Chart, den der Nutzer danach oeffnete. Seitdem geht
+  // immer nur eine Anfrage hinaus.
+  setze({ data: {} });
+  const zeiten: number[] = [];
+  const vorher = globalThis.fetch;
+  globalThis.fetch = (async (url: string | URL) => {
+    zeiten.push(Date.now());
+    letzteUrl = String(url);
+    return { status: 200, headers: { get: () => null }, json: async () => ({ data: {} }) };
+  }) as unknown as typeof fetch;
+
+  const start = Date.now();
+  await Promise.all([
+    coingecko.ueberblick('eur'),
+    coingecko.ueberblick('usd'),
+  ]);
+  globalThis.fetch = vorher;
+
+  assert.equal(zeiten.length, 2);
+  const abstand = zeiten[1] - zeiten[0];
+  assert.ok(abstand >= 1400, `zwischen den Anfragen lagen nur ${abstand} ms`);
+  assert.ok(Date.now() - start < 6000, 'aber es dauert auch nicht ewig');
+});
