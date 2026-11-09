@@ -10,6 +10,7 @@ import { useZahlungen } from '../ui/daten.ts';
 import { S, Betrag, Platzhalterzeilen, Zahlungszeile, useAnzeige, useMeldung, useWer, useZeit } from '../ui/teile.tsx';
 import { YMarke, YBaender, ZahlZeichen, type Teilstand } from '../ui/zeichen.tsx';
 import { EinfuehrungKarte } from './Einfuehrung.tsx';
+import { Netzkarte } from '../ui/netzkarte.tsx';
 
 /** "ysr1…3h8q": nur zum Wiedererkennen. Kopiert wird immer die volle Adresse. */
 const kurz = (a: string | null) => (a ? `${a.slice(0, 4)}…${a.slice(-4)}` : '');
@@ -232,6 +233,10 @@ export function Start() {
             ? (konto ? <div className="leerstand">{neu ? <><b>{t.start.leer}</b><br /><span>{t.einf.k2.text}</span></> : t.start.leer}</div> : offline ? <div className="leerstand">–</div> : <Platzhalterzeilen />)
             : <div className="liste">{liste.map(z => <Zahlungszeile key={z.txid} z={z} onTipp={() => nav.gehe({ n: 'detail', zahlung: z })} />)}</div>}
         </div>
+
+        {/* Der Zustand des Netzes. Steht unter "Zuletzt", damit die Zahlungen
+            oben bleiben und die Messung der Liste unberuehrt ist. */}
+        <Netzkarte />
       </div>
     </div>
   );

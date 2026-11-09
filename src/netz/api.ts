@@ -1,5 +1,6 @@
 import { CapacitorHttp } from '@capacitor/core';
 import { istNativ } from '../geraet/plattform.ts';
+import { netzstandAus, umlaufAus, type Netzstand, type Umlauf } from './netzdaten.ts';
 
 /**
  * Verbindung zum Netz.
@@ -53,7 +54,7 @@ export interface Markt {
   /** Die drei Bloecke vor der Aktivierung von Fassung 6: nichts einreichen. */
   sendepause?: boolean;
 }
-export interface Kopf { height: number | null; mempool: number }
+export type { Netzstand, Umlauf } from './netzdaten.ts';
 
 export class NetzFehler extends Error {
   readonly art: 'offline' | 'antwort';
@@ -101,7 +102,19 @@ async function lesen<T>(pfad: string): Promise<T> {
 }
 
 export const kontoLaden = (adresse: string): Promise<Konto> => lesen<Konto>(`/api/v2/account/${adresse}`);
-export const kopfLaden = (): Promise<Kopf> => lesen<Kopf>('/api/v2/summary');
+/**
+ * Stand des Netzes. Dieselbe Anfrage wie bisher -- bis Fassung 2.0.0 wurden
+ * von der Antwort nur Hoehe und Mempool gelesen und der Rest verworfen.
+ * Hoehe, Hashrate, aktive Miner und Belohnung kosten also keine zusaetzliche
+ * Anfrage, sie wurden nur nie ausgewertet.
+ */
+export const kopfLaden = async (): Promise<Netzstand> => netzstandAus(await lesen<unknown>('/api/v2/summary'));
+
+/**
+ * Mengen. Eigener Endpunkt und eigener Takt: Der Umlauf aendert sich nur mit
+ * einem Block, nicht alle 15 Sekunden.
+ */
+export const umlaufLaden = async (): Promise<Umlauf> => umlaufAus(await lesen<unknown>('/api/v2/supply'));
 export const marktLaden = (): Promise<Markt> => lesen<Markt>('/api/v2/fees');
 
 export function verlaufLaden(adresse: string, o: { richtung?: 'alle' | 'ein' | 'aus'; vor?: string | null; q?: string; limit?: number } = {}): Promise<VerlaufSeite> {

@@ -1405,3 +1405,44 @@ section > .st-abschnitt{margin-top:26px}
 .seite.fest .haft{position:relative;top:auto}
 .rollen{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;margin:0 -24px;padding:0 24px calc(var(--unten) + 96px)}
 .st-flaechen .st-unten{flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--unten) + 96px)}
+
+/* =====================================================================
+   Netzkarte (Phase 4) -- der Zustand des YSKAR-Netzes auf der Wallet.
+   Nur Werte, die der Spiegel wirklich liefert. Keine Kachel ohne Zahl.
+   ===================================================================== */
+.nk{margin:28px 0 8px;padding:18px 18px 16px;background:var(--karte);border-radius:28px}
+.nk-kopf{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.nk-kopf h2{margin:0;font-size:17px;line-height:22px;font-weight:600;color:var(--text)}
+.nk-puls{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--leise)}
+.nk-puls i{width:7px;height:7px;border-radius:50%;background:var(--gruen);animation:nkpuls 2.4s var(--kurve) infinite}
+.nk-puls.alt i{background:var(--aus);animation:none}
+@keyframes nkpuls{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Zwei Spalten: auf schmalen Geräten bleiben die Zahlen lesbar groß. */
+.nk-gitter{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px}
+.nk-kachel{display:flex;flex-direction:column;gap:3px;min-width:0}
+.nk-lab{font-size:12px;font-weight:500;color:var(--leise);letter-spacing:.01em}
+.nk-wert{font-family:var(--ziffern);font-size:19px;line-height:24px;font-weight:600;color:var(--text);
+         font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nk-unter{font-size:12px;line-height:16px;color:var(--leise)}
+
+.nk-umlauf{margin-top:18px;padding-top:16px;border-top:1px solid var(--rand)}
+.nk-umlauf-kopf{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+.nk-anteil{font-size:12px;font-weight:500;color:var(--blau-text);font-variant-numeric:tabular-nums}
+.nk-balken{height:6px;border-radius:999px;background:var(--flaeche);overflow:hidden}
+.nk-balken b{display:block;height:100%;border-radius:999px;background:var(--blau);transition:width .6s var(--kurve)}
+.nk-umlauf .nk-unter{display:block;margin-top:8px}
+
+.nk-zeile{display:flex;align-items:flex-start;gap:11px;margin-top:16px;padding:12px 13px;
+          border-radius:14px;background:var(--blau-flaeche);color:var(--blau-text)}
+.nk-zeile > svg{flex-shrink:0;margin-top:1px}
+.nk-zeile b{display:block;font-size:13px;font-weight:600;color:var(--text)}
+.nk-zeile small{display:block;margin-top:2px;font-size:12px;line-height:16px;color:var(--leise)}
+
+/* Kein Kurs: die ehrlichste Kachel der App. Ruhig, nicht als Fehler gestaltet. */
+.nk-kurs{margin-top:16px;padding-top:15px;border-top:1px solid var(--rand)}
+.nk-kurs b{display:block;font-size:14px;font-weight:600;color:var(--text)}
+.nk-kurs span{display:block;margin-top:4px;font-size:12px;line-height:17px;color:var(--leise)}
+.nk-leer{margin:0;font-size:13px;line-height:19px;color:var(--leise)}
+
+@media (max-width:360px){.nk-gitter{gap:12px 10px}.nk-wert{font-size:17px}}

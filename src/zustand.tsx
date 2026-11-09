@@ -11,7 +11,7 @@ import { letzterStandLager, standLesen, standMerken } from './wallet/letzterstan
 import * as speicher from './geraet/speicher.ts';
 import { beiSichtbarkeit } from './geraet/geraet.ts';
 import { fehlerMerken } from './geraet/plattform.ts';
-import { kontoLaden, kopfLaden, type Konto, type Wartend } from './netz/api.ts';
+import { kontoLaden, kopfLaden, umlaufLaden, type Konto, type Wartend, type Netzstand, type Umlauf } from './netz/api.ts';
 import type { Zahlung } from './wallet/zahlungen.ts';
 
 /* ------------------------------------------------------------------ Wallet */
@@ -160,6 +160,15 @@ interface DatenZustand {
   konto: Konto | null;
   /** Hoehe der Kette, fuer die Zahl der Bestaetigungen. */
   spitze: number | null;
+  /**
+   * Stand des Netzes: Hoehe, Schwierigkeit, Hashrate, Miner, Belohnung.
+   * null, solange kein Abruf gelungen ist. Einzelne Felder koennen null
+   * sein, wenn der Knoten sie nicht nennt -- dann zeigt die Oberflaeche
+   * dort nichts, niemals eine 0.
+   */
+  netz: Netzstand | null;
+  /** Mengen (Umlauf, Hoechstmenge). Eigener, langsamer Takt. */
+  umlauf: Umlauf | null;
   /** Der letzte Abruf ist gescheitert; was da ist, kann veraltet sein. */
   offline: boolean;
   /**
@@ -179,11 +188,15 @@ interface DatenZustand {
 
 const DatenCtx = createContext<DatenZustand | null>(null);
 const TAKT = 15_000;
+/** Der Umlauf aendert sich nur mit einem Block -- Zielzeit sind 10 Minuten. */
+const TAKT_UMLAUF = 300_000;
 
 export function DatenProvider({ children }: { children: ReactNode }) {
   const { adresse } = useWallet();
   const [konto, setKonto] = useState<Konto | null>(null);
   const [spitze, setSpitze] = useState<number | null>(null);
+  const [netz, setNetz] = useState<Netzstand | null>(null);
+  const [umlauf, setUmlauf] = useState<Umlauf | null>(null);
   const [offline, setOffline] = useState(false);
   const [ausSpeicher, setAusSpeicher] = useState<number | null>(null);
   const eigene = useGesendet();
@@ -196,7 +209,9 @@ export function DatenProvider({ children }: { children: ReactNode }) {
       const [k, kopf] = await Promise.all([kontoLaden(adresse), kopfLaden().catch(() => null)]);
       if (k.address !== adresse) throw new Error('Antwort fuer eine andere Adresse');
       setKonto(k); setAusSpeicher(null); standMerken(k);
-      if (kopf && typeof kopf.height === 'number') setSpitze(kopf.height);
+      // Der Netzstand kommt aus derselben Anfrage. Scheitert nur er, bleibt
+      // der letzte bekannte Stand stehen -- das Konto ist davon unberuehrt.
+      if (kopf) { setNetz(kopf); if (kopf.hoehe !== null) setSpitze(kopf.hoehe); }
       setOffline(false);
       gesendetAufraeumen(new Set(k.history.map(e => e.txid)), BigInt(k.nonce));
     } catch (e) {
@@ -216,6 +231,17 @@ export function DatenProvider({ children }: { children: ReactNode }) {
     return () => { clearInterval(uhr); ab(); };
   }, [adresse, neuLaden]);
 
+  // Mengen in eigenem Takt. Scheitert der Abruf, bleibt der letzte Stand
+  // stehen; die Wallet haengt an keiner Stelle davon ab.
+  useEffect(() => {
+    if (!adresse) return;
+    let weg = false;
+    const hol = () => { umlaufLaden().then(u => { if (!weg) setUmlauf(u); }).catch(() => { /* letzter Stand bleibt */ }); };
+    hol();
+    const uhr = setInterval(() => { if (document.visibilityState === 'visible') hol(); }, TAKT_UMLAUF);
+    return () => { weg = true; clearInterval(uhr); };
+  }, [adresse]);
+
   const wert = useMemo<DatenZustand>(() => {
     const gemeldet = konto?.pending ?? [];
     const bekannt = new Set([...gemeldet.map(p => p.txid), ...(konto?.history ?? []).map(e => e.txid)]);
@@ -230,8 +256,8 @@ export function DatenProvider({ children }: { children: ReactNode }) {
     const stand = BigInt(konto?.balance ?? '0');
     let nonce = BigInt(konto?.nextNonce ?? konto?.nonce ?? '0');
     for (const p of raus) { const n = BigInt(p.nonce) + 1n; if (n > nonce) nonce = n; }
-    return { konto, spitze, offline, ausSpeicher, wartende, verfuegbar: stand > gebunden ? stand - gebunden : 0n, naechsteNonce: nonce, neuLaden };
-  }, [konto, spitze, offline, ausSpeicher, eigene, adresse, neuLaden]);
+    return { konto, spitze, netz, umlauf, offline, ausSpeicher, wartende, verfuegbar: stand > gebunden ? stand - gebunden : 0n, naechsteNonce: nonce, neuLaden };
+  }, [konto, spitze, netz, umlauf, offline, ausSpeicher, eigene, adresse, neuLaden]);
 
   return <DatenCtx.Provider value={wert}>{children}</DatenCtx.Provider>;
 }

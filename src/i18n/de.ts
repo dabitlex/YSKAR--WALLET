@@ -68,6 +68,27 @@ export const de = {
     fehlt: (g: string) => `Auf diesem Gerät nicht verfügbar (${g}).`,
     nichtGeklappt: 'Der Fingerabdruck wurde nicht bestätigt.',
   },
+  netz: {
+    titel: 'YSKAR-Netz',
+    live: 'aktuell', alt: 'letzter bekannter Stand',
+    block: 'Block', hashrate: 'Hashrate', miner: 'Miner', belohnung: 'Belohnung',
+    minerTitel: (n: number) => `${n} Miner melden sich gerade beim Netz`,
+    knoten: (n: number) => `über ${n} Knoten`,
+    umlauf: 'Im Umlauf',
+    umlaufVon: (a: string, b: string) => `${a} von ${b} YSR`,
+    anteil: (p: string) => `${p} der Höchstmenge`,
+    gesperrt: (a: string) => `${a} YSR liegen auf der Nulladresse und sind nicht bewegbar`,
+    // YSR ist nirgends gelistet. Das wird gesagt, nicht verschwiegen und
+    // nicht durch eine erfundene Zahl ersetzt.
+    keinKurs: 'Kein Kurs verfügbar',
+    keinKursText: 'YSR wird an keiner Börse gehandelt. Ein Wert in Euro oder Dollar lässt sich deshalb nicht angeben.',
+    nichtErreichbar: 'Das Netz ist gerade nicht erreichbar.',
+    fassung6: 'Umstellung auf Fassung 6',
+    fassung6Text: (bloecke: string, tage: string) => `noch ${bloecke} Blöcke · geschätzt ${tage}`,
+    tage: (n: number) => (n === 1 ? 'ein Tag' : `${n} Tage`),
+    stunden: (n: number) => (n === 1 ? 'eine Stunde' : `${n} Stunden`),
+    bald: 'in Kürze',
+  },
   start: {
     titel: 'Wallet', guthaben: 'Guthaben', adresse: 'Deine Adresse', adresseKopieren: 'Adresse kopieren',
     adresseKopiert: 'Adresse kopiert', verbergen: 'Guthaben verbergen', zeigen: 'Guthaben anzeigen',
