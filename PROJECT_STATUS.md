@@ -1,7 +1,7 @@
 # PROJECT_STATUS – YSKAR Financial Wallet
 
 **Stand:** 09.11.2026 · **Zweig:** `feature/yskar-finance-v3` · **Basis:** `main` @ `2f218d0`
-**Aktuelle Phase:** 1–3 abgeschlossen · 4 als Nächstes
+**Aktuelle Phase:** 1–7 abgeschlossen · 8 (Integration) als Nächstes
 
 ---
 
@@ -47,6 +47,50 @@
 - Nativer Starthintergrund mitgezogen, sonst springt die Farbe beim Start.
 - Ergebnis: **[`docs/DESIGNSYSTEM.md`](docs/DESIGNSYSTEM.md)**
 
+
+### Phase 4 – Wallet ✅
+
+- `src/netz/netzdaten.ts`: Netzdaten des Spiegels auswerten. Die Antwort kam
+  schon immer vollständig, die Wallet las nur `height` und `mempool`.
+  **Keine zusätzliche Anfrage.**
+- Netzkarte auf der Wallet: Block, Hashrate, Miner, Belohnung, Umlauf mit
+  Anteil, Abstand zur Aktivierung von Fassung 6.
+- Eine Kachel ohne Wert **verschwindet**, statt eine 0 zu zeigen.
+- Gefunden und behoben: `nextReward` kommt in Einheiten – angezeigt wurden
+  „87.500.000.000 YSR" statt „875 YSR". Faktor 100 Millionen.
+
+### Phase 5 – Markets ✅
+
+- Marktschicht: `MarktAnbieter` als Schnittstelle, Cache mit vier Mitteln
+  gegen die gemessenen 429er, CoinGecko-Adapter, Schlüssel im geschützten
+  Speicher.
+- Markets: Überblick, 100 Coins mit Mini-Charts, sechs Filter, Suche.
+- Coin-Detail: Chart mit sieben Zeiträumen, Kennzahlen, Beschreibung.
+- **Eigene SVG-Charts** statt Bibliothek: +8 kB gzip für den ganzen Bereich.
+- YSKAR steht an erster Stelle – ohne Kurs, mit Begründung.
+- `tests/grenzen.test.ts` erzwingt die Trennung von Markt und Wallet.
+
+### Phase 6 – Portfolio und Watchlist ✅
+
+- Die Trennung steckt im **Typ**: Eine On-Chain-Position trägt keine Menge.
+- YSR als manuelle Position gesperrt – beim Anlegen **und beim Lesen** der
+  Ablage, denn die Datei auf dem Gerät lässt sich bearbeiten.
+- Der YSR-Bestand geht **nicht** in die Fiat-Summe ein. Zwei Zahlen
+  nebeneinander, bewusst keine Gesamtsumme.
+- Positionen ohne Kurs zählen nicht als 0, sondern werden ausgewiesen.
+- Verlauf ab heute, ein Punkt je Tag. Die Vergangenheit wird **nicht**
+  rekonstruiert – das wäre Hochrechnung, keine Messung.
+- Watchlist mit eigener Reihenfolge, verschiebbar über Knöpfe.
+
+### Phase 7 – Activity und Settings ✅
+
+- Fiat-Währung EUR/USD. Betrifft Kurse und Portfolio, nicht das YSR-Guthaben.
+- Markt-Schlüssel in den Einstellungen – das Versprechen aus Phase 5 eingelöst.
+  Einfügen als Hauptweg, weil 30 Stellen auf der eigenen Tastatur eine
+  Zumutung wären.
+- Aktivität: Zeitraum (alle / 30 T. / 90 T. / 1 J.), gefiltert auf den
+  geladenen Seiten – der Spiegel kennt keinen Zeitraum-Parameter.
+
 ---
 
 ## Aktueller Entwicklungsstand
@@ -56,11 +100,12 @@
 | Analyse | ✅ abgeschlossen |
 | Produktarchitektur | ✅ abgeschlossen |
 | Designsystem | ✅ abgeschlossen |
-| Wallet | ✅ funktionsfähig (Bestand, unverändert) |
-| Markets | ⚪ offen |
-| Portfolio / Watchlist | ⚪ offen |
-| Activity | 🟡 Bestand vorhanden, Ausbau offen |
-| Profile / Settings | 🟡 Bestand vorhanden, Ausbau offen |
+| Wallet | ✅ mit Netzdaten |
+| Markets | ✅ Überblick, Liste, Suche, Detail, Charts |
+| Portfolio / Watchlist | ✅ |
+| Activity | ✅ Filter, Suche, Zeitraum |
+| Profile / Settings | ✅ Währung, Markt-Schlüssel |
+| Integration (Phase 8) | 🔵 als Nächstes |
 
 ---
 
@@ -70,10 +115,10 @@ Ausgeführt am 09.11.2026 auf `feature/yskar-finance-v3`:
 
 | Prüfung | Ergebnis |
 |---|---|
-| `npm test` | **78 / 78 bestanden** (1,2 s) |
+| `npm test` | **183 / 183 bestanden** (105 neu seit `main`) |
 | `npm run build` (inkl. `tsc --noEmit`) | **erfolgreich** (2,7 s) |
 | `node werkzeug/buendel-pruefen.mjs` | **in Ordnung** – 25 Dateien |
-| Gebaute Größe | 556 kB JS (182 kB gzip), 91 kB CSS (18 kB gzip) |
+| Gebaute Größe | 608 kB JS (198 kB gzip) – **+16 kB gzip** für Markets, Portfolio und Charts |
 | Live-Prüfung `yskar.vercel.app` | `summary`, `supply`, `fees` je **HTTP 200** |
 | Durchlauf in Chromium (412 × 915) | Einstieg, Wiederherstellen, PIN, Wallet, Activity, Kontakte, Einstellungen – **ohne Konsolenfehler** |
 | Live-Daten im Durchlauf | `200 /api/v2/account/…`, `200 /api/v2/summary` |
@@ -97,15 +142,16 @@ Ausgeführt am 09.11.2026 auf `feature/yskar-finance-v3`:
 
 ## Offene Aufgaben
 
-**Phase 4 – Wallet** (nächster Schritt)
-- [ ] Netzdaten anbinden: Höhe, Hashrate, aktive Miner, Belohnung, Umlauf
-      (liegen bereits im Spiegel, werden heute nur nicht gelesen)
-- [ ] Navigation auf Wallet / Markets / Activity / Profile umstellen;
-      Kontakte ziehen in den Wallet-Bereich
-- [ ] Wallet-Übersicht nach Entwurf (YSR groß, Netzband, getrennter Fiat-Teil)
-- [ ] Sendepfad **unverändert** übernehmen
+**Phase 8 – Integration** (nächster Schritt)
+- [ ] Wallet-Übersicht mit Portfolio verbinden (Verweis statt Doppelanzeige)
+- [ ] Durchgängige Prüfung aller Übergänge
+- [ ] Einführung um die neuen Bereiche ergänzen
 
-**Phase 5–10** – siehe Auftrag.
+**Phase 9 – Testing**
+- [ ] Automatisierter Durchlauf als wiederholbares Skript im Repo
+- [ ] Dokumentierter Gerätetestplan
+
+**Phase 10 – Release**
 
 ---
 
