@@ -1,7 +1,7 @@
 # PROJECT_STATUS – YSKAR Financial Wallet
 
 **Stand:** 09.11.2026 · **Zweig:** `feature/yskar-finance-v3` · **Basis:** `main` @ `2f218d0`
-**Aktuelle Phase:** 1–7 abgeschlossen · 8 (Integration) als Nächstes
+**Aktuelle Phase:** 1–10 abgeschlossen · Gerätetest offen, Release liegt beim Betreiber
 
 ---
 
@@ -82,6 +82,31 @@
   rekonstruiert – das wäre Hochrechnung, keine Messung.
 - Watchlist mit eigener Reihenfolge, verschiebbar über Knöpfe.
 
+### Phase 8 – Integration ✅
+
+- `werkzeug/durchlauf.mjs`: läuft durch **alle 22 Bildschirme**, drückt die
+  Zurück-Taste, startet die App neu, meldet leere Seiten und Konsolenfehler.
+- Dabei gefunden: Die Wallet-Seite hatte **keine Überschrift** (für
+  Vorlesewerkzeuge namenlos), und die Watchlist hatte ihren Titel verloren.
+  Beides behoben.
+- Wallet verweist aufs Portfolio – als eigene Zeile, bewusst ohne Summe
+  mit dem YSR-Guthaben.
+- Ergebnis: **22 Bildschirme, 0 ohne Inhalt, 0 Meldungen.**
+
+### Phase 9 – Testing ✅
+
+- 183 Unit-Tests, Durchlauf automatisiert.
+- `docs/GERAETETEST.md`: 8 Abschnitte für das, was nur auf echter Hardware
+  prüfbar ist – Biometrie, Keystore, Sichtschutz, Kamera, Update über eine
+  ältere Fassung, Konsensfassung 6.
+
+### Phase 10 – Release 🟡
+
+- Produktionsfähige, signierte APK entsteht in Actions.
+- `docs/UEBERGABE.md`: Umfang, Entscheidungen, Prüfstand, offene Punkte.
+- **Das Veröffentlichen selbst liegt beim Betreiber** – ein Release geht an
+  echte Nutzer einer echten Wallet. Schritte stehen in der Übergabe.
+
 ### Phase 7 – Activity und Settings ✅
 
 - Fiat-Währung EUR/USD. Betrifft Kurse und Portfolio, nicht das YSR-Guthaben.
@@ -142,16 +167,15 @@ Ausgeführt am 09.11.2026 auf `feature/yskar-finance-v3`:
 
 ## Offene Aufgaben
 
-**Phase 8 – Integration** (nächster Schritt)
-- [ ] Wallet-Übersicht mit Portfolio verbinden (Verweis statt Doppelanzeige)
-- [ ] Durchgängige Prüfung aller Übergänge
-- [ ] Einführung um die neuen Bereiche ergänzen
+**Beim Betreiber**
+- [ ] `docs/GERAETETEST.md` einmal vollständig durchgehen – besonders 1.2
+      (Installation über eine ältere Fassung)
+- [ ] Am Tag der Aktivierung von Fassung 6: Abschnitt 8 prüfen
+- [ ] Zweig nach `main` bringen, Version erhöhen, Tag setzen
 
-**Phase 9 – Testing**
-- [ ] Automatisierter Durchlauf als wiederholbares Skript im Repo
-- [ ] Dokumentierter Gerätetestplan
-
-**Phase 10 – Release**
+**Möglich, nicht nötig**
+- [ ] Durchlauf als eigener CI-Job (kostet Minuten, blockiert den Bau nicht)
+- [ ] PIN-Bremse in den geschützten Speicher verlegen
 
 ---
 
