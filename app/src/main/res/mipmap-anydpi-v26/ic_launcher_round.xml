@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Dieselben Ebenen fuer Geraete, die runde Symbole anfordern. Der Zuschnitt
+  macht das System; hier ist nichts anders zu tun.
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/symbol_hintergrund" />
+    <foreground android:drawable="@drawable/symbol_vordergrund" />
+    <monochrome android:drawable="@drawable/symbol_einfarbig" />
+</adaptive-icon>

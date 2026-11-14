@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kopf und Schultern fuer "Kontakte", im Strich der uebrigen Bold-Symbole
+     (24 von 256). Von Hand gezeichnet, nicht aus dem Phosphor-Satz
+     umgewandelt. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="256"
+    android:viewportHeight="256">
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="24"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M128,40a52,52,0,1,0,0,104a52,52,0,1,0,0,-104Z M36,216c14,-40,50,-64,92,-64s78,24,92,64" />
+</vector>

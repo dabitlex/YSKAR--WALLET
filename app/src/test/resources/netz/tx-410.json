@@ -1,0 +1,1 @@
+{"error":"moved_to_fullnode","detail":"Mining und Transaktionen laufen nicht mehr über diese Adresse. Der Full Node ist die Wahrheit; hier liegt nur noch ein Lesespiegel.","fullnode":"https://pool.yskar.app","stattdessen":"https://pool.yskar.app/api/v2/tx"}

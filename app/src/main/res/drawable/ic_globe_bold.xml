@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Erdkugel fuer "Sprache", im Strich der uebrigen Bold-Symbole (24 von
+     256). Von Hand gezeichnet, nicht aus dem Phosphor-Satz umgewandelt:
+     Kreis, zwei Breitenkreise, ein Meridian. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="256"
+    android:viewportHeight="256">
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="24"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M128,32a96,96,0,1,0,0,192a96,96,0,1,0,0,-192Z M40,96H216 M40,160H216 M128,32c-27,24-40,58-40,96s13,72,40,96c27-24,40-58,40-96s-13-72-40-96Z" />
+</vector>

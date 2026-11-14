@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Die eine Farbe, die das Android-System selbst braucht - vor der ersten
+  Compose-Zeile und zwischen den Bildschirmen. Sie ist derselbe Nachtgrund
+  wie `Farbe.Grund` in ui/Theme.kt. Zwei Orte fuer einen Wert ist unschoen,
+  aber unvermeidlich: Das Fenster steht, bevor Compose laeuft.
+-->
+<resources>
+    <color name="nacht_grund">#FF040A1A</color>
+</resources>

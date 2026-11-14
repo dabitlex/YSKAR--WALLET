@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hintergrund des App-Symbols: schwarz (Wunsch des Besitzers, 11.11.2026).
+
+  Android beschneidet diese Flaeche je nach Geraet zu Kreis, Quadrat oder
+  Kleeblatt - deshalb reicht sie ueber den sichtbaren Bereich hinaus und
+  traegt nichts als Farbe. Alles Erkennbare gehoert in den Vordergrund.
+
+  Vorher lag hier ein Verlauf von Nachtblau nach Fast-Schwarz
+  (#152338 nach #070B12), aus dem frueheren Design.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:pathData="M0,0h108v108h-108z"
+        android:fillColor="#FF000000" />
+</vector>

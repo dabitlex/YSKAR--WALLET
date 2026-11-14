@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Zwei Themen, und eines davon lebt nur eine halbe Sekunde.
+
+  `Theme.Start` steht im Manifest. Android zeichnet damit den
+  Startbildschirm, bevor auch nur eine Zeile der App laeuft - das ist keine
+  Zutat, sondern Pflicht seit Android 12: Es GIBT dort einen
+  Startbildschirm, die Frage ist nur, ob er die Marke zeigt oder ein weisses
+  Blatt. `installSplashScreen()` in der MainActivity schaltet danach auf
+  `Theme.App` um.
+
+  Vorher stand hier `Theme.Material.Light` - also eine weisse Flaeche vor
+  einer nachtschwarzen App. Genau dieses Aufblitzen verschwindet jetzt.
+-->
+<resources>
+
+    <style name="Theme.Start" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/nacht_grund</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/symbol_start</item>
+        <!-- Was Android ueber die Laenge des Ablaufs wissen muss; Obergrenze 1000. -->
+        <item name="windowSplashScreenAnimationDuration">480</item>
+        <item name="postSplashScreenTheme">@style/Theme.App</item>
+    </style>
+
+    <!--
+      Compose uebernimmt das Theming. Hier nur, was das Fenster selbst
+      braucht: keine ActionBar, und ein Hintergrund in der Farbe der App -
+      sonst steht zwischen Startbildschirm und erstem Compose-Bild kurz das
+      Grau des Systems.
+    -->
+    <style name="Theme.App" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/nacht_grund</item>
+    </style>
+</resources>

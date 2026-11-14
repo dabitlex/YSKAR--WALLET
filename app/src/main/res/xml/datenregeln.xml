@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nichts verlaesst das Geraet.
+
+  allowBackup="false" deckt schon alles ab; diese Datei macht es fuer
+  Android 12 und neuer noch einmal ausdruecklich. Ein Cloud-Backup oder
+  eine Geraeteuebertragung, die den Tresor mitnimmt, waere genau der Weg,
+  den der Keystore-Pfeffer verhindern soll.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </device-transfer>
+</data-extraction-rules>

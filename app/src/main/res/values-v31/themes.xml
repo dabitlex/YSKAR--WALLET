@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Der Startbildschirm ab Android 12 - derselbe wie in values/themes.xml,
+  dazu unten der Schriftzug "YSKAR".
+
+  WARUM EINE EIGENE DATEI: Das "Markenbild" am unteren Rand gibt es erst ab
+  Android 12 (API 31). Auf aelteren Geraeten kennt das System die Angabe
+  nicht; dort gilt values/themes.xml, und der Startbildschirm bleibt ohne
+  Schriftzug.
+
+  WARUM EIN BILD: Android erlaubt an dieser Stelle ein Bild von 200 x 80 dp,
+  keinen Text. Der Schriftzug ist darum einmal in der Schrift der App
+  gezeichnet worden (Geist 600, 17 sp, Laufweite 0,18 em) - von
+  `Schriftzugbild` unter androidTest, das ihn bei Bedarf neu erzeugt.
+
+  Wer hier etwas aendert, aendert es auch in values/themes.xml: Dieser Stil
+  ERSETZT den dortigen, er ergaenzt ihn nicht.
+-->
+<resources>
+
+    <style name="Theme.Start" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/nacht_grund</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/symbol_start</item>
+        <item name="windowSplashScreenAnimationDuration">480</item>
+        <item name="postSplashScreenTheme">@style/Theme.App</item>
+        <item name="android:windowSplashScreenBrandingImage">@drawable/marke_start</item>
+    </style>
+
+</resources>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      Die Wallet redet mit genau zwei Adressen: dem Lesespiegel und dem
+      Full Node. Beides ueber https.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!--
+      Die Kamera dient genau einem Zweck: eine Empfaengeradresse von einem
+      QR-Code ablesen. Gefragt wird erst, wenn der Scanner geoeffnet wird -
+      nicht bei der Installation. Nichts davon verlaesst das Geraet.
+      `required="false"`, damit die App auch ohne Kamera installierbar
+      bleibt; der Scanner sagt dann, dass es nicht geht.
+    -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+
+    <!--
+      Mitteilungen ueber Ein- und bestaetigte Ausgaenge. Ab Android 13 wird
+      dafuer zur Laufzeit gefragt - und zwar erst, wenn der Besitzer den
+      Waechter einschaltet, nicht beim ersten Start. Wer ihn nicht will,
+      wird nicht gefragt.
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/datenregeln"
+        android:usesCleartextTraffic="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Start">
+
+        <!--
+          Nur Hochformat (Wunsch des Besitzers, 11.11.2026). Jeder Bildschirm
+          ist fuer das Hochformat gebaut und nur dort geprueft; quer gedreht
+          wird die App nicht.
+
+          Eine Grenze, die Android setzt: Auf Tablets und aufgeklappten
+          Geraeten (ab 600 dp Breite) uebergeht Android 16 diese Angabe bei
+          Apps, die auf API 36 zielen. Auf Telefonen gilt sie.
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--
+              Anmelden auf einer YSKAR-Seite auf DEMSELBEN Telefon: Die Seite
+              oeffnet einen Link `yskar:login?msg=...&cb=...`, und die Wallet
+              zeigt die Anfrage (REGELN.md, Regel 39).
+
+              `singleTask` oben: Der Link holt die laufende Wallet nach vorn,
+              statt eine zweite daneben zu starten.
+
+              EIN LINK IST KEIN BEWEIS. Jede Seite und jede andere App kann
+              so einen Link ausloesen. Er fuehrt nur dazu, dass die Anfrage
+              gezeigt wird - nach dem Entsperren, streng geprueft, und
+              unterschrieben erst nach einer weiteren PIN. Alles, was kein
+              Anmelde-Code ist (auch `yskar:<adresse>?amount=...`), wird
+              uebergangen.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="yskar" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
