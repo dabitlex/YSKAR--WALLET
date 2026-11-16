@@ -105,7 +105,46 @@ echte Push-Benachrichtigungen über einen Server – und der müsste wissen,
 welche Adresse zu welchem Gerät gehört. Das ist eine Datenschutzfrage und
 keine rein technische.
 
-### 2.4 Kleinere Angleichungen
+### 2.4 Eigene Plugins müssen auf iOS von Hand angemeldet werden
+
+Das wäre beinahe ein stiller Fehler geworden.
+
+Capacitor registriert auf iOS die Plugins aus `packageClassList` in
+`capacitor.config.json`. Diese Liste erzeugt die Kommandozeile beim
+Synchronisieren – und sie durchsucht dafür **ausschließlich die
+npm-Pakete** der Plugins, nie den Quellcode der App selbst
+(`@capacitor/cli`, `util/iosplugin.js`, Funktion `getPluginFiles`).
+
+Unser `SichtschutzPlugin` liegt in der App. Es hätte also nie in der Liste
+gestanden, wäre nie registriert worden, und der Aufruf aus der Oberfläche
+wäre ins Leere gelaufen – **ohne Fehlermeldung beim Bauen**. Aufgefallen
+wäre es erst auf einem iPhone.
+
+Gelöst wie auf Android, wo `MainActivity.java` dasselbe tut: Ein eigener
+`ViewController` meldet das Plugin an.
+
+```swift
+class ViewController: CAPBridgeViewController {
+    override func capacitorDidLoad() {
+        bridge?.registerPluginInstance(SichtschutzPlugin())
+    }
+}
+```
+
+Dazu zeigt `Main.storyboard` auf diese Klasse statt auf
+`CAPBridgeViewController`.
+
+**Und:** Das Projekt ist ein klassisches Xcode-Projekt (`objectVersion 60`)
+ohne synchronisierte Ordner. Jede Swift-Datei muss an **vier** Stellen in
+`project.pbxproj` stehen – `PBXBuildFile`, `PBXFileReference`, in der
+Gruppe und in der Sources-Phase. Fehlt eine, wird die Datei stillschweigend
+nicht übersetzt. Beide Dateien sind eingetragen und gegen `AppDelegate.swift`
+als bekannt gute Referenz geprüft.
+
+`npx cap sync ios` fasst `project.pbxproj` und `Main.storyboard` nicht an –
+nachgemessen, nicht angenommen.
+
+### 2.5 Kleinere Angleichungen
 
 | Punkt | Android | iOS |
 |---|---|---|
@@ -129,6 +168,9 @@ HTML und öffnet nie die Systemtastatur.
 | Alle 7 Plugins für iOS erkannt | **ja** |
 | `Info.plist` gültig und vollständig | **ja**, mit `plistlib` geprüft |
 | TypeScript-Änderungen | **ja**, 183/183 Tests grün |
+| Plugin-Anmeldung über `ViewController` | **ja**, Mechanismus im Capacitor-Quelltext nachgelesen |
+| Beide Swift-Dateien im Xcode-Projekt | **ja**, alle vier Stellen gegen Referenz geprüft |
+| `cap sync` zerstört die Änderungen nicht | **ja**, Prüfsummen verglichen |
 | **Swift-Code übersetzt** | **NEIN – hier nicht prüfbar** |
 | Verhalten auf einem echten iPhone | **NEIN** |
 
