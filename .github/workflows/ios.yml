@@ -1,0 +1,96 @@
+name: iOS bauen
+
+# Baut die YSKAR Wallet fuer iPhone.
+#
+# WARUM OHNE SIGNATUR: Ein Bau fuer den Simulator braucht weder ein
+# Apple-Entwicklerkonto noch Zertifikate. Er beantwortet trotzdem die
+# Frage, die hier zaehlt: Uebersetzt der Swift-Code, passen die Plugins
+# zusammen, ist die Info.plist gueltig. Ein Fehler darin faellt sonst erst
+# auf einem Mac auf -- und wer keinen hat, merkt ihn gar nicht.
+#
+# Eine installierbare .ipa braucht zusaetzlich:
+#   - Mitgliedschaft im Apple Developer Program
+#   - Zertifikat und Provisioning Profile als Secrets
+#   - einen Schritt "archive" statt "build"
+# Siehe docs/IOS.md, Abschnitt "Auf ein echtes iPhone".
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths-ignore: ['**.md']
+  pull_request:
+    paths-ignore: ['**.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    # macOS-Laeufer sind teurer als Linux -- deshalb laeuft dieser Bau
+    # nicht bei jedem Push auf einen Zweig, sondern auf main, bei Tags,
+    # bei Pull Requests und von Hand.
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten
+        run: npm ci
+
+      # Dieselben Tests wie beim Android-Bau. Schlagen sie fehl, entsteht
+      # nichts -- Schluessel, Adressen und Ueberweisungen muessen stimmen.
+      - name: Tests
+        run: npm test
+
+      - name: Oberfläche bauen
+        run: npm run build
+
+      - name: Bündel prüfen
+        run: node werkzeug/buendel-pruefen.mjs
+
+      - name: Capacitor synchronisieren
+        run: npx cap sync ios
+
+      - name: Xcode-Fassung
+        run: xcodebuild -version
+
+      # Ohne Signatur und fuer den Simulator: prueft die Uebersetzung,
+      # nicht die Auslieferung.
+      - name: App übersetzen
+        working-directory: ios/App
+        run: |
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            -quiet \
+            build
+
+      - name: Info.plist prüfen
+        run: |
+          P=ios/App/App/Info.plist
+          plutil -lint "$P"
+          # Die Angaben, ohne die Apple die App zurueckweist oder die
+          # Wallet ihre Zusagen bricht.
+          for k in NSCameraUsageDescription NSFaceIDUsageDescription NSAppTransportSecurity; do
+            /usr/libexec/PlistBuddy -c "Print :$k" "$P" > /dev/null \
+              || { echo "::error title=Info.plist::$k fehlt"; exit 1; }
+          done
+          CLEAR=$(/usr/libexec/PlistBuddy -c "Print :NSAppTransportSecurity:NSAllowsArbitraryLoads" "$P")
+          [ "$CLEAR" = "false" ] || { echo "::error title=Info.plist::Unverschlüsselter Verkehr wäre erlaubt"; exit 1; }
+          echo "Info.plist in Ordnung."

@@ -105,12 +105,55 @@ export function beiLink(f: () => void): () => void {
 }
 
 /*
-  Sichtschutz: Solange die 12 Woerter auf dem Bildschirm stehen, sperrt
-  Android Bildschirmfotos und zeigt die App in der Uebersicht schwarz.
-  Eigenes kleines Plugin in der Android-Huelle (SichtschutzPlugin.java).
+  Sichtschutz -- und er kann auf den beiden Plattformen NICHT dasselbe.
+
+  Android (SichtschutzPlugin.java): setzt FLAG_SECURE. Bildschirmfotos und
+  Bildschirmaufnahmen sind dann gesperrt, die Uebersicht zeigt Schwarz.
+  Eine echte Sperre.
+
+  iOS (SichtschutzPlugin.swift): Es gibt keine oeffentliche Schnittstelle,
+  um ein Bildschirmfoto zu verhindern -- keine. Moeglich und umgesetzt
+  sind: die Uebersicht verdecken und ein gemachtes Foto hinterher melden.
+
+  Deshalb wird die Faehigkeit ABGEFRAGT und nicht angenommen. Die
+  Oberflaeche darf auf einem iPhone nicht behaupten, Bildschirmfotos
+  seien gesperrt. Siehe docs/IOS.md.
 */
-interface SichtschutzPlugin { setzen(o: { an: boolean }): Promise<void> }
+export interface SichtschutzKann {
+  /** Verhindert die Plattform Bildschirmfotos wirklich? */
+  sperrt: boolean;
+  verdecktUebersicht: boolean;
+  meldetFoto: boolean;
+}
+interface SichtschutzPlugin {
+  setzen(o: { an: boolean }): Promise<void>;
+  faehigkeiten?(): Promise<SichtschutzKann>;
+}
 const Sichtschutz = registerPlugin<SichtschutzPlugin>('Sichtschutz');
+
+/* Im Browser und auf Android, dessen Plugin die Abfrage (noch) nicht
+   kennt, gilt das Android-Verhalten: dort sperrt FLAG_SECURE wirklich. */
+const VORGABE: SichtschutzKann =
+  { sperrt: true, verdecktUebersicht: true, meldetFoto: false };
+
+let kann: SichtschutzKann | null = null;
+
+/** Was der Sichtschutz auf dieser Plattform leistet. */
+export async function sichtschutzKann(): Promise<SichtschutzKann> {
+  if (kann) return kann;
+  if (!istNativ() || !Sichtschutz.faehigkeiten) { kann = VORGABE; return kann; }
+  try {
+    const a = await Sichtschutz.faehigkeiten();
+    kann = {
+      sperrt: a?.sperrt === true,
+      verdecktUebersicht: a?.verdecktUebersicht !== false,
+      meldetFoto: a?.meldetFoto === true,
+    };
+  } catch {
+    kann = VORGABE;
+  }
+  return kann;
+}
 
 /*
   Zwei Quellen: Screens mit den 12 Woertern verlangen den Schutz immer
