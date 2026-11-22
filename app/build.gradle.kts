@@ -59,6 +59,22 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    // Die Tests des OTC-Tauschs laufen ZWEIMAL: auf der JVM mit org.json aus
+    // Maven und auf dem Geraet mit dem org.json, das Android mitbringt und das
+    // die App wirklich benutzt. Beide sind verschieden (keySet fehlt, doppelte
+    // Felder, Zahlen). Dieselben Klassen, nicht kopiert - darum ein eigener
+    // Ordner, den beide Testarten uebersetzen. Ihre Vergleichswerte liegen
+    // weiter unter src/test/resources und gehen mit ins Testpaket.
+    sourceSets {
+        getByName("test") {
+            kotlin.directories.add("src/sharedTest/java")
+        }
+        getByName("androidTest") {
+            kotlin.directories.add("src/sharedTest/java")
+            resources.directories.add("src/test/resources")
+        }
+    }
 }
 
 dependencies {
