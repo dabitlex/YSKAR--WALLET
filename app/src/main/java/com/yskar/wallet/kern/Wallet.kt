@@ -100,6 +100,26 @@ object Wallet {
         return Node(i.copyOfRange(0, 32), i.copyOfRange(32, 64))
     }
 
+    /**
+     * Zweig fuer den OTC-Tausch: m/44'/9077'/konto'/7'/0'. Liegt neben dem
+     * Signierzweig 0' und wird NIE zum Signieren oder fuer Adressen benutzt.
+     * Freigegeben am 21.11.2026 (OTC-Spezifikation, Entwurf 3, Abschnitt 3).
+     */
+    const val OTC_ZWEIG = 7
+
+    /**
+     * Wurzel fuer die Tausch-Geheimnisse (32 Byte, geheim). Daraus entsteht
+     * je Tausch ein Geheimnis, siehe [Otc.geheimnis]. Wer die zwoelf Woerter
+     * hat, kann jedes Geheimnis neu berechnen.
+     */
+    fun otcWurzel(seed: ByteArray, account: Int = 0): ByteArray {
+        var node = masterNode(seed)
+        for (level in intArrayOf(Params.DERIVATION_PURPOSE, Params.COIN_TYPE, account, OTC_ZWEIG, 0)) {
+            node = derive(node, level)
+        }
+        return node.key
+    }
+
     fun derivationPath(account: Int = 0, index: Int = 0): String =
         "m/${Params.DERIVATION_PURPOSE}'/${Params.COIN_TYPE}'/$account'/0'/$index'"
 

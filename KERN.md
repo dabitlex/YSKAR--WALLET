@@ -58,6 +58,16 @@ echter Hardware dasselbe rechnet wie auf der JVM.
 | `kern/Bip39.kt` | `@scure/bip39` | Wortliste, Prüfsumme, Seed |
 | `kern/Wallet.kt` | `wallet.ts` | SLIP-0010, Ed25519, Schlüsselpaar |
 | `kern/Tx.kt` | `tx.ts` (Teil) | Überweisung Typ 1, Fassungen 1 und 2 |
+| `kern/SkriptAusgabe.kt` | `tx.ts` (Teil) | Ausgabe aus einem Skriptkonto, Typ 2: Signierbytes, Sighash, Leitungsform (seit 3.1.0, nur für den OTC-Tausch) |
+| `kern/Otc.kt` | yskar-otc `geheimnis.ts`, `sperre.ts` | Tausch-Geheimnis aus Zweig 7', das eine Sperrskript des OTC-Tauschs, seine zwei Witness-Formen |
+
+Typ 2 ist **kein** allgemeiner Skript-Interpreter: Die Wallet liest keine
+fremden Skripte. Sie baut das eine Muster des OTC-Tauschs aus den Teilen eines
+Auftrags und vergleicht die Adresse Byte für Byte. Beweis: `OtcVektorenTest`
+gegen `otc-vergleichswerte.json`, erzeugt mit dem YSKAR-Kern
+(`dabitlex/yskar-otc`, `werkzeug/wallet-vektoren.ts`); jede Ausgabe darin hat
+`checkScriptSpend` des Kerns bestanden. Gleiche Signatur heißt gleicher
+Sighash, denn Ed25519 ist deterministisch.
 
 Das Paket `kern` benutzt **keine einzige Android-API**. Darum laufen die
 Tests auf der JVM in unter zwei Sekunden statt auf dem Gerät.
@@ -69,7 +79,7 @@ Tests auf der JVM in unter zwei Sekunden statt auf dem Gerät.
 | Nicht portiert | Warum |
 |---|---|
 | Typ 0 — Coinbase | baut der Miner, nie die Wallet |
-| Typ 2 — Skript-Ausgabe | braucht den Skript-Interpreter (`script.ts`, 352 Zeilen) |
+| Typ 2 — allgemeine Skript-Ausgabe | nur das OTC-Muster ist portiert (siehe oben); ein allgemeiner Interpreter (`script.ts`) fehlt bewusst |
 | Typ 3 — Sammelzahlung | mehrere Empfänger; nachrüstbar, derzeit ohne Anwendungsfall |
 | Difficulty, Blockregeln | gehören in den Knoten, nicht ins Telefon |
 | ZIP-215-Signaturprüfung | siehe unten |
