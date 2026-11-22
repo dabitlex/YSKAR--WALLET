@@ -70,8 +70,8 @@ class AuftragTest {
         put("ablauf", "2026-11-22T12:10:00Z")
     }
 
-    private fun alsK(text: String) = Auftrag.lesen(text, k.address, k.publicKey, jetzt)
-    private fun alsV(text: String) = Auftrag.lesen(text, v.address, v.publicKey, jetzt)
+    private fun alsK(text: String) = Auftrag.lesen(text, k.address, jetzt)
+    private fun alsV(text: String) = Auftrag.lesen(text, v.address, jetzt)
 
     private fun fehler(l: Lesung) = (l as? Lesung.Abgelehnt)?.fehler
     private inline fun <reified T : Gelesen> ok(l: Lesung): T {
@@ -167,11 +167,12 @@ class AuftragTest {
     @Test
     fun einloesenWieDerKern() {
         val a = ok<Gelesen.Einloesen>(alsK(code("einloesen", sperrDaten())))
-        val bau = Auftrag.einloesenBauen(a, kWurzel, k.address, kontoMit(vollesKonto), 10_481, 400, 15_000_000_000L)
+        val bau = Auftrag.einloesenBauen(a, k.address, kontoMit(vollesKonto), 10_481, 400, 15_000_000_000L)
         assertTrue("abgelehnt: $bau", bau is Bau.Ok)
         bau as Bau.Ok
         assertEquals(ein.getLong("validUntil"), bau.entwurf.validUntil)
-        val fertig = Auftrag.unterschreiben(a.sperre, bau, k.privateKey, k.publicKey)
+        val x = Auftrag.geheimnisFuer(a, kWurzel)!!
+        val fertig = Auftrag.unterschreiben(a.sperre, bau, k.privateKey, k.publicKey, x)
         assertEquals(ein.getString("roh"), Hex.toHex(fertig.roh))
         assertEquals(ein.getString("txid"), fertig.txidHex)
         assertEquals(bau.bytes, fertig.roh.size)
@@ -184,14 +185,21 @@ class AuftragTest {
 
         val a = ok<Gelesen.Einloesen>(alsK(code("einloesen", sperrDaten())))
         fun bau(
-            wurzel: ByteArray = kWurzel,
             konto: Auftrag.Skriptkonto = kontoMit(vollesKonto),
             spitze: Long = 10_481,
             erwartet: Long? = null,
-        ) = (Auftrag.einloesenBauen(a, wurzel, k.address, konto, spitze, 400, erwartet) as? Bau.Abgelehnt)?.fehler
+        ) = (Auftrag.einloesenBauen(a, k.address, konto, spitze, 400, erwartet) as? Bau.Abgelehnt)?.fehler
 
+        // Anderes Konto derselben Woerter: anderes Geheimnis, passt nicht.
         val andereWurzel = Wallet.otcWurzel(Bip39.toSeed(fall.getString("kaeuferWoerter"), ""), 1)
-        assertEquals(Fehler.GEHEIMNIS, bau(wurzel = andereWurzel))
+        assertNull(Auftrag.geheimnisFuer(a, andereWurzel))
+        val gebaut = Auftrag.einloesenBauen(a, k.address, kontoMit(vollesKonto), 10_481, 400, null) as Bau.Ok
+        assertThrows(IllegalStateException::class.java) {
+            Auftrag.unterschreiben(a.sperre, gebaut, k.privateKey, k.publicKey, ByteArray(32))
+        }
+        assertThrows(IllegalStateException::class.java) {
+            Auftrag.unterschreiben(a.sperre, gebaut, k.privateKey, k.publicKey, null)
+        }
         assertEquals(Fehler.BETRAG, bau(erwartet = 14_999_999_999L))
         assertEquals(Fehler.ZU_SPAET, bau(spitze = 10_482))
         assertEquals(Fehler.WARTEND, bau(konto = kontoMit(vollesKonto, wartend = true)))
@@ -213,7 +221,7 @@ class AuftragTest {
         )
         val bau = Auftrag.zurueckBauen(a, v.address, kontoMit(vollesKonto), 10_499, 400) as Bau.Ok
         assertEquals(zur.getLong("validFrom"), bau.entwurf.validFrom)
-        val fertig = Auftrag.unterschreiben(a.sperre, bau, v.privateKey, v.publicKey)
+        val fertig = Auftrag.unterschreiben(a.sperre, bau, v.privateKey, v.publicKey, null)
         assertEquals(zur.getString("roh"), Hex.toHex(fertig.roh))
         assertEquals(zur.getString("txid"), fertig.txidHex)
         assertEquals(Fehler.NICHT_BETEILIGT, fehler(alsK(code("zurueck", sperrDaten(n = null)))))
@@ -234,7 +242,7 @@ class AuftragTest {
         val a = ok<Gelesen.Zurueck>(alsV(code("zurueck", sperrDaten(n = null))))
         val bau = Auftrag.zurueckBauen(a, v.address, kontoMit(vollesKonto), 10_499, 400) as Bau.Ok
         assertThrows(IllegalStateException::class.java) {
-            Auftrag.unterschreiben(a.sperre, bau, k.privateKey, k.publicKey)
+            Auftrag.unterschreiben(a.sperre, bau, k.privateKey, k.publicKey, null)
         }
     }
 

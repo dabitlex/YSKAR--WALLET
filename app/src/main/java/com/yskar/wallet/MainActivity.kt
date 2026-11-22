@@ -36,6 +36,8 @@ import com.yskar.wallet.ui.Hintergrundschutz
 import com.yskar.wallet.ui.LocalTexte
 import com.yskar.wallet.ui.LocalVibration
 import com.yskar.wallet.ui.Mitteilungsziel
+import com.yskar.wallet.ui.OffeneTauscheScreen
+import com.yskar.wallet.ui.OtcScreen
 import com.yskar.wallet.ui.EmpfangenScreen
 import com.yskar.wallet.ui.Buehne
 import com.yskar.wallet.ui.PinSetzenScreen
@@ -53,6 +55,7 @@ import com.yskar.wallet.ui.Signierstart
 import com.yskar.wallet.ui.Sichtschutz
 import com.yskar.wallet.ui.SperreScreen
 import com.yskar.wallet.ui.VerlaufScreen
+import com.yskar.wallet.otc.Tauschbuch
 import com.yskar.wallet.ui.WalletModel
 import com.yskar.wallet.ui.WalletScreen
 import com.yskar.wallet.ui.WiederherstellenScreen
@@ -316,6 +319,25 @@ private fun Wallet(
         }
     }
 
+    // OTC-Tausch mit dem Finger: wie beim Signieren. Bricht der Nutzer ab,
+    // erfaehrt es der Bildschirm ueber [abgebrochen].
+    fun otcBio(
+        abgebrochen: () -> Unit,
+        mitCipher: (javax.crypto.Cipher) -> Unit,
+    ) {
+        val cipher = model.bioCipherZumOeffnen()
+        if (cipher == null) {
+            abgebrochen()
+            return
+        }
+        scope.launch {
+            when (val a = SensorFrage.frage(activity, t.otc.bioGrund, cipher, t)) {
+                is SensorFrage.Antwort.Ok -> if (a.cipher != null) mitCipher(a.cipher) else abgebrochen()
+                is SensorFrage.Antwort.Abbruch -> abgebrochen()
+            }
+        }
+    }
+
     val ansicht = stand.ansicht
 
     // Zurueck-Taste: aus Unterseiten zurueck zur Wallet, sonst wie gewohnt.
@@ -520,6 +542,9 @@ private fun Wallet(
             kontaktAnzahl = stand.kontakte.size,
             onKontakte = { model.zeige(WalletModel.Ansicht.Kontaktliste) },
             onAnmelden = { model.zeige(WalletModel.Ansicht.Anmelden(code = null)) },
+            onOtcScannen = { model.zeige(WalletModel.Ansicht.Otc(code = null)) },
+            onOffeneTausche = { model.zeige(WalletModel.Ansicht.OffeneTausche) },
+            offeneTausche = Tauschbuch.offen(stand.tausche).size,
             onSignieren = { model.zeige(WalletModel.Ansicht.Signieren) },
             onEinfuehrung = model::einfuehrungZeigen,
             onLoeschen = model::tresorLoeschen,
@@ -580,6 +605,42 @@ private fun Wallet(
                 modifier = modifier,
             )
         }
+
+        // --- OTC-Tausch (REGELN.md, Regel 43) ---------------------------
+        is WalletModel.Ansicht.Otc -> key(ansicht) {
+            OtcScreen(
+                code = ansicht.code,
+                adresse = stand.adresse ?: "",
+                bioEingeschaltet = stand.bioEingeschaltet,
+                onLesen = model::otcLesen,
+                onVorbereiten = model::otcVorbereiten,
+                onSperrenWeiter = model::otcSperrenWeiter,
+                onHash = model::otcHash,
+                onHashBio = { code, vor, fertig, abgebrochen ->
+                    otcBio(abgebrochen) { c -> model.otcHashBio(code, c, vor, fertig) }
+                },
+                onAusgeben = model::otcAusgeben,
+                onAusgebenBio = { auftrag, bau, vor, fertig, abgebrochen ->
+                    otcBio(abgebrochen) { c -> model.otcAusgebenBio(auftrag, bau, c, vor, fertig) }
+                },
+                onOffeneTausche = { model.zeige(WalletModel.Ansicht.OffeneTausche) },
+                // Aus einem Link gekommen: zum Hauptbildschirm. Gescannt: zu den Einstellungen.
+                onZurueck = {
+                    model.zeige(
+                        if (ansicht.code != null) WalletModel.Ansicht.Wallet
+                        else WalletModel.Ansicht.Einstellungen,
+                    )
+                },
+                modifier = modifier,
+            )
+        }
+
+        WalletModel.Ansicht.OffeneTausche -> OffeneTauscheScreen(
+            tausche = stand.tausche,
+            onOeffnen = model::tauschOeffnen,
+            onZurueck = { model.zeige(WalletModel.Ansicht.Einstellungen) },
+            modifier = modifier,
+        )
 
         WalletModel.Ansicht.SendenEingabe -> SendenEingabeScreen(
             guthaben = stand.konto?.guthaben,

@@ -102,6 +102,9 @@ fun EinstellungenScreen(
     onSignieren: () -> Unit = {},
     kontaktAnzahl: Int = 0,
     onKontakte: () -> Unit = {},
+    onOtcScannen: () -> Unit = {},
+    onOffeneTausche: () -> Unit = {},
+    offeneTausche: Int = 0,
 ) {
     val t = LocalTexte.current.einstellungen
     var pinSchritt by remember { mutableStateOf<PinSchritt?>(null) }
@@ -226,6 +229,28 @@ fun EinstellungenScreen(
                     )
                 }
                 Fussnote(sig.einleitung)
+
+                // ------------------------------------------------- OTC-Tausch
+                // Auftraege von otc.yskar.app (Wallet 3.1, REGELN.md, Regel 43).
+                val otc = LocalTexte.current.otc
+                Gruppentitel(otc.rubrik)
+                Gruppe {
+                    Pfeilzeile(
+                        symbol = R.drawable.ic_qr_code_fill,
+                        titel = otc.eintragScannen,
+                        hinweis = otc.eintragScannenHinweis,
+                        onKlick = onOtcScannen,
+                        marke = "otc_scannen",
+                    )
+                    Trennlinie()
+                    Pfeilzeile(
+                        symbol = R.drawable.ic_lock_key_fill,
+                        titel = otc.eintragOffen,
+                        wert = if (offeneTausche > 0) offeneTausche.toString() else null,
+                        onKlick = onOffeneTausche,
+                        marke = "otc_offen",
+                    )
+                }
 
                 // ------------------------------------------------- Allgemein
                 Gruppentitel(t.allgemein)

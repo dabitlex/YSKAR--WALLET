@@ -4,12 +4,19 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.yskar.wallet.Kontaktspeicher
+import com.yskar.wallet.Tauschspeicher
 import com.yskar.wallet.Vorlieben
 import com.yskar.wallet.Waechterdienst
 import com.yskar.wallet.kern.Bip39
+import com.yskar.wallet.kern.Hex
+import com.yskar.wallet.kern.Tx
 import com.yskar.wallet.kontakte.Kontakt
 import com.yskar.wallet.kontakte.Kontakte
+import com.yskar.wallet.netz.Betrag
+import com.yskar.wallet.netz.Fassung
 import com.yskar.wallet.netz.Guthabenverlauf
+import com.yskar.wallet.netz.SendeErgebnis
+import com.yskar.wallet.netz.Stufe
 import com.yskar.wallet.netz.Konto
 import com.yskar.wallet.netz.Markt
 import com.yskar.wallet.netz.NetzFehler
@@ -22,6 +29,9 @@ import com.yskar.wallet.netz.Verlaufslader
 import com.yskar.wallet.netz.Waechter
 import com.yskar.wallet.netz.HttpTransport
 import com.yskar.wallet.netz.spiegelMainnet
+import com.yskar.wallet.otc.Ablauf
+import com.yskar.wallet.otc.Auftrag
+import com.yskar.wallet.otc.Tauschbuch
 import com.yskar.wallet.signatur.Nachricht
 import com.yskar.wallet.signatur.Rueckruf
 import com.yskar.wallet.signatur.Unterschrift
@@ -41,6 +51,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import javax.crypto.Cipher
 
 /**
@@ -66,6 +77,9 @@ class WalletModel(app: Application) : AndroidViewModel(app) {
     /** Namen fuer Adressen - nur auf diesem Geraet (`Kontaktspeicher`). */
     private val kontaktspeicher = Kontaktspeicher(app)
 
+    /** Offene OTC-Tausche - nur auf diesem Geraet (`Tauschspeicher`, Regel 43). */
+    private val tauschspeicher = Tauschspeicher(app)
+
     /**
      * Fuer die Antwort auf eine Anmeldung per QR-Code: derselbe Transport
      * wie zum Spiegel (nur https, folgt keiner Weiterleitung), mit der
@@ -77,7 +91,11 @@ class WalletModel(app: Application) : AndroidViewModel(app) {
     // Die Sprache steht vom ersten Bild an fest - sonst blitzte bei jedem
     // Start ein deutscher Bildschirm auf, bevor der englische kommt.
     private val _stand = MutableStateFlow(
-        Stand(sprache = vorlieben.geltendeSprache, kontakte = kontaktspeicher.liste),
+        Stand(
+            sprache = vorlieben.geltendeSprache,
+            kontakte = kontaktspeicher.liste,
+            tausche = tauschspeicher.buch,
+        ),
     )
     val stand: StateFlow<Stand> = _stand.asStateFlow()
 
@@ -133,6 +151,8 @@ class WalletModel(app: Application) : AndroidViewModel(app) {
          * (`kontakte/Kontakte.kt`).
          */
         val kontakte: List<Kontakt> = emptyList(),
+        /** Die OTC-Tausche auf diesem Geraet (`otc/Tauschbuch.kt`). */
+        val tausche: List<Tauschbuch.Eintrag> = emptyList(),
         /** Der Zeitraum, den das Diagramm auf dem Hauptbildschirm zeigt. */
         val zeitraum: Guthabenverlauf.Zeitraum = Guthabenverlauf.Zeitraum.TAGE_30,
         /**
@@ -274,6 +294,15 @@ class WalletModel(app: Application) : AndroidViewModel(app) {
          * oder Links; null heisst, er wird erst noch gescannt.
          */
         data class Anmelden(val code: String?) : Ansicht
+
+        /**
+         * Ein OTC-Auftrag von otc.yskar.app. [code]: QR-Code oder Link;
+         * null heisst, er wird erst noch gescannt.
+         */
+        data class Otc(val code: String?) : Ansicht
+
+        /** Die offenen OTC-Tausche auf diesem Geraet. */
+        data object OffeneTausche : Ansicht
 
         /**
          * Die acht Karten der Einfuehrung. [ausMehr] sagt, wohin es danach
@@ -555,7 +584,7 @@ class WalletModel(app: Application) : AndroidViewModel(app) {
                         // erste Einfuehrung), geht es dorthin zurueck -
                         // sonst zum Hauptbildschirm.
                         // Ein wartender Anmelde-Code geht vor.
-                        ansicht = it.wartenderCode?.let { c -> Ansicht.Anmelden(c) }
+                        ansicht = it.wartenderCode?.let { c -> ansichtFuerCode(c) }
                             ?: it.nachEntsperren ?: Ansicht.Wallet,
                         nachEntsperren = null,
                         wartenderCode = null,
@@ -1088,7 +1117,10 @@ class WalletModel(app: Application) : AndroidViewModel(app) {
                     ),
                 )
             }
-            if (ergebnis is Senden.Ergebnis.Angenommen) kontoLaden()
+            if (ergebnis is Senden.Ergebnis.Angenommen) {
+                otcSperreGesendet(a.entwurf.empfaenger, ergebnis.txid)
+                kontoLaden()
+            }
         }
     }
 
@@ -1192,6 +1224,9 @@ class WalletModel(app: Application) : AndroidViewModel(app) {
         // Die Kontakte gehen mit der Wallet: Sie sagen, mit wem ihr Besitzer
         // zu tun hatte, und haben auf dem Geraet nichts mehr verloren.
         kontaktspeicher.leeren()
+        // Die offenen Tausche ebenso. Wer die Woerter neu eingibt, holt sie
+        // ueber otc.yskar.app zurueck - das Geheimnis haengt an den Woertern.
+        tauschspeicher.leeren()
         Waechterdienst.planen(getApplication(), false)
         setze {
             Stand(
@@ -1455,15 +1490,20 @@ class WalletModel(app: Application) : AndroidViewModel(app) {
      * alles, was kein Anmelde-Code ist, wird uebergangen.
      */
     fun anmeldecodeEmpfangen(text: String) {
-        if (text.length > CODE_MAX || !Nachricht.istAnmeldeCode(text)) return
+        if (text.length > CODE_MAX) return
+        if (!Nachricht.istAnmeldeCode(text) && !Auftrag.istOtcCode(text)) return
         setze { s ->
             when {
                 s.adresse == null -> s
                 s.ansicht is Ansicht.Sperre || s.ansicht is Ansicht.Laedt -> s.copy(wartenderCode = text)
-                else -> s.copy(ansicht = Ansicht.Anmelden(text), fehler = null, hinweis = null)
+                else -> s.copy(ansicht = ansichtFuerCode(text), fehler = null, hinweis = null)
             }
         }
     }
+
+    /** Ein `yskar:otc`-Link fuehrt zum Tausch, alles andere zur Anmeldung. */
+    private fun ansichtFuerCode(code: String): Ansicht =
+        if (Auftrag.istOtcCode(code)) Ansicht.Otc(code) else Ansicht.Anmelden(code)
 
     /**
      * Ein Tipp auf eine Mitteilung des Waechters hat die App geoeffnet.
@@ -1525,6 +1565,348 @@ class WalletModel(app: Application) : AndroidViewModel(app) {
     /** Ansichten, aus denen ein Tipp auf eine Mitteilung zur Zahlung springen darf. */
     private fun darfZurZahlung(a: Ansicht): Boolean =
         a is Ansicht.Wallet || a is Ansicht.Verlauf || a is Ansicht.Bewegung || a is Ansicht.Empfangen
+
+    // ------------------------------------------------------------ OTC-Tausch
+    //
+    // Auftraege von otc.yskar.app (REGELN.md, Regel 43). Was ein Auftrag
+    // ist und ob er stimmt, sagt `otc/Auftrag.kt`; was einen Schluessel
+    // braucht, `otc/Ablauf.kt`. Hier nur: Tresor oeffnen, den Knoten fragen,
+    // senden, das Tauschbuch fuehren.
+
+    /** Was ein Auftrag ist - ohne Netz, ohne Schluessel, mit der Uhr von jetzt. */
+    fun otcLesen(code: String): Auftrag.Lesung =
+        Auftrag.lesen(code, _stand.value.adresse ?: "", System.currentTimeMillis())
+
+    /** Was der Knoten zu einem Auftrag sagt, bevor die PIN verlangt wird. */
+    sealed interface OtcVorbereitung {
+        /** Einloesen oder Zurueckholen: GENAU dieser Entwurf wird nach der PIN unterschrieben. */
+        class Ausgabe(val bau: Auftrag.Bau.Ok, val spitze: Long, val bestaetigungen: Long) : OtcVorbereitung
+
+        /** Sperren: Die Hoehe passt; weiter geht es im Pruefschritt der Ueberweisung. */
+        class Sperre(val spitze: Long) : OtcVorbereitung
+
+        data class Abgelehnt(val fehler: Auftrag.Fehler, val spitze: Long?, val bestaetigungen: Long?) : OtcVorbereitung
+        data class Problem(val text: String) : OtcVorbereitung
+    }
+
+    /** Was aus einem bestaetigten Auftrag geworden ist. */
+    sealed interface OtcAntwort {
+        data class HashGesendet(val ergebnis: Rueckruf.Ergebnis) : OtcAntwort
+
+        /** Der Knoten hat angenommen - Schritt 2 von fuenf, nicht "erledigt" (Regel 20). */
+        data class Angenommen(val txid: String) : OtcAntwort
+        data class KnotenLehntAb(val grund: String) : OtcAntwort
+        data class Abgelehnt(val fehler: Auftrag.Fehler) : OtcAntwort
+        data class Gestoert(val stoerung: Ablauf.Stoerung) : OtcAntwort
+        data class PinFalsch(val meldung: String) : OtcAntwort
+        data class Fehler(val meldung: String) : OtcAntwort
+    }
+
+    private fun tauschbuchAendern(f: (List<Tauschbuch.Eintrag>) -> List<Tauschbuch.Eintrag>) {
+        val neu = f(tauschspeicher.buch)
+        tauschspeicher.buch = neu
+        setze { it.copy(tausche = neu) }
+    }
+
+    private fun jetztSekunden() = System.currentTimeMillis() / 1000
+
+    private fun netzText(e: NetzFehler): String =
+        if (e.offline) t.otc.keinKnoten else t.otc.knotenAntwortet(e.status)
+
+    /**
+     * Den Knoten fragen. Fuer sperren nur die Hoehe; fuer einloesen und
+     * zurueck auch das Skriptkonto und die Gebuehrenlage - daraus entsteht
+     * der Entwurf, der gezeigt wird.
+     *
+     * Eine gepruefte Sperre wird gleich ins Tauschbuch geschrieben, auch
+     * wenn sie noch nicht bereit ist: Dann laesst sie sich spaeter aus
+     * "Offene Tausche" heraus fortsetzen.
+     */
+    fun otcVorbereiten(auftrag: Auftrag.Gelesen, fertig: (OtcVorbereitung) -> Unit) {
+        val adresse = _stand.value.adresse ?: return
+        val texte = t
+        viewModelScope.launch {
+            val v: OtcVorbereitung = try {
+                when (auftrag) {
+                    is Auftrag.Gelesen.Hash -> OtcVorbereitung.Problem(texte.otc.fehler(Auftrag.Fehler.ART))
+
+                    is Auftrag.Gelesen.Sperren -> {
+                        val kopf = withContext(Dispatchers.IO) { spiegel.kopf() }
+                        val spitze = kopf.hoehe
+                        if (spitze == null) {
+                            OtcVorbereitung.Problem(texte.otc.keinKnoten)
+                        } else {
+                            tauschbuchAendern {
+                                Tauschbuch.merkeSperre(
+                                    it, auftrag.sperre, Tauschbuch.Rolle.VERKAEUFER, auftrag.n, jetztSekunden(),
+                                    auftrag.gegen, auftrag.gegenMenge,
+                                )
+                            }
+                            setze { it.copy(spitze = spitze) }
+                            when (val f = Auftrag.sperrenPruefen(auftrag, spitze)) {
+                                null -> OtcVorbereitung.Sperre(spitze)
+                                else -> OtcVorbereitung.Abgelehnt(f, spitze, null)
+                            }
+                        }
+                    }
+
+                    is Auftrag.Gelesen.Einloesen, is Auftrag.Gelesen.Zurueck -> {
+                        val sperre = if (auftrag is Auftrag.Gelesen.Einloesen) auftrag.sperre
+                        else (auftrag as Auftrag.Gelesen.Zurueck).sperre
+                        tauschbuchAendern {
+                            if (auftrag is Auftrag.Gelesen.Einloesen) {
+                                Tauschbuch.merkeSperre(it, sperre, Tauschbuch.Rolle.KAEUFER, auftrag.n, jetztSekunden())
+                            } else {
+                                Tauschbuch.merkeSperre(it, sperre, Tauschbuch.Rolle.VERKAEUFER, null, jetztSekunden())
+                            }
+                        }
+                        val (konto, markt, kopf) = withContext(Dispatchers.IO) {
+                            Triple(
+                                spiegel.konto(sperre.skriptAdresse),
+                                runCatching { spiegel.markt() }.getOrNull(),
+                                spiegel.kopf(),
+                            )
+                        }
+                        val spitze = kopf.hoehe
+                        val stand = Fassung.sendeStand(markt, spitze)
+                        when {
+                            spitze == null -> OtcVorbereitung.Problem(texte.otc.keinKnoten)
+                            stand.unbekannt || stand.pause || stand.fassung != Tx.TRANSFER_V2 ->
+                                OtcVorbereitung.Problem(texte.otc.fassungFehlt)
+
+                            else -> {
+                                val sk = Auftrag.Skriptkonto(
+                                    guthaben = konto.guthaben,
+                                    naechsteNonce = konto.naechsteNonce,
+                                    eingaenge = konto.verlauf.filter { it.art.eingehend }.map { it.height },
+                                    wartend = konto.wartend.isNotEmpty(),
+                                )
+                                val bestaetigt = sk.bestaetigungen(spitze)
+                                val gebuehr = { bytes: Int -> Fassung.gebuehrFuer(markt, Stufe.NORMAL, bytes) }
+                                val bau = Ablauf.mitGebuehr(gebuehr) { g ->
+                                    if (auftrag is Auftrag.Gelesen.Einloesen) {
+                                        Auftrag.einloesenBauen(
+                                            auftrag, adresse, sk, spitze, g,
+                                            Tauschbuch.erwartetYsr(tauschspeicher.buch, sperre.kennung),
+                                        )
+                                    } else {
+                                        Auftrag.zurueckBauen(auftrag as Auftrag.Gelesen.Zurueck, adresse, sk, spitze, g)
+                                    }
+                                }
+                                setze { it.copy(spitze = spitze, marktStand = markt ?: it.marktStand) }
+                                when (bau) {
+                                    is Auftrag.Bau.Ok -> OtcVorbereitung.Ausgabe(bau, spitze, bestaetigt)
+                                    is Auftrag.Bau.Abgelehnt -> OtcVorbereitung.Abgelehnt(bau.fehler, spitze, bestaetigt)
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: NetzFehler) {
+                // Ein Skriptkonto ohne jede Bewegung kennt der Spiegel
+                // vielleicht gar nicht - das ist kein Funkloch.
+                if (!e.offline && e.status in 400..499) OtcVorbereitung.Problem(texte.otc.skriptNichtGefunden)
+                else OtcVorbereitung.Problem(netzText(e))
+            }
+            fertig(v)
+        }
+    }
+
+    /**
+     * Sperren: weiter in den gewohnten Pruefschritt einer Ueberweisung -
+     * Empfaenger ist die Sperradresse, der Betrag der aus dem Auftrag
+     * (Ausnahme zu Regel 22, Entscheidung des Besitzers 22.11.2026). Alles
+     * Weitere - Guthaben, Gebuehr, Nonce, PIN, drei Gegenproben - ist der
+     * Weg jeder Ueberweisung. Gibt den Grund zurueck, falls es nicht geht.
+     */
+    fun otcSperrenWeiter(auftrag: Auftrag.Gelesen.Sperren): String? {
+        val s = _stand.value
+        val p = Senden.pruefe(
+            eigeneAdresse = s.adresse ?: "",
+            konto = s.konto,
+            markt = s.marktStand,
+            spitze = s.spitze,
+            empfaengerText = auftrag.sperre.skriptAdresse,
+            betragText = Betrag.alsEingabe(auftrag.sperre.ysr, Locale.GERMAN, stellen = Betrag.DECIMALS),
+            notizText = "",
+        )
+        return when (p) {
+            is Senden.Pruefung.Problem -> Sendemeldungen.uebersetze(p.grund, s.sprache)
+            is Senden.Pruefung.Bereit -> {
+                // Was im Pruefschritt steht, muss genau der Auftrag sein.
+                if (p.entwurf.betrag != auftrag.sperre.ysr || p.entwurf.empfaenger != auftrag.sperre.skriptAdresse) {
+                    return t.otc.stoerung(Ablauf.Stoerung.GEGENPROBE)
+                }
+                setze { it.copy(ansicht = Ansicht.SendenPruefen(p.entwurf), sendeFehler = null) }
+                null
+            }
+        }
+    }
+
+    /** Nach einer angenommenen Ueberweisung: War es die Sperre eines Tauschs? */
+    private fun otcSperreGesendet(empfaenger: String, txid: String?) {
+        val e = tauschspeicher.buch.firstOrNull {
+            it.rolle == Tauschbuch.Rolle.VERKAEUFER && it.skriptAdresse == empfaenger &&
+                it.stand == Tauschbuch.Stand.GEMERKT
+        } ?: return
+        tauschbuchAendern { Tauschbuch.setzeStand(it, e.kennung, e.rolle, Tauschbuch.Stand.GESPERRT, txid) }
+    }
+
+    /** Der Tresor, einmal geoeffnet: entweder die Woerter genutzt, oder warum nicht. */
+    private sealed interface Geoeffnet<out T> {
+        class Ja<T>(val wert: T) : Geoeffnet<T>
+        class Nein(val antwort: OtcAntwort) : Geoeffnet<Nothing>
+    }
+
+    /** Woerter holen, [tun] damit, Woerter ueberschreiben - auch bei Fehlern. */
+    private fun <T> mitWoertern(oeffne: () -> Tresor.Ergebnis, tun: (ByteArray) -> T): Geoeffnet<T> {
+        val texte = t
+        return when (val auf = oeffne()) {
+            is Tresor.Ergebnis.Offen -> try {
+                Geoeffnet.Ja(tun(auf.woerter))
+            } finally {
+                auf.woerter.loeschen()
+            }
+
+            is Tresor.Ergebnis.FalschePin -> Geoeffnet.Nein(
+                OtcAntwort.PinFalsch(
+                    if (auf.wartezeit > 0) texte.modell.pinFalschWarten(auf.wartezeit)
+                    else texte.modell.pinFalschVersuch(auf.fehlversuche),
+                ),
+            )
+
+            is Tresor.Ergebnis.Gesperrt -> Geoeffnet.Nein(OtcAntwort.PinFalsch(texte.modell.nochGesperrt(auf.wartezeit)))
+            else -> Geoeffnet.Nein(OtcAntwort.Fehler(beschreibe(auf)))
+        }
+    }
+
+    // --- hash: nur den Fingerabdruck an otc.yskar.app --------------------
+
+    fun otcHash(code: String, pin: CharArray, vorDemSenden: () -> Unit, fertig: (OtcAntwort) -> Unit) =
+        otcHashMit(code, { tresor.oeffnen(pin) }, { pin.loeschen() }, vorDemSenden, fertig)
+
+    /** Dasselbe mit dem Finger - durch dieselbe Funktion (Regel 27). */
+    fun otcHashBio(code: String, cipher: Cipher, vorDemSenden: () -> Unit, fertig: (OtcAntwort) -> Unit) =
+        otcHashMit(code, { tresor.bioOeffnen(cipher) }, {}, vorDemSenden, fertig)
+
+    private fun otcHashMit(
+        code: String,
+        oeffne: () -> Tresor.Ergebnis,
+        aufraeumen: () -> Unit,
+        vorDemSenden: () -> Unit,
+        fertig: (OtcAntwort) -> Unit,
+    ) {
+        val adresse = _stand.value.adresse ?: run {
+            aufraeumen()
+            return
+        }
+        viewModelScope.launch {
+            val g = withContext(Dispatchers.Default) {
+                mitWoertern(oeffne) { w -> Ablauf.hashUnterschreiben(code, w, adresse, System.currentTimeMillis()) }
+            }
+            aufraeumen()
+            val antwort = when (g) {
+                is Geoeffnet.Nein -> g.antwort
+                is Geoeffnet.Ja -> when (val e = g.wert) {
+                    is Ablauf.HashErgebnis.Abgelehnt -> OtcAntwort.Abgelehnt(e.fehler)
+                    is Ablauf.HashErgebnis.Gestoert -> OtcAntwort.Gestoert(e.stoerung)
+                    is Ablauf.HashErgebnis.Ok -> {
+                        tauschbuchAendern { Tauschbuch.merkeHash(it, e.auftrag, jetztSekunden()) }
+                        vorDemSenden()
+                        // Genau EIN POST; `Rueckruf.senden` prueft die Adresse noch einmal.
+                        val r = withContext(Dispatchers.IO) {
+                            Rueckruf.senden(e.auftrag.rueckruf, Auftrag.DOMAIN, e.signiert, rueckrufTransport)
+                        }
+                        OtcAntwort.HashGesendet(r)
+                    }
+                }
+            }
+            fertig(antwort)
+        }
+    }
+
+    // --- einloesen / zurueck: Ausgabe aus der Sperre --------------------
+
+    fun otcAusgeben(
+        auftrag: Auftrag.Gelesen,
+        bau: Auftrag.Bau.Ok,
+        pin: CharArray,
+        vorDemSenden: () -> Unit,
+        fertig: (OtcAntwort) -> Unit,
+    ) = otcAusgebenMit(auftrag, bau, { tresor.oeffnen(pin) }, { pin.loeschen() }, vorDemSenden, fertig)
+
+    fun otcAusgebenBio(
+        auftrag: Auftrag.Gelesen,
+        bau: Auftrag.Bau.Ok,
+        cipher: Cipher,
+        vorDemSenden: () -> Unit,
+        fertig: (OtcAntwort) -> Unit,
+    ) = otcAusgebenMit(auftrag, bau, { tresor.bioOeffnen(cipher) }, {}, vorDemSenden, fertig)
+
+    private fun otcAusgebenMit(
+        auftrag: Auftrag.Gelesen,
+        bau: Auftrag.Bau.Ok,
+        oeffne: () -> Tresor.Ergebnis,
+        aufraeumen: () -> Unit,
+        vorDemSenden: () -> Unit,
+        fertig: (OtcAntwort) -> Unit,
+    ) {
+        val adresse = _stand.value.adresse ?: run {
+            aufraeumen()
+            return
+        }
+        val texte = t
+        viewModelScope.launch {
+            val g = withContext(Dispatchers.Default) {
+                mitWoertern(oeffne) { w -> Ablauf.ausgabeUnterschreiben(auftrag, bau, w, adresse) }
+            }
+            aufraeumen()
+            val antwort = when (g) {
+                is Geoeffnet.Nein -> g.antwort
+                is Geoeffnet.Ja -> when (val e = g.wert) {
+                    is Ablauf.AusgabeErgebnis.Abgelehnt -> OtcAntwort.Abgelehnt(e.fehler)
+                    is Ablauf.AusgabeErgebnis.Gestoert -> OtcAntwort.Gestoert(e.stoerung)
+                    is Ablauf.AusgabeErgebnis.Fertig -> {
+                        vorDemSenden()
+                        try {
+                            when (val a = withContext(Dispatchers.IO) { spiegel.senden(Hex.toHex(e.fertig.roh)) }) {
+                                is SendeErgebnis.Angenommen -> {
+                                    val txid = a.txid ?: e.fertig.txidHex
+                                    val (kennung, rolle, stand) = when (auftrag) {
+                                        is Auftrag.Gelesen.Einloesen -> Triple(
+                                            auftrag.sperre.kennungHex, Tauschbuch.Rolle.KAEUFER, Tauschbuch.Stand.EINGELOEST,
+                                        )
+                                        else -> Triple(
+                                            (auftrag as Auftrag.Gelesen.Zurueck).sperre.kennungHex,
+                                            Tauschbuch.Rolle.VERKAEUFER, Tauschbuch.Stand.ZURUECK,
+                                        )
+                                    }
+                                    tauschbuchAendern { Tauschbuch.setzeStand(it, kennung, rolle, stand, txid) }
+                                    OtcAntwort.Angenommen(txid)
+                                }
+
+                                is SendeErgebnis.Abgelehnt -> OtcAntwort.KnotenLehntAb(
+                                    listOfNotNull(a.grund, a.detail).joinToString(": "),
+                                )
+                            }
+                        } catch (n: NetzFehler) {
+                            OtcAntwort.Fehler(netzText(n))
+                        } catch (x: Exception) {
+                            OtcAntwort.Fehler(x.message ?: texte.otc.keinKnoten)
+                        }
+                    }
+                }
+            }
+            if (antwort is OtcAntwort.Angenommen) kontoLaden()
+            fertig(antwort)
+        }
+    }
+
+    /** Einen Eintrag aus "Offene Tausche" fortsetzen - der Auftrag geht wieder ganz durch `Auftrag.lesen`. */
+    fun tauschOeffnen(e: Tauschbuch.Eintrag) {
+        val code = Tauschbuch.auftrag(e) ?: return
+        setze { it.copy(ansicht = Ansicht.Otc(code), fehler = null) }
+    }
 
     private fun beschreibe(e: Tresor.Ergebnis): String = when (e) {
         is Tresor.Ergebnis.Offen -> "offen"

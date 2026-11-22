@@ -261,18 +261,22 @@ object Auftrag {
     /**
      * Einen Auftrag lesen und alles pruefen, was ohne Knoten geht.
      *
-     * [eigeneAdresse] und [eigenerSchluessel] sind die der entsperrten
-     * Wallet (oeffentlich, keine Geheimnisse). [jetztMs]: Uhr des Geraets.
+     * [eigeneAdresse] ist die der Wallet (oeffentlich). Den eigenen
+     * Schluessel erkennt die Wallet an ihr: Adresse = Hash des Schluessels.
+     * So geht das Lesen ohne Entsperren. [jetztMs]: Uhr des Geraets.
      */
-    fun lesen(text: String, eigeneAdresse: String, eigenerSchluessel: ByteArray, jetztMs: Long): Lesung = try {
-        Lesung.Ok(lesenOderAbbruch(text.trim(), eigeneAdresse, eigenerSchluessel, jetztMs))
+    fun lesen(text: String, eigeneAdresse: String, jetztMs: Long): Lesung = try {
+        Lesung.Ok(lesenOderAbbruch(text.trim(), eigeneAdresse, jetztMs))
     } catch (a: Abbruch) {
         Lesung.Abgelehnt(a.fehler)
     } catch (e: IllegalArgumentException) {
         Lesung.Abgelehnt(Fehler.DATEN)
     }
 
-    private fun lesenOderAbbruch(t: String, eigeneAdresse: String, eigenerSchluessel: ByteArray, jetztMs: Long): Gelesen {
+    private fun istEigen(schluessel: ByteArray, eigeneAdresse: String): Boolean =
+        Address.forPublicKey(schluessel) == eigeneAdresse
+
+    private fun lesenOderAbbruch(t: String, eigeneAdresse: String, jetztMs: Long): Gelesen {
         pruefe(istOtcCode(t), Fehler.FORMAT)
         val p = abfrage(t.substring(t.indexOf('?') + 1)) ?: throw Abbruch(Fehler.FORMAT)
         pruefe(p.keys.all { it in setOf("v", "auftrag", "d", "cb") }, Fehler.FORMAT)
@@ -309,7 +313,7 @@ object Auftrag {
             }
             Art.SPERREN -> {
                 val s = sperre(o)
-                pruefe(s.teile.verkaeufer.contentEquals(eigenerSchluessel), Fehler.NICHT_BETEILIGT)
+                pruefe(istEigen(s.teile.verkaeufer, eigeneAdresse), Fehler.NICHT_BETEILIGT)
                 val n = bestaetigungsZahl(o)
                 val (g, m) = gegen(o)
                 val gs = text(o, "gegenSperre")
@@ -318,12 +322,12 @@ object Auftrag {
             }
             Art.EINLOESEN -> {
                 val s = sperre(o)
-                pruefe(s.teile.kaeufer.contentEquals(eigenerSchluessel), Fehler.NICHT_BETEILIGT)
+                pruefe(istEigen(s.teile.kaeufer, eigeneAdresse), Fehler.NICHT_BETEILIGT)
                 Gelesen.Einloesen(s, bestaetigungsZahl(o))
             }
             Art.ZURUECK -> {
                 val s = sperre(o)
-                pruefe(s.teile.verkaeufer.contentEquals(eigenerSchluessel), Fehler.NICHT_BETEILIGT)
+                pruefe(istEigen(s.teile.verkaeufer, eigeneAdresse), Fehler.NICHT_BETEILIGT)
                 Gelesen.Zurueck(s)
             }
         }
@@ -386,8 +390,8 @@ object Auftrag {
     }
 
     sealed interface Bau {
-        /** [geheimnis] nur beim Einloesen; gehoert in den Witness, sonst nirgendwohin. */
-        class Ok(val entwurf: SkriptAusgabe.Entwurf, val geheimnis: ByteArray?, val bytes: Int) : Bau
+        /** [einloesen]: Kaeufer-Zweig (Witness mit Geheimnis), sonst Zurueckholen. */
+        class Ok(val entwurf: SkriptAusgabe.Entwurf, val einloesen: Boolean, val bytes: Int) : Bau
         data class Abgelehnt(val fehler: Fehler) : Bau
     }
 
@@ -396,16 +400,26 @@ object Auftrag {
         SkriptAusgabe.serialisieren(e, ByteArray(if (einloesen) WITNESS_EINLOESEN else WITNESS_ZURUECK)).size
 
     /**
+     * Das Geheimnis fuer diesen Tausch -- erst nach dem Entsperren, aus
+     * [Wallet.otcWurzel]. null, wenn es nicht zum Hash im Skript passt
+     * (anderes Konto, andere Wallet): dann [Fehler.GEHEIMNIS].
+     */
+    fun geheimnisFuer(a: Gelesen.Einloesen, otcWurzel: ByteArray): ByteArray? {
+        val x = Otc.geheimnis(otcWurzel, a.sperre.kennung)
+        return if (Otc.passt(x, a.sperre.teile.hash)) x else null
+    }
+
+    /**
      * Einloesen bauen (Kaeufer). Ziel ist immer die eigene Adresse, Betrag
-     * das ganze Guthaben des Skriptkontos abzueglich [gebuehr].
+     * das ganze Guthaben des Skriptkontos abzueglich [gebuehr]. Das Geheimnis
+     * gehoert nicht in den Entwurf (er wird ohne Witness signiert); es kommt
+     * erst beim [unterschreiben] dazu.
      *
      * [erwartetYsr]: der Betrag, den die Wallet sich beim hash-Auftrag
-     * gemerkt hat (null, wenn sie keinen kennt -- dann zeigt der Bildschirm
-     * den Betrag ohne Vergleich).
+     * gemerkt hat (null, wenn sie keinen kennt).
      */
     fun einloesenBauen(
         a: Gelesen.Einloesen,
-        otcWurzel: ByteArray,
         eigeneAdresse: String,
         konto: Skriptkonto,
         spitze: Long,
@@ -413,14 +427,12 @@ object Auftrag {
         erwartetYsr: Long?,
     ): Bau {
         val s = a.sperre
-        val x = Otc.geheimnis(otcWurzel, s.kennung)
-        if (!Otc.passt(x, s.teile.hash)) return Bau.Abgelehnt(Fehler.GEHEIMNIS)
         if (erwartetYsr != null && erwartetYsr != s.ysr) return Bau.Abgelehnt(Fehler.BETRAG)
         if (spitze + 1 + EINLOESE_RAND > s.teile.einloeseSchluss) return Bau.Abgelehnt(Fehler.ZU_SPAET)
         if (konto.wartend) return Bau.Abgelehnt(Fehler.WARTEND)
         if (konto.bestaetigungen(spitze) < a.n) return Bau.Abgelehnt(Fehler.UNBESTAETIGT)
         if (konto.guthaben < s.ysr) return Bau.Abgelehnt(Fehler.GUTHABEN)
-        return bauen(s, eigeneAdresse, konto, gebuehr, x, validFrom = 0, validUntil = s.teile.einloeseSchluss)
+        return bauen(s, eigeneAdresse, konto, gebuehr, einloesen = true, validFrom = 0, validUntil = s.teile.einloeseSchluss)
     }
 
     /** Zurueckholen bauen (Verkaeufer). Erst ab der Frist; Ziel die eigene Adresse. */
@@ -434,7 +446,7 @@ object Auftrag {
         val s = a.sperre
         if (spitze + 1 < s.teile.frist) return Bau.Abgelehnt(Fehler.ZU_FRUEH)
         if (konto.wartend) return Bau.Abgelehnt(Fehler.WARTEND)
-        return bauen(s, eigeneAdresse, konto, gebuehr, null, validFrom = s.teile.frist, validUntil = 0)
+        return bauen(s, eigeneAdresse, konto, gebuehr, einloesen = false, validFrom = s.teile.frist, validUntil = 0)
     }
 
     private fun bauen(
@@ -442,7 +454,7 @@ object Auftrag {
         eigeneAdresse: String,
         konto: Skriptkonto,
         gebuehr: Long,
-        x: ByteArray?,
+        einloesen: Boolean,
         validFrom: Long,
         validUntil: Long,
     ): Bau {
@@ -458,7 +470,7 @@ object Auftrag {
             validFrom = validFrom,
             validUntil = validUntil,
         )
-        return Bau.Ok(e, x, groesse(e, x != null))
+        return Bau.Ok(e, einloesen, groesse(e, einloesen))
     }
 
     // ------------------------------------------------------------ Unterschrift
@@ -471,22 +483,26 @@ object Auftrag {
      *   1. das Skript des Entwurfs ergibt die angezeigte Skriptadresse,
      *   2. die eigene Signatur ist gueltig,
      *   3. die echte Groesse ist nicht groesser als die berechnete.
+     * [geheimnis]: genau beim Einloesen, aus [geheimnisFuer].
      */
     fun unterschreiben(
         s: Sperre,
         bau: Bau.Ok,
         privateKey: ByteArray,
         publicKey: ByteArray,
+        geheimnis: ByteArray?,
     ): Fertig {
         val e = bau.entwurf
         check(Address.forScript(e.skript) == s.skriptAdresse) { "Gegenprobe 1: Skriptadresse weicht ab" }
-        val einloesen = bau.geheimnis != null
+        val einloesen = bau.einloesen
+        check((geheimnis != null) == einloesen) { "Geheimnis nur beim Einloesen" }
+        if (geheimnis != null) check(Otc.passt(geheimnis, s.teile.hash)) { "Geheimnis passt nicht" }
         val eigener = if (einloesen) s.teile.kaeufer else s.teile.verkaeufer
         check(publicKey.contentEquals(eigener)) { "Schluessel gehoert nicht in diesen Zweig" }
         val sighash = SkriptAusgabe.sighash(e)
         val sig = Wallet.sign(sighash, privateKey)
         check(Wallet.verifyRaw(sig, sighash, publicKey)) { "Gegenprobe 2: eigene Signatur ungueltig" }
-        val witness = if (einloesen) Otc.witnessEinloesen(sig, bau.geheimnis!!) else Otc.witnessZurueck(sig)
+        val witness = if (einloesen) Otc.witnessEinloesen(sig, geheimnis!!) else Otc.witnessZurueck(sig)
         val roh = SkriptAusgabe.serialisieren(e, witness)
         check(roh.size <= bau.bytes) { "Gegenprobe 3: groesser als berechnet" }
         return Fertig(roh, Hex.toHex(SkriptAusgabe.txid(roh)))

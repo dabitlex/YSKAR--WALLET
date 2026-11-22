@@ -20,8 +20,8 @@ android {
         // Fuer Android ist sie trotzdem eine NEUE App - andere Kennung, anderer
         // Schluessel. versionCode zaehlt fuer diese App von vorn; 30000 steht
         // fuer 3.00.00 und laesst Platz fuer 3.0.1 = 30001, 3.1.0 = 30100.
-        versionCode = 30000
-        versionName = "3.0.0"
+        versionCode = 30100
+        versionName = "3.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

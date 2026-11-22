@@ -41,6 +41,7 @@ interface Texte {
     val waechter: WaechterTexte
     val signatur: SignaturTexte
     val kontakte: KontakteTexte
+    val otc: OtcTexte
 }
 
 object Deutsch : Texte {
@@ -57,6 +58,7 @@ object Deutsch : Texte {
     override val waechter = WaechterDe
     override val signatur = SignaturDe
     override val kontakte = KontakteDe
+    override val otc = OtcDe
 }
 
 object Englisch : Texte {
@@ -73,6 +75,7 @@ object Englisch : Texte {
     override val waechter = WaechterEn
     override val signatur = SignaturEn
     override val kontakte = KontakteEn
+    override val otc = OtcEn
 }
 
 fun texteFuer(sprache: Sprache): Texte = when (sprache) {

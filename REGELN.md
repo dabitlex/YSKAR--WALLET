@@ -114,6 +114,13 @@ liegen.
     geschrieben. Ein Betrag im Code (`yskar:ysr1…?amount=…`) wird
     **verworfen, nicht ausgewertet** — wie viel gesendet wird, entscheidet
     der Besitzer am Gerät.
+    **Eine Ausnahme** (Entscheidung des Besitzers, 22.11.2026): der
+    OTC-Auftrag `yskar:otc?…auftrag=sperren`. Dort ist der Betrag Teil des
+    vereinbarten Tauschs; die Wallet übernimmt ihn und zeigt ihn groß auf
+    dem Prüf- und dem Unterschriftsbildschirm (Regel 27). Vertretbar, weil
+    das Sperrskript erst geprüft wird – die Wallet baut es selbst nach, und
+    sein Rückholzweig zahlt nur an den eigenen Schlüssel (Regel 43). Für
+    jeden anderen Code gilt der Satz davor unverändert.
 23. **Der Scanner braucht keinen fremden Dienst.** CameraX liefert die
     Bilder, der ZXing-Kern entziffert sie auf dem Gerät. Kein ML Kit, kein
     Google-Code-Scanner, keine Play Services. Nichts wird gespeichert, und
@@ -387,3 +394,18 @@ liegen.
     Zeiten neu verteilen, Beträge neu ziehen und das Guthaben daraus
     rechnen. Eine Messung an einem echten Konto wird beschrieben, nicht
     abgedruckt.
+
+43. **Ein OTC-Auftrag wird nachgebaut, nicht geglaubt** (Wallet 3.1,
+    22.11.2026). Für `yskar:otc?…` baut die Wallet das Sperrskript aus
+    den Teilen des Auftrags selbst (`kern/Otc.kt`) und vergleicht die
+    Adresse Byte für Byte; ihr eigener Schlüssel muss im passenden Zweig
+    stehen (Käufer: Einlösen, Verkäufer: Sperren und Zurückholen). Das
+    Geheimnis `x` leitet sie selbst aus Zweig 7' ab
+    (`Wallet.otcWurzel`, nie zum Signieren) und gibt beim Auftrag `hash`
+    nur `h = SHA-256(x)` heraus; `x` verlässt das Gerät nur im Witness
+    der eigenen Einlöse-Transaktion. Höhe, Guthaben und Bestätigungen
+    fragt sie selbst beim Knoten. Die Prüfungen sind reine Funktionen
+    (`otc/Auftrag.kt`, `AuftragTest`), Einlösen und Zurückholen sind gegen
+    Vergleichswerte aus dem YSKAR-Kern geprüft (`OtcVektorenTest`).
+    Offene Tausche liegen nur auf diesem Gerät (`Tauschspeicher`), damit
+    Einlösen und Zurückholen auch ohne otc.yskar.app gehen.
