@@ -45,6 +45,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import com.yskar.wallet.kontakte.Kontakt
+import com.yskar.wallet.otc.Auftrag
+import com.yskar.wallet.otc.Tauschbuch
+import com.yskar.wallet.ui.WalletModel.OtcAntwort
+import com.yskar.wallet.ui.WalletModel.OtcVorbereitung
+import org.json.JSONArray
+import org.json.JSONObject
 import com.yskar.wallet.netz.Art
 import com.yskar.wallet.netz.Guthabenverlauf
 import com.yskar.wallet.netz.Guthabenverlauf.Zeitraum
@@ -218,7 +224,7 @@ class Bildschirmbilder {
     // ------------------------------------------------------------- Ablage
 
     /** Die Aufnahmen der Sendebildschirme, am Anfang ihres Namens erkannt. */
-    private val SENDEBILDER = listOf("08_", "09_", "10_", "13_", "16_")
+    private val SENDEBILDER = listOf("08_", "09_", "10_", "13_", "16_", "26_")
 
     private fun halte(name: String, wartenMs: Long = 0) {
         rolle.waitForIdle()
@@ -1605,6 +1611,200 @@ class Bildschirmbilder {
                     message = "YSKAR Signed Message\npurpose: text\n\nIch bin es wirklich.\nGruß, Anna",
                 ),
             ),
+        )
+    }
+
+    // ---------------------------------------------- OTC-Tausch (Wallet 3.1)
+    //
+    // Die Auftraege sind echt gebaut und gehen durch `Auftrag.lesen` - aus
+    // Fall 0 von otc-vergleichswerte.json, Schluessel nur aus den
+    // oeffentlichen BIP39-Testvektoren (Regel 3 und 42). Kein Tresor, kein
+    // Netz: Was sonst der Knoten sagt (Hoehe, Bestaetigungen, Skriptkonto),
+    // reicht der Test als Wert herein, und "Senden" antwortet sofort mit
+    // "angenommen". Die PIN, die hier getippt wird, geht nirgendwohin.
+
+    private val otcFall: JSONObject by lazy {
+        JSONArray(javaClass.getResourceAsStream("/otc-vergleichswerte.json")!!.use { it.readBytes() }
+            .toString(Charsets.UTF_8)).getJSONObject(0)
+    }
+    private val otcKaeufer by lazy { otcFall.getString("kaeuferAdresse") }
+    private val otcVerkaeufer by lazy { otcFall.getString("verkaeuferAdresse") }
+
+    private fun otcCode(art: String, d: JSONObject, rueckruf: String? = null): String {
+        var s = "yskar:otc?v=1&auftrag=$art&d=${Nachricht.textBase64url(d.toString())}"
+        if (rueckruf != null) s += "&cb=${Nachricht.textBase64url(rueckruf)}"
+        return s
+    }
+
+    private fun otcSperrDaten(n: Int?) = JSONObject().apply {
+        put("kennung", otcFall.getString("tauschKennung"))
+        put("kaeufer", otcFall.getString("kaeuferPub"))
+        put("verkaeufer", otcFall.getString("verkaeuferPub"))
+        put("hash", otcFall.getString("hash"))
+        put("frist", otcFall.getLong("frist"))
+        put("schluss", otcFall.getLong("schluss"))
+        if (n != null) put("n", n)
+        put("ysr", otcFall.getJSONObject("einloesen").getString("betrag"))
+        put("skriptAdresse", otcFall.getString("skriptAdresse"))
+    }
+
+    private val otcHash: String
+        get() = otcCode(
+            "hash",
+            JSONObject().apply {
+                put("kennung", otcFall.getString("tauschKennung"))
+                put("adresse", otcKaeufer)
+                put("ysr", "15000000000")
+                put("gegen", "BTC")
+                put("gegenMenge", "0.0004")
+                // Zehn Minuten gueltig, ab jetzt - sonst waere der Auftrag abgelaufen.
+                put(
+                    "ablauf",
+                    java.time.format.DateTimeFormatter.ISO_INSTANT.format(
+                        java.time.Instant.now().plusSeconds(600).truncatedTo(java.time.temporal.ChronoUnit.SECONDS),
+                    ),
+                )
+            },
+            rueckruf = "https://otc.yskar.app/api/tausch/hash",
+        )
+    private val otcSperren by lazy {
+        otcCode("sperren", otcSperrDaten(72).apply {
+            put("gegen", "USDC"); put("gegenMenge", "12.5"); put("gegenSperre", "0xabc123")
+        })
+    }
+    private val otcEinloesen by lazy { otcCode("einloesen", otcSperrDaten(72)) }
+    private val otcZurueck by lazy { otcCode("zurueck", otcSperrDaten(null)) }
+
+    private fun <T : Auftrag.Gelesen> otcGelesen(code: String, eigene: String): T {
+        val l = Auftrag.lesen(code, eigene, System.currentTimeMillis())
+        check(l is Auftrag.Lesung.Ok) { "Beispielauftrag abgelehnt: ${(l as Auftrag.Lesung.Abgelehnt).fehler}" }
+        @Suppress("UNCHECKED_CAST")
+        return l.auftrag as T
+    }
+
+    /** Skriptkonto mit der Sperre, eingegangen bei 10400. */
+    private val otcKonto = Auftrag.Skriptkonto(15_000_000_400L, naechsteNonce = 0, eingaenge = listOf(10_400L), wartend = false)
+
+    private val otcEinloesenBereit by lazy {
+        val a = otcGelesen<Auftrag.Gelesen.Einloesen>(otcEinloesen, otcKaeufer)
+        val bau = Auftrag.einloesenBauen(a, otcKaeufer, otcKonto, 10_481, 400, null) as Auftrag.Bau.Ok
+        OtcVorbereitung.Ausgabe(bau, spitze = 10_481, bestaetigungen = 72)
+    }
+    private val otcZurueckBereit by lazy {
+        val a = otcGelesen<Auftrag.Gelesen.Zurueck>(otcZurueck, otcVerkaeufer)
+        val bau = Auftrag.zurueckBauen(a, otcVerkaeufer, otcKonto, 10_499, 400) as Auftrag.Bau.Ok
+        OtcVorbereitung.Ausgabe(bau, spitze = 10_499, bestaetigungen = 99)
+    }
+
+    /** Der ganze OTC-Bildschirm der App, mit Beispielwerten statt Modell. */
+    @Composable
+    private fun OtcBild(code: String, eigene: String, vorbereitung: OtcVorbereitung? = null) {
+        val angenommen = OtcAntwort.Angenommen(otcFall.getJSONObject("einloesen").getString("txid"))
+        OtcScreen(
+            code = code,
+            adresse = eigene,
+            bioEingeschaltet = true,
+            onLesen = { Auftrag.lesen(it, eigene, System.currentTimeMillis()) },
+            onVorbereiten = { _, fertig -> vorbereitung?.let(fertig) },
+            onSperrenWeiter = { null },
+            onHash = { _, _, _, fertig -> fertig(OtcAntwort.HashGesendet(Rueckruf.Ergebnis.Ok)) },
+            onHashBio = { _, _, fertig, _ -> fertig(OtcAntwort.HashGesendet(Rueckruf.Ergebnis.Ok)) },
+            onAusgeben = { _, _, _, _, fertig -> fertig(angenommen) },
+            onAusgebenBio = { _, _, _, fertig, _ -> fertig(angenommen) },
+            onOffeneTausche = {},
+            onZurueck = {},
+        )
+    }
+
+    private fun otcBestaetigen() {
+        rolle.onNodeWithTag("otc_bestaetigen").performClick()
+    }
+
+    private fun otcPinTippen() {
+        otcBestaetigen()
+        for (z in listOf("1", "2", "3", "4", "5", "6")) rolle.onNodeWithText(z).performClick()
+    }
+
+    @Test
+    fun otcHashAnsehen() = zeige("26_otc_hash", auchGross = true) {
+        OtcBild(otcHash, otcKaeufer)
+    }
+
+    @Test
+    fun otcSperrenAnsehen() = zeige("26_otc_sperren", auchGross = true) {
+        OtcBild(otcSperren, otcVerkaeufer, OtcVorbereitung.Sperre(spitze = 10_400))
+    }
+
+    @Test
+    fun otcEinloesenAnsehen() = zeige("26_otc_einloesen", auchGross = true) {
+        OtcBild(otcEinloesen, otcKaeufer, otcEinloesenBereit)
+    }
+
+    @Test
+    fun otcZurueckAnsehen() = zeige("26_otc_zurueck", auchGross = true) {
+        OtcBild(otcZurueck, otcVerkaeufer, otcZurueckBereit)
+    }
+
+    /** Die Fehlerseite: ein Einloese-Auftrag, gelesen vom Verkaeufer. */
+    @Test
+    fun otcAbgelehnt() = zeige("26_otc_abgelehnt", auchGross = true) {
+        OtcBild(otcEinloesen, otcVerkaeufer)
+    }
+
+    @Test
+    fun otcPinEinloesen() = zeige("26_otc_pin_einloesen", auchGross = true, davor = ::otcBestaetigen) {
+        OtcBild(otcEinloesen, otcKaeufer, otcEinloesenBereit)
+    }
+
+    @Test
+    fun otcPinZurueck() = zeige("26_otc_pin_zurueck", auchGross = true, davor = ::otcBestaetigen) {
+        OtcBild(otcZurueck, otcVerkaeufer, otcZurueckBereit)
+    }
+
+    @Test
+    fun otcAngenommen() = zeige("26_otc_angenommen", auchGross = true, davor = ::otcPinTippen) {
+        OtcBild(otcEinloesen, otcKaeufer, otcEinloesenBereit)
+    }
+
+    @Test
+    fun otcOffenLeer() = zeige("26_otc_offen_leer", auchGross = true) {
+        OffeneTauscheScreen(tausche = emptyList(), onOeffnen = {}, onZurueck = {})
+    }
+
+    /** Zwei offene Tausche: einer wartet auf die Sperre, einer laesst sich oeffnen. */
+    @Test
+    fun otcOffen() = zeige("26_otc_offen", auchGross = true) {
+        val jetzt = System.currentTimeMillis() / 1000
+        val sperre = otcGelesen<Auftrag.Gelesen.Einloesen>(otcEinloesen, otcKaeufer).sperre
+        OffeneTauscheScreen(
+            tausche = listOf(
+                Tauschbuch.Eintrag(
+                    kennung = otcFall.getString("hash"),
+                    rolle = Tauschbuch.Rolle.KAEUFER,
+                    ysr = 15_000_000_000L,
+                    gegen = "BTC",
+                    gegenMenge = "0.0004",
+                    sperre = null,
+                    n = null,
+                    stand = Tauschbuch.Stand.GEMERKT,
+                    txid = null,
+                    seit = jetzt - 600,
+                ),
+                Tauschbuch.Eintrag(
+                    kennung = otcFall.getString("tauschKennung"),
+                    rolle = Tauschbuch.Rolle.VERKAEUFER,
+                    ysr = sperre.ysr,
+                    gegen = "USDC",
+                    gegenMenge = "12.5",
+                    sperre = Tauschbuch.sperrFelder(sperre),
+                    n = 72,
+                    stand = Tauschbuch.Stand.GESPERRT,
+                    txid = null,
+                    seit = jetzt - 3_600,
+                ),
+            ),
+            onOeffnen = {},
+            onZurueck = {},
         )
     }
 }
