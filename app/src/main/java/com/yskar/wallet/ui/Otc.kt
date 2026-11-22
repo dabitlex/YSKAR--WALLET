@@ -384,10 +384,13 @@ private fun SperrenAnsicht(
             Wertzeile(t.otc.gegenSperre, a.gegenSperre, festbreite = true, linie = false)
         }
         AdressFeld(t.otc.sperradresse, a.sperre.skriptAdresse)
-        Hinweisstreifen(
-            t.otc.sperrenGeprueft,
-            vorne = { Symbol(R.drawable.ic_shield_check_fill, 20.dp, farbe = Farbe.BlauSchrift) },
-        )
+        // Der blaue Hinweis zugeklappt (Regel 29 und 40): Was man prueft, steht darueber.
+        Einzelheiten {
+            Hinweisstreifen(
+                t.otc.sperrenGeprueft,
+                vorne = { Symbol(R.drawable.ic_shield_check_fill, 20.dp, farbe = Farbe.BlauSchrift) },
+            )
+        }
     }
 }
 
@@ -431,10 +434,20 @@ private fun AusgabeAnsicht(
         }
         AdressFeld(t.otc.vonSkript, sperre.skriptAdresse)
         AdressFeld(t.otc.anDich, adresse)
-        Hinweisstreifen(
-            if (einloesen) t.otc.einloesenGeprueft else t.otc.zurueckGeprueft,
-            vorne = { Symbol(R.drawable.ic_shield_check_fill, 20.dp, farbe = Farbe.BlauSchrift) },
-        )
+        if (einloesen) {
+            // Der blaue Hinweis zugeklappt (Regel 29 und 40): Was man prueft, steht darueber.
+            Einzelheiten {
+                Hinweisstreifen(
+                    t.otc.einloesenGeprueft,
+                    vorne = { Symbol(R.drawable.ic_shield_check_fill, 20.dp, farbe = Farbe.BlauSchrift) },
+                )
+            }
+        } else {
+            Hinweisstreifen(
+                t.otc.zurueckGeprueft,
+                vorne = { Symbol(R.drawable.ic_shield_check_fill, 20.dp, farbe = Farbe.BlauSchrift) },
+            )
+        }
     }
 }
 
