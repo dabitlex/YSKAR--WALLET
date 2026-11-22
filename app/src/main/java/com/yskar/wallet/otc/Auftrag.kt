@@ -285,7 +285,7 @@ object Auftrag {
         val art = p["auftrag"]?.single()?.let { Art.aus(it) } ?: throw Abbruch(Fehler.ART)
         val djson = p["d"]?.single()?.let { Nachricht.base64urlText(it) } ?: throw Abbruch(Fehler.DATEN)
         val o = runCatching { JSONObject(djson) }.getOrNull() ?: throw Abbruch(Fehler.DATEN)
-        pruefe(o.keySet() == FELDER.getValue(art), Fehler.DATEN)
+        pruefe(o.keys().asSequence().toSet() == FELDER.getValue(art), Fehler.DATEN)
 
         val cb = p["cb"]?.single()
         if (art != Art.HASH) pruefe(cb == null, Fehler.RUECKRUF)
