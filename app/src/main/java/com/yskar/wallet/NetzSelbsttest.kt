@@ -69,11 +69,15 @@ object NetzSelbsttest {
             )
 
             // Querprobe: Was der Knoten als Groesse nennt, muss der Port
-            // selbst ausrechnen koennen.
+            // selbst ausrechnen koennen - fuer die Fassung, die der Knoten
+            // nennt: 168 Byte in Fassung 1, 174 ab Fassung 2 (Hoehe 10000).
+            val portBasis =
+                if (markt.fassung == Tx.TRANSFER_V2) Tx.TRANSFER_V2_BASE_BYTES
+                else Tx.TRANSFER_BASE_BYTES
             melde(
                 w.netzBasisgroesse,
-                markt.basisBytes == Tx.TRANSFER_BASE_BYTES,
-                w.netzBasisgroesseWert(markt.basisBytes, Tx.TRANSFER_BASE_BYTES),
+                markt.basisBytes == portBasis,
+                w.netzBasisgroesseWert(markt.basisBytes, portBasis),
             )
 
             val stand = Fassung.sendeStand(markt, kopf.hoehe)
