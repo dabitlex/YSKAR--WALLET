@@ -7,7 +7,6 @@ import com.yskar.wallet.kern.Params
 import com.yskar.wallet.kern.SkriptAusgabe
 import com.yskar.wallet.kern.Wallet
 import com.yskar.wallet.signatur.Nachricht
-import org.json.JSONObject
 import java.net.URLDecoder
 import java.time.Instant
 import java.time.LocalDateTime
@@ -190,30 +189,28 @@ object Auftrag {
         ),
     )
 
-    private fun text(o: JSONObject, k: String): String = o.opt(k) as? String ?: throw Abbruch(Fehler.DATEN)
+    private fun text(o: Map<String, Any>, k: String): String = o[k] as? String ?: throw Abbruch(Fehler.DATEN)
 
-    private fun hex32(o: JSONObject, k: String): ByteArray {
+    private fun hex32(o: Map<String, Any>, k: String): ByteArray {
         val s = text(o, k)
         pruefe(HEX64.matches(s), Fehler.DATEN)
         return Hex.fromHex(s)
     }
 
     /** Ganze Zahl als JSON-Zahl, ohne Nachkommastellen, 0..u32. */
-    private fun hoehe(o: JSONObject, k: String): Long {
-        val v = o.opt(k)
-        pruefe(v is Int || v is Long, Fehler.DATEN)
-        val n = (v as Number).toLong()
+    private fun hoehe(o: Map<String, Any>, k: String): Long {
+        val n = o[k] as? Long ?: throw Abbruch(Fehler.DATEN)
         pruefe(n in 0..0xffff_ffffL, Fehler.FRISTEN)
         return n
     }
 
-    private fun ysr(o: JSONObject): Long {
+    private fun ysr(o: Map<String, Any>): Long {
         val s = text(o, "ysr")
         pruefe(YSR.matches(s), Fehler.BETRAG)
         return s.toLongOrNull()?.takeIf { it > 0 } ?: throw Abbruch(Fehler.BETRAG)
     }
 
-    private fun gegen(o: JSONObject): Pair<String, String> {
+    private fun gegen(o: Map<String, Any>): Pair<String, String> {
         val g = text(o, "gegen")
         val m = text(o, "gegenMenge")
         pruefe(g in GEGEN && MENGE.matches(m), Fehler.DATEN)
@@ -221,7 +218,7 @@ object Auftrag {
     }
 
     /** Sperre nachbauen und Adresse vergleichen. Prueft NICHT, wer man selbst ist. */
-    private fun sperre(o: JSONObject): Sperre {
+    private fun sperre(o: Map<String, Any>): Sperre {
         val kennung = hex32(o, "kennung")
         val kaeufer = hex32(o, "kaeufer")
         val verkaeufer = hex32(o, "verkaeufer")
@@ -237,10 +234,8 @@ object Auftrag {
         return Sperre(kennung, teile, ysr(o), adresse)
     }
 
-    private fun bestaetigungsZahl(o: JSONObject): Long {
-        val v = o.opt("n")
-        pruefe(v is Int || v is Long, Fehler.DATEN)
-        val n = (v as Number).toLong()
+    private fun bestaetigungsZahl(o: Map<String, Any>): Long {
+        val n = o["n"] as? Long ?: throw Abbruch(Fehler.DATEN)
         pruefe(n in N_MIN..N_MAX, Fehler.DATEN)
         return n
     }
@@ -284,8 +279,10 @@ object Auftrag {
         pruefe(p["v"]?.single() == "1", Fehler.VERSION)
         val art = p["auftrag"]?.single()?.let { Art.aus(it) } ?: throw Abbruch(Fehler.ART)
         val djson = p["d"]?.single()?.let { Nachricht.base64urlText(it) } ?: throw Abbruch(Fehler.DATEN)
-        val o = runCatching { JSONObject(djson) }.getOrNull() ?: throw Abbruch(Fehler.DATEN)
-        pruefe(o.keys().asSequence().toSet() == FELDER.getValue(art), Fehler.DATEN)
+        // Eigener strenger Leser statt org.json: Das von Android nimmt doppelte
+        // Felder, 0x… und fuehrende Nullen (FlachJson, AuftragJsonTest).
+        val o = FlachJson.lesen(djson) ?: throw Abbruch(Fehler.DATEN)
+        pruefe(o.keys == FELDER.getValue(art), Fehler.DATEN)
 
         val cb = p["cb"]?.single()
         if (art != Art.HASH) pruefe(cb == null, Fehler.RUECKRUF)
