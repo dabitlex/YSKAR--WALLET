@@ -149,13 +149,12 @@ object OtcDe : OtcTexte {
         "Die Wallet leitet aus deinen 12 Wörtern ein Geheimnis für diesen Tausch ab. " +
             "An otc.yskar.app geht nur sein Fingerabdruck – das Geheimnis bleibt auf diesem Gerät."
     override val sperrenGeprueft =
-        "Die Sperre hat die Wallet selbst nachgebaut: Löst der Käufer nicht rechtzeitig ein, " +
-            "kannst nur du die YSR zurückholen."
+        "Selbst nachgebaut: Löst der Käufer nicht ein, holst nur du die YSR zurück."
     override val sperrenLautSeite =
         "Die Gegen-Sperre kann die Wallet nicht selbst prüfen. Sie steht so auf otc.yskar.app – " +
             "sieh dort nach, bevor du sperrst."
     override val einloesenGeprueft =
-        "Sperre, Betrag und Bestätigungen hat die Wallet selbst beim Knoten geprüft."
+        "Sperre, Betrag und Bestätigungen selbst geprüft."
     override val einloesenOeffentlich =
         "Mit dem Einlösen wird das Geheimnis öffentlich. Damit holt sich der Verkäufer den Gegenwert."
     override val zurueckGeprueft =
@@ -284,13 +283,12 @@ object OtcEn : OtcTexte {
         "The wallet derives a secret for this swap from your 12 words. " +
             "Only its fingerprint goes to otc.yskar.app – the secret stays on this device."
     override val sperrenGeprueft =
-        "The wallet rebuilt the lock itself: if the buyer does not claim in time, " +
-            "only you can reclaim the YSR."
+        "Rebuilt by the wallet: if the buyer doesn't claim, only you can reclaim the YSR."
     override val sperrenLautSeite =
         "The wallet cannot check the counter lock itself. This is what otc.yskar.app shows – " +
             "look there before you lock."
     override val einloesenGeprueft =
-        "The wallet checked the lock, amount and confirmations with the node itself."
+        "Lock, amount and confirmations checked by the wallet."
     override val einloesenOeffentlich =
         "Claiming makes the secret public. The seller uses it to collect the counter value."
     override val zurueckGeprueft =

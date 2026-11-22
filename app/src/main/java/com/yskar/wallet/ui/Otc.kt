@@ -325,8 +325,12 @@ private fun HashAnsicht(
     ) {
         Hauptbetrag(t.otc.duBekommst, a.ysr)
         Flaeche(abstand = 0.dp) {
-            Wertzeile(t.otc.gegenwert, "${a.gegenMenge} ${a.gegen}")
-            Wertzeile(t.otc.laeuftAb, ablaufText(a.ablauf.toEpochMilli(), System.currentTimeMillis(), ZoneId.systemDefault(), t))
+            Wertzeile(t.otc.gegenwert, "${a.gegenMenge} ${a.gegen}") // bis 34 Zeichen: nie abschneiden
+            Wertzeile(
+                t.otc.laeuftAb,
+                ablaufText(a.ablauf.toEpochMilli(), System.currentTimeMillis(), ZoneId.systemDefault(), t),
+                einpassen = true,
+            )
             Wertzeile(t.otc.antwortAn, Nachricht.rueckrufZiel(a.rueckruf) ?: a.rueckruf, festbreite = true, linie = false)
         }
         Flaeche {
@@ -362,24 +366,28 @@ private fun SperrenAnsicht(
             )
         },
     ) {
+        // Regel 29: Betrag, Warnungen, Zahlen, Adresse, zuletzt der blaue Hinweis.
         Hauptbetrag(t.otc.duGibst, a.sperre.ysr)
+        Warnhinweis(t.otc.sperrenLautSeite)
+        fehler?.let { Warnhinweis(it) }
         Flaeche(abstand = 0.dp) {
-            Wertzeile(t.otc.gegenwert, "${a.gegenMenge} ${a.gegen}")
-            Wertzeile(t.otc.einloesenBis, t.otc.blockIn(teile.einloeseSchluss, teile.einloeseSchluss - spitze))
-            Wertzeile(t.otc.zurueckAb, t.otc.blockIn(teile.frist, teile.frist - spitze))
-            Wertzeile(t.otc.bestaetigungen, a.n.toString(), linie = false)
+            Wertzeile(t.otc.gegenwert, "${a.gegenMenge} ${a.gegen}") // bis 34 Zeichen: nie abschneiden
+            Wertzeile(
+                t.otc.einloesenBis,
+                t.otc.blockIn(teile.einloeseSchluss, teile.einloeseSchluss - spitze),
+                einpassen = true,
+            )
+            Wertzeile(t.otc.zurueckAb, t.otc.blockIn(teile.frist, teile.frist - spitze), einpassen = true)
+            Wertzeile(t.otc.bestaetigungen, a.n.toString(), einpassen = true)
+            // Bis zu 100 Zeichen: OHNE einpassen, damit nichts abgeschnitten
+            // wird - passt sie nicht neben die Beschriftung, rueckt sie darunter.
+            Wertzeile(t.otc.gegenSperre, a.gegenSperre, festbreite = true, linie = false)
         }
         AdressFeld(t.otc.sperradresse, a.sperre.skriptAdresse)
-        Flaeche {
-            Text(t.otc.gegenSperre, style = Schrift.Klein, color = Farbe.Leise)
-            Text(a.gegenSperre, style = Schrift.AdresseKlein, color = Farbe.Schrift)
-        }
-        Warnhinweis(t.otc.sperrenLautSeite)
         Hinweisstreifen(
             t.otc.sperrenGeprueft,
             vorne = { Symbol(R.drawable.ic_shield_check_fill, 20.dp, farbe = Farbe.BlauSchrift) },
         )
-        fehler?.let { Warnhinweis(it) }
     }
 }
 
@@ -403,24 +411,26 @@ private fun AusgabeAnsicht(
         if (einloesen) t.otc.titelEinloesen else t.otc.titelZurueck, onZurueck, modifier,
         fuss = { Hauptknopf(if (einloesen) t.otc.knopfEinloesen else t.otc.knopfZurueck, danach, onBestaetigen) },
     ) {
+        // Regel 29: Betrag, Warnung, Zahlen, Adressen, zuletzt der blaue Hinweis.
         Hauptbetrag(t.otc.duBekommst, e.betrag)
+        if (einloesen) Warnhinweis(t.otc.einloesenOeffentlich)
         Flaeche(abstand = 0.dp) {
-            Wertzeile(t.otc.gebuehr, Betrag.genau(e.gebuehr, t.locale), einheit = "YSR")
-            Wertzeile(t.otc.gesamt, Betrag.genau(e.betrag + e.gebuehr, t.locale), einheit = "YSR")
+            Wertzeile(t.otc.gebuehr, Betrag.genau(e.gebuehr, t.locale), einheit = "YSR", einpassen = true)
+            Wertzeile(t.otc.gesamt, Betrag.genau(e.betrag + e.gebuehr, t.locale), einheit = "YSR", einpassen = true)
             if (auftrag is Auftrag.Gelesen.Einloesen) {
-                Wertzeile(t.otc.bestaetigungen, t.otc.bestaetigungenVon(bestaetigungen, auftrag.n))
+                Wertzeile(t.otc.bestaetigungen, t.otc.bestaetigungenVon(bestaetigungen, auftrag.n), einpassen = true)
                 Wertzeile(
                     t.otc.einloesenBis,
                     t.otc.blockIn(sperre.teile.einloeseSchluss, sperre.teile.einloeseSchluss - spitze),
                     linie = false,
+                    einpassen = true,
                 )
             } else {
-                Wertzeile(t.otc.zurueckAb, t.otc.block(sperre.teile.frist), linie = false)
+                Wertzeile(t.otc.zurueckAb, t.otc.block(sperre.teile.frist), linie = false, einpassen = true)
             }
         }
         AdressFeld(t.otc.vonSkript, sperre.skriptAdresse)
         AdressFeld(t.otc.anDich, adresse)
-        if (einloesen) Warnhinweis(t.otc.einloesenOeffentlich)
         Hinweisstreifen(
             if (einloesen) t.otc.einloesenGeprueft else t.otc.zurueckGeprueft,
             vorne = { Symbol(R.drawable.ic_shield_check_fill, 20.dp, farbe = Farbe.BlauSchrift) },
