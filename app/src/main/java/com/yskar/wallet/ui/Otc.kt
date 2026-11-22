@@ -383,14 +383,8 @@ private fun SperrenAnsicht(
             // wird - passt sie nicht neben die Beschriftung, rueckt sie darunter.
             Wertzeile(t.otc.gegenSperre, a.gegenSperre, festbreite = true, linie = false)
         }
+        // Vollstaendig: Die Sperradresse ist der Empfaenger der Ueberweisung.
         AdressFeld(t.otc.sperradresse, a.sperre.skriptAdresse)
-        // Der blaue Hinweis zugeklappt (Regel 29 und 40): Was man prueft, steht darueber.
-        Einzelheiten {
-            Hinweisstreifen(
-                t.otc.sperrenGeprueft,
-                vorne = { Symbol(R.drawable.ic_shield_check_fill, 20.dp, farbe = Farbe.BlauSchrift) },
-            )
-        }
     }
 }
 
@@ -425,24 +419,18 @@ private fun AusgabeAnsicht(
                 Wertzeile(
                     t.otc.einloesenBis,
                     t.otc.blockIn(sperre.teile.einloeseSchluss, sperre.teile.einloeseSchluss - spitze),
-                    linie = false,
                     einpassen = true,
                 )
+                // Gekuerzt: Die Sperradresse baut die Wallet selbst nach (Regel 43).
+                // Vollstaendig steht "An dich" darunter - dorthin geht das Geld.
+                Wertzeile(t.otc.vonSkript, adresseKnapp(sperre.skriptAdresse), festbreite = true, linie = false)
             } else {
                 Wertzeile(t.otc.zurueckAb, t.otc.block(sperre.teile.frist), linie = false, einpassen = true)
             }
         }
-        AdressFeld(t.otc.vonSkript, sperre.skriptAdresse)
+        if (!einloesen) AdressFeld(t.otc.vonSkript, sperre.skriptAdresse)
         AdressFeld(t.otc.anDich, adresse)
-        if (einloesen) {
-            // Der blaue Hinweis zugeklappt (Regel 29 und 40): Was man prueft, steht darueber.
-            Einzelheiten {
-                Hinweisstreifen(
-                    t.otc.einloesenGeprueft,
-                    vorne = { Symbol(R.drawable.ic_shield_check_fill, 20.dp, farbe = Farbe.BlauSchrift) },
-                )
-            }
-        } else {
+        if (!einloesen) {
             Hinweisstreifen(
                 t.otc.zurueckGeprueft,
                 vorne = { Symbol(R.drawable.ic_shield_check_fill, 20.dp, farbe = Farbe.BlauSchrift) },
